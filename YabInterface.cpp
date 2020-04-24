@@ -9027,11 +9027,13 @@ void YabInterface::SoundStop(int32) //Reactivate Sound Lorglas 2020.01.02
 
 void YabInterface::SoundWait(int32) //Reactivate Sound Lorglas 2020.01.03
 {	
-	//Check, if fplayr is in Paused modus, if so Setpaused to false, so play again, if true fplayer paused 
-	if (fPlayer->IsPaused()) {
+	//Check, if fplayer is in Paused modus, if so Setpaused to false, so play again, if true fplayer paused 
+	if (fPlayer->IsPaused()) 
+	{
 		fPlayer->SetPaused(false, 0);	
 	}
-	else {
+	else 
+	{
 		fPlayer->SetPaused(true, 0);
 	}
 }
@@ -10942,7 +10944,7 @@ int yi_MediaSound(const char* filename, YabInterface* yab)
 
 void yi_MediaSoundStop(int id,YabInterface* yab)
 {
-	yab->MediaSoundStop(id);
+	return yab->MediaSoundStop(id);
 }
 /*
 void yi_MediaSoundWait(int id, YabInterface* yab)

@@ -2,6 +2,7 @@
 ## yab Haiku Makefile
 ##
 ## (c) Jan Bungeroth 2009 - 2012
+## (c) 2020 Lorenz Glaser (aka lorglas)
 ## Artistic License. 
 ##
 ## Use 
@@ -53,7 +54,7 @@ OPT = -O
 ##
 ## set libtrary name
 ##
-YABLIBRARY := libyab.so
+YABLIBRARY := libyab_1.7.8.so
 ##
 #
 
@@ -69,12 +70,13 @@ GPP_OPT = $(DBG) $(OPT) -I. -DHAVE_CONFIG -DUNIX $(HAIKUOPT)
 ## find out if we need to change the library to libyab_x86.so and use gcc instead of ld
 ifeq ($(USEDARCH), x86)
 	LD = gcc
-	YABLIBRARY:=libyab_x86.so
+	YABLIBRARY:=libyab_x86_1.7.8.so
 else
 	LD = ld
 endif
 ifeq ($(SYSTEMARCH),x86_64)
 	LD=gcc
+	YABLIBRARY:=libyab_1.7.8.so
 endif
 #
 

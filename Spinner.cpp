@@ -87,6 +87,7 @@ public:
 		#else
 			get_scroll_bar_info(&sbinfo);
 		#endif
+		
 	}
 	
 	~SpinnerPrivateData(void)
@@ -96,6 +97,7 @@ public:
 			exit_repeater=false;
 			kill_thread(repeaterid);
 		}
+		
 	}
 	thread_id repeaterid;
 	scroll_bar_info sbinfo;
@@ -160,7 +162,7 @@ Spinner::Spinner(BRect frame, const char *name, const char *label, int32 min, in
 		//fTextControl->SetDivider(width2+5);
 	//fTextControl->SetAlignment(B_ALIGN_RIGHT,B_ALIGN_RIGHT);
 	BString string("QWERTYUIOP[]\\ASDFGHJKL;'ZXCVBNM,/qwertyuiop{}| "
-		"asdfghjkl:\"zxcvbnm<>?!@#$%^&*()-_=+`~\r");	
+		"asdfghjkl:\"zxcvbnm<>?!@#$%^&*()-_=+`~äöüÄÖÜß\r");	
 	
 	for(int32 i=0; i<string.CountChars(); i++)
 	{
@@ -245,12 +247,13 @@ void Spinner::ValueChanged(int32 value)
 void Spinner::MessageReceived(BMessage *msg)
 {
 	
-	if(msg->what==M_TEXT_CHANGED)
+	if(msg->what==M_TEXT_CHANGED) //
 	{
 		BString string(fTextControl->Text());
 		int32 newvalue=0;
 		
-		sscanf(string.String(),"%ld",&newvalue);
+		sscanf(string.String(),"%d",&newvalue); //change from %ld to %d | lorglas 11.02.2020
+		
 		if(newvalue>=GetMin() && newvalue<=GetMax())
 		{
 			// new value is in range, so set it and go
@@ -272,8 +275,7 @@ void Spinner::MessageReceived(BMessage *msg)
 				ValueChanged(Value());
 				
 			}
-			else
-			if(newvalue>GetMax() && Value()!=GetMax())
+			else if(newvalue>GetMax() && Value()!=GetMax())
 			{
 				SetValue(GetMax());
 				Invoke();
@@ -394,6 +396,7 @@ void SpinnerArrowButton::MouseDown(BPoint pt)
 		{
 			parent->privatedata->arrowdown=ARROW_DOWN;
 			newvalue-=step;
+			
 		}
 
 		if( newvalue>=parent->GetMin() && newvalue<=parent->GetMax())
@@ -401,6 +404,7 @@ void SpinnerArrowButton::MouseDown(BPoint pt)
 			// new value is in range, so set it and go
 			parent->SetValue(newvalue);
 			parent->Invoke();
+			
 //			parent->Draw(parent->Bounds());
 			parent->ValueChanged(parent->Value());
 		}
@@ -412,6 +416,7 @@ void SpinnerArrowButton::MouseDown(BPoint pt)
 			{
 				parent->SetValue(parent->GetMin());
 				parent->Invoke();
+			
 //				parent->Draw(parent->Bounds());
 				parent->ValueChanged(parent->Value());
 			}
@@ -420,11 +425,13 @@ void SpinnerArrowButton::MouseDown(BPoint pt)
 			{
 				parent->SetValue(parent->GetMax());
 				parent->Invoke();
+			
 //				parent->Draw(parent->Bounds());
 				parent->ValueChanged(parent->Value());
 			}
 			else
 			{
+				
 				// cases which go here are if new value is <minimum and value already at
 				// minimum or if > maximum and value already at maximum
 				return;
@@ -439,8 +446,8 @@ void SpinnerArrowButton::MouseDown(BPoint pt)
 
  		bool inside = bounds.Contains(point);
 			
-	//	if ((parent->Value() == B_CONTROL_ON) != inside)
-	//		parent->SetValue(inside ? B_CONTROL_ON : B_CONTROL_OFF);
+		//if ((parent->Value() == B_CONTROL_ON) != inside)
+		//	parent->SetValue(inside ? B_CONTROL_ON : B_CONTROL_OFF);
 		
 		if(waitvalue<=50000)
 			waitvalue=50000;
@@ -574,7 +581,8 @@ filter_result SpinnerMsgFilter::Filter(BMessage *msg, BHandler **target)
 						BString string(text->Text());
 						int32 newvalue=0;
 						
-						sscanf(string.String(),"%ld",&newvalue);
+						sscanf(string.String(),"%d",&newvalue); //change from %ld to %d | lorglas 11.02.2020
+						//printf("%d",newvalue);
 						if(newvalue!=spin->Value())
 						{
 							spin->SetValue(newvalue);
@@ -591,8 +599,8 @@ filter_result SpinnerMsgFilter::Filter(BMessage *msg, BHandler **target)
 		{
 			return B_DISPATCH_MESSAGE;	
 		}
-		/*
-		case B_TAB:
+		
+		/*case B_TAB:
 		{
 			// Cause Tab characters to perform keybaord navigation
 			BHandler *h=*target;

@@ -499,7 +499,7 @@ extern int yi_Sound(const char* filename, YabInterface* yab);
 extern void yi_SoundStop(int id, YabInterface* yab);
 extern void yi_SoundWait(int id, YabInterface* yab);
 extern int yi_MediaSound(const char* filename, YabInterface* yab);
-extern int yi_MediaSoundStop(int id, YabInterface* yab);
+extern void yi_MediaSoundStop(int id, YabInterface* yab);
 extern int yi_IsComputerOn(YabInterface* yab);
 extern void yi_ShortCut(const char* view, const char* key, const char* msg, YabInterface* yab);
 extern void yi_DrawSet4(const char* option, const char* color,const char* view, YabInterface* yab);
