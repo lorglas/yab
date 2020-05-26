@@ -1,0 +1,113 @@
+yab 1.7.8
+
+New Feature
+- Mediasound play
+- Mediasound stop
+- Textcontrol with/without label
+- Spincontrol with/without lablel
+- Radiobox with/without label
+- Checkbox with/without label
+- Dropbox with/without label
+
+Reactivating Feature
+- Sound play
+- Sound stop
+- Sound pause
+- Tabdel (it works, but there is still a problem with add the same tab a second time, issue in the view ID)
+
+closed Bugs
+- Texturl shows URL twice when mouseover, fixed
+- Spincontrol, height from spinner icon fixed
+- textcontrol allow by numeric charaters special chararaters, fixed
+
+yab 1.7.6
+- Treebox doesn't correct sort entry at level 4, fixed
+- Graphic error by transparency, (subpixel) fixed.
+
+yab 1.7.5.6
+- fix tabview bugs introduecd in 1.7.5.5
+	fix tabview set command 
+	allow tabview to be removed by removing the parent view
+-add Option$  "plain | bold | fixed" and point$ to texteditl set
+	TEXTEDIT SET TextEdit$, "plain", "25" sets the text to system plain font at 25 point size. 
+
+yab 1.7.5.5
+-Enable tabview with tabs on the side. This removes trhe reliance on BControlLook
+
+yab Version 1.7.5.4
+-now compiles on x86_64
+-yab-IDE now updates BuildFactory files on launch
+-add Window Get Windiwid$, "Minimized-To-Deskbar"
+-update help files for yab-ide
+
+yab Version 1.7.5.3
+- gcc4 now compiles
+- fix system shutdown bug
+- remove un-needed BuildFactory files
+- add https:// to texturl
+- BuildFactory use declared appsig
+- yab-IDE use declared appsig, or use filename for appsig
+
+yab Version 1.7.5.2
+- use public rgb_color mix_color()
+
+yab Version 1.7.5.1
+-add cursor to textedit set command
+-add textedit get "countphysicallines"
+-fix ran() command
+-add small gutter to textedit view
+
+yab Version 1.7.5
+-libyab.so --- smaller binaries
+
+yab Version 1.7.4.5 Changes from 1.7.4.1
+-use standard flex for BuildFactory
+-ATTRIBUTE SET and ATTRIBUTE GET$ re-worked to work better
+-open a, "File", "r+"
+-TEXTEDIT SET Option$= "align", left/center/right
+
+yab Version 1.7.4.1 Changes from version 1.7
+-LOCALIZE doesn't work again due to changes in haiku.
+-TEXTCONTROL   added more options for set options.
+
+ yab Version 1.7 Changes from Version 1.6
+- COLUMNBOX updated to Haiku style (thanks Stargater!)
+- STATUSBAR didn't follow LAYOUT, fixed now
+- RESTORE Label$ allows for dynamic label strings
+- various ATTRIBUTE commands
+- Localization now works again, see Localizer how it is done
+- reorganized localization commands are now: 
+  LOCALIZE mime$, LOCALIZE STOP, LOCALIZE, TRANSLATE$ and MENU TRANSLATE$
+- SUBMENU SET "Remove" now implemented
+- yab cleaned up (a bit at least)
+- yab IDE cleaned up
+- BuildFactory cleaned up
+- yab-Commands documentation cleaned up
+
+yab Version 1.6 Changes from Version 1.5
+- removed all ZETA and BeOS dependencies
+- SPINCONTROL look updated to Haiku style
+- CALENDAR look updated to Haiku style and code refactored
+- TABVIEW look updated to Haiku style
+- TABVIEW now supports bottom tabs (like it did on ZETA)
+- Haiku native tooltips are now used; they still suck, but this finally 
+  resolves the race condition bug (this should also resolve the hanging
+  BuildFactory, thx to clasqm for reporting)
+- using "copy" for an empty selection in TEXTEDIT does not clear the 
+  clipboard anymore (thx to streakx for reporting)
+- Haiku forced a minimum button height, yab does not like force (thx to 
+  Lelldorin for reporting)
+- Title in BOXVIEW is now shown correctly (thx to Lelldorin for reporting)
+- Window flags don't reset anymore after calling WINDOW SET (thx to clasqm 
+  for reporting)
+
+Known problems:
+- Tooltips cannot be unset, they cannot change color, they steal focus (fixed on
+  new Haiku builds), they suck (blame the Haiku team ;))
+- Tooltips do not work for all Widgets
+- Spincontrol cannot move shift-tab backwards
+
+Other Fixes (1.6):
+- Scrolling in the yab IDE works again with new Haiku builds (the bug in Haiku
+  got fixed, thx to leszek for reporting, thx for zooey for fixing)
+
