@@ -4526,6 +4526,7 @@ const char* YabInterface::DrawGet(const char* option)
 int YabInterface::DrawGet(BPoint coord, const char* option, const char* view)
 {
 	BString t(option);
+	return 0;
 	
 }
 
@@ -10859,7 +10860,7 @@ void yi_Bitmap(double w, double h, const char* id,YabInterface* yab)
 
 int yi_BitmapColor(double x, double y, const char* id, const char* option, YabInterface *yab)
 {
-	yab->BitmapColor(x,y, id, option);
+	return yab->BitmapColor(x,y, id, option);
 }
 
 void yi_BitmapDraw(double x, double y, const char* bitmap, const char* mode, const char* view,YabInterface* yab)
@@ -10884,12 +10885,12 @@ void yi_BitmapGet2(double w, const char* id, const char* path, YabInterface* yab
 
 int yi_BitmapGetNum(const char* id, const char* option, YabInterface* yab)
 {
-	yab->BitmapGet(id, option);
+	return yab->BitmapGet(id, option);
 }
 
 int yi_BitmapLoad(const char* filename, const char* bitmap, YabInterface* yab)
 {
-	yab->BitmapLoad(filename, bitmap);
+	return yab->BitmapLoad(filename, bitmap);
 }
 
 void yi_BitmapGetIcon(const char* id, const char* option, const char* path, YabInterface* yab)
