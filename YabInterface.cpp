@@ -646,7 +646,7 @@ void YabInterface::TabAdd(const char* id, const char* tabname)
 		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
 		if(myView)
 		{
-			viewList->PrintOut();	
+			//viewList->PrintOut();	
 			//fprintf(stderr, "Viewlist %d\n",viewList->ItemAt(i));
 			YabWindow *w = cast_as(myView->Window(), YabWindow);
 			if(w)
@@ -657,13 +657,13 @@ void YabInterface::TabAdd(const char* id, const char* tabname)
 				//printf("\t View %d and the id %d\n", viewList->ItemAt(i));
 				//printf ("%d \n",myTabView);
 				//
-				myTabView->PrintOut();
+				//myTabView->PrintOut();
 				oldtabview=myTabView->GetTabName(i);
-				printf ("oldtabview: ");
-				printf (oldtabview);
-				printf("\n");
+				//printf ("oldtabview: ");
+				//printf (oldtabview);
+				//printf("\n");
 				myTabView->FindTabName(tabname);
-				printf("\n");
+				//printf("\n");
 				if (oldtabview==tabname)
 				{
 					
@@ -672,7 +672,7 @@ void YabInterface::TabAdd(const char* id, const char* tabname)
 					
 					//viewList->AddView(id, tabname, TYPE_YABVIEW);
 					//myTabView=cast_as(myView->FindView(id), YabTabView);
-					printf ("%d \n",myTabView);
+					//printf ("%d \n",myTabView);
 					//myTabView->AddTab(cast_as(myView->FindView(id), YabTabView),oldtabview);
 					//YabTabView* tabView = static_cast<YabTabView*>(myTabView);
 					//YabView *t = static_cast<YabView*>(tabView->TabAt(num)->View());
@@ -4526,6 +4526,7 @@ const char* YabInterface::DrawGet(const char* option)
 int YabInterface::DrawGet(BPoint coord, const char* option, const char* view)
 {
 	BString t(option);
+	return 0;
 	
 }
 
@@ -10398,12 +10399,12 @@ int yi_TreeboxCount(const char* treebox, YabInterface *yab)
 
 void yi_ButtonImage(double x,double y,const char* id,const char* enabledon, const char* enabledoff, const char *disabled, const char* view, YabInterface *yab)
 {
-	yab->ButtonImage(x,y, id, enabledon, enabledoff, disabled, view);
+	return yab->ButtonImage(x,y, id, enabledon, enabledoff, disabled, view);
 }
 
 void yi_CheckboxImage(double x,double y,const char* id,const char* enabledon, const char* enabledoff, const char *disabledon, const char *disabledoff, int isActivated, const char* view, YabInterface *yab)
 {
-	yab->CheckboxImage(x,y, id, enabledon, enabledoff, disabledon, disabledoff, isActivated, view);
+	return yab->CheckboxImage(x,y, id, enabledon, enabledoff, disabledon, disabledoff, isActivated, view);
 }
 
 void yi_CheckboxSet(const char* id, int isActivated, YabInterface* yab)
@@ -10859,7 +10860,7 @@ void yi_Bitmap(double w, double h, const char* id,YabInterface* yab)
 
 int yi_BitmapColor(double x, double y, const char* id, const char* option, YabInterface *yab)
 {
-	yab->BitmapColor(x,y, id, option);
+	return yab->BitmapColor(x,y, id, option);
 }
 
 void yi_BitmapDraw(double x, double y, const char* bitmap, const char* mode, const char* view,YabInterface* yab)
@@ -10884,12 +10885,12 @@ void yi_BitmapGet2(double w, const char* id, const char* path, YabInterface* yab
 
 int yi_BitmapGetNum(const char* id, const char* option, YabInterface* yab)
 {
-	yab->BitmapGet(id, option);
+	return yab->BitmapGet(id, option);
 }
 
 int yi_BitmapLoad(const char* filename, const char* bitmap, YabInterface* yab)
 {
-	yab->BitmapLoad(filename, bitmap);
+	return yab->BitmapLoad(filename, bitmap);
 }
 
 void yi_BitmapGetIcon(const char* id, const char* option, const char* path, YabInterface* yab)
