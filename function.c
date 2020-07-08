@@ -1001,8 +1001,11 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     result = stNUMBER;
     break;
   case fSOUND:
-    str=a1->pointer;
-    value = sound(str, yab, linenum, current->lib->s);
+ 	str=a1->pointer;
+    //value=a2->value;
+    //sprintf(string,"stream %s %s not opened",str,value);
+      //error(ERROR,string);
+    value = sound(str, a2->value, yab, linenum, current->lib->s);
     result = stNUMBER;
     break;
   case fMEDIASOUND:

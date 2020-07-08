@@ -215,7 +215,7 @@
 		void Screenshot(BRect frame, const char* bitmap);
 		int BitmapSave(const char* id, const char* filename, const char* type);
 		void Canvas(BRect frame, const char* id, const char* view);
-		int Sound(const char* filename);
+		int Sound(const char* filename, int status);
 		void SoundStop(int32 id); 
 		void SoundWait(int32 id);
 		int MediaSound(const char* filename);
@@ -495,7 +495,7 @@ extern void yi_BitmapRemove(const char* bitmap,YabInterface* yab);
 extern void yi_Screenshot(double x1, double y1, double x2, double y2, const char* bitmap, YabInterface* yab);
 extern int yi_BitmapSave(const char* id, const char* filename, const char* type, YabInterface* yab);
 extern void yi_Canvas(double x1, double y1, double x2, double y2, const char* id, const char* view, YabInterface *yab);
-extern int yi_Sound(const char* filename, YabInterface* yab);
+extern int yi_Sound(const char* filename, int status, YabInterface* yab);
 extern void yi_SoundStop(int id, YabInterface* yab);
 extern void yi_SoundWait(int id, YabInterface* yab);
 extern int yi_MediaSound(const char* filename, YabInterface* yab);

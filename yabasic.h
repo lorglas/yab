@@ -300,13 +300,13 @@ enum functions { /* functions in yabasic (sorted by number of arguments) */
   fLTRIM,fRTRIM,fTRIM,fCHR,fTRANSLATE,fMENUTRANSLATE,fMOUSE, fISMOUSEIN,fTEXTCONTROLGET,
   fKEYBOARD,fCOLUMNBOXCOUNT, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
   fSPINCONTROLGET, fDROPBOXCOUNT, fSLIDERGET, fTEXTGET, fDRAWGET3, fTABVIEWGET,
-  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fSOUND, fMEDIASOUND,
+  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND,
   fONEARGS, 
   fDEC2,fATAN2,fLEFT,fAND,fOR,fEOR,fLOG2,
   fRIGHT,fINSTR,fRINSTR,fSTR2,fMOD,fMIN,fMAX,fPEEK3,fMID2,fWINDOWGET, fVIEWGET /* vasper */,
   fLISTBOXGET, fTREEBOXGET, fSCROLLBARGET, fSPLITVIEWGET, fDROPBOXGET, fCOLORCONTROLGET,
   fTEXTGET2,fTEXTGET6,fDRAWGET2, fTEXTGET3, fMESSAGESEND, fTHREADKILL, fTHREADGET, fBITMAPGET, 
-  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2,
+  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2, fSOUND, 
   fTWOARGS,
   fMID,fINSTR2,fRINSTR2,fSTR3,fCOLUMNBOXGET,fDRAWGET1,fTEXTGET4,fTEXTGET5,fPRINTER,
   fLOAD, fTREEBOXGETOPT,fBITMAPSAVE, 
@@ -755,7 +755,7 @@ int treeboxgetnum(const char*, YabInterface *yab, int line, const char* libname)
 int treeboxgetopt(const char*, const char*, int, YabInterface *yab, int line, const char* libname);
 void treebox13(struct command *, YabInterface *yab);
 void drawset4(struct command *, YabInterface *yab);
-int sound(const char*, YabInterface *yab, int line, const char* libname);
+int sound(const char*, int , YabInterface *yab, int line, const char* libname);
 void soundstop(struct command *, YabInterface *yab);
 void soundwait(struct command *, YabInterface *yab);
 int mediasound(const char*, YabInterface *yab, int line, const char* libname);

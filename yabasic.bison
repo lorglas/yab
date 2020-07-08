@@ -629,7 +629,7 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tTHREAD tREMOVE string_expression ',' expression {create_function(fTHREADKILL);}
   | tTHREAD tGETNUM string_expression ',' string_expression {create_function(fTHREADGET);}
   | tPRINTER string_expression ',' string_expression ',' string_expression {create_function(fPRINTER);}
-  | tSOUND tPLAY string_expression {create_function(fSOUND);}
+  | tSOUND tPLAY string_expression ',' expression {create_function(fSOUND);} 
   | tMEDIASOUND tPLAY string_expression {create_function(fMEDIASOUND);}
   | tISCOMPUTERON {create_function(fISCOMPUTERON);}
   | tLISTBOX tGETNUM string_expression {create_function(fLISTBOXGETNUM);}

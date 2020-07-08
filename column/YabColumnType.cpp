@@ -43,9 +43,7 @@ All rights reserved.
 #include <Translator.h>
 #include <View.h>
 #include <NodeInfo.h>
-#ifdef ZETA
-	#include <sys_apps/Tracker/Icons.h>
-#endif
+
 
 #define kTEXT_MARGIN	8
 #define kIMG_MARGIN	2
@@ -275,12 +273,7 @@ void BYabField::SetString(const char* val, int height)
 	{
 		BString myPath;
 		fString.CopyInto(myPath, 9, fString.Length()-9);
-#ifdef ZETA
-		fBitmap = new BBitmap(BRect(0, 0, 15, 15), B_RGBA32);
-		BEntry fEntry = BEntry(myPath.String());
-		BBitmap icon = &GetTrackerIcon(fEntry, 16);
-		*fBitmap = icon;
-#else
+
 		fBitmap = new BBitmap(BRect(0, 0,31, 31), B_RGBA32);
 		BNode *fNode = new BNode(myPath.String());
 		BNodeInfo fInfo(fNode);
@@ -292,7 +285,7 @@ void BYabField::SetString(const char* val, int height)
 		fInfo.GetTrackerIcon( fBitmap, ics );
 		//fInfo.GetTrackerIcon(fBitmap, B_MINI_ICON);
 		delete fNode;
-#endif
+
 	}
 	
 	
@@ -300,12 +293,7 @@ void BYabField::SetString(const char* val, int height)
 	{
 		BString myPath;
 		fString.CopyInto(myPath, 9, fString.Length()-9);
-#ifdef ZETA
-		fBitmap = new BBitmap(BRect(0, 0, 15, 15), B_RGBA32);
-		BEntry fEntry = BEntry(myPath.String());
-		BBitmap icon = &GetTrackerIcon(fEntry, 16);
-		*fBitmap = icon;
-#else
+
 		fBitmap = new BBitmap(BRect(0, 0, 15, 15), B_RGBA32);
 		BNode *fNode = new BNode(myPath.String());
 		BNodeInfo fInfo(fNode);
@@ -317,7 +305,7 @@ void BYabField::SetString(const char* val, int height)
 		fInfo.GetTrackerIcon( fBitmap, ics );
 		//fInfo.GetTrackerIcon(fBitmap, B_MINI_ICON);
 		delete fNode;
-#endif
+
 	}
 } 
 
