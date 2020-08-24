@@ -63,7 +63,7 @@ URLView::URLView( BRect frame, const char *name, const char *label,
 	SetURL( url );
 	
 	// Create the cursor to use when over the link.
-	this->linkCursor = new BCursor( url_cursor );
+	this->linkCursor = new BCursor(  B_CURSOR_ID_FOLLOW_LINK); //new BCursor( url_cursor );
 	
 	// The link is not currently selected.
 	selected = false;
