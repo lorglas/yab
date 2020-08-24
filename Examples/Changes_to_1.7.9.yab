@@ -1,0 +1,295 @@
+#!/boot/home/config/bin/yab
+
+screenWidth = peek("desktopwidth")
+screenHeight = peek("desktopheight")
+halfscreen_width=screenWidth/2
+halfscreen_height=screenHeight/2
+window_width_half=400
+window open (halfscreen_width-window_width_half),(halfscreen_height-300) to  (halfscreen_width+window_width_half),(halfscreen_height+300), "Main", "Changes in yab 1.7.9"
+WINDOW SET "Main", "Flags", "Not-Resizable"
+
+
+x = peek("menuheight")
+tabview 0,0 to WINDOW GET "Main", "Width",(WINDOW GET "Main", "Height")-10, "Tab", "Bottom", "Main"
+TABVIEW ADD "Tab", "Columbox"
+TABVIEW ADD "Tab", "Textcontrol"
+TABVIEW ADD "Tab", "Textedit"
+TABVIEW ADD "Tab", "Texturl"
+TABVIEW ADD "Tab","Sound"
+
+// on the 1 Tab
+draw text 10,15 ,upper$("Demonstration Columnbox sorting"), "Tab1"
+x=0
+i=0
+d=0
+COLUMNBOX 10,40 TO (View GET "Tab", "width")-20,(View GET "Tab", "Height")-310, "testcolumn", true, "movable, resizable, popup, removable", "Tab1"
+COLUMNBOX COLUMN "testcolumn", "ID", 1, 20, 20, 20, "align-center"
+COLUMNBOX COLUMN "testcolumn", "Customer", 2, 100, 50, 150, "align-left"
+COLUMNBOX COLUMN "testcolumn", "Price", 3, 100, 50, 150, "align-right"
+COLUMNBOX ADD "testcolumn", 1, 1, 20,"1" 
+COLUMNBOX ADD "testcolumn", 2, 1, 20,"Harry" 
+COLUMNBOX ADD "testcolumn", 3, 1, 20,"33.33" 
+COLUMNBOX ADD "testcolumn", 1, 2, 20,"2" 
+COLUMNBOX ADD "testcolumn", 2, 2, 20,"Sally" 
+COLUMNBOX ADD "testcolumn", 3, 2, 20,"56.31" 
+COLUMNBOX ADD "testcolumn", 1, 3, 20,"3" 
+COLUMNBOX ADD "testcolumn", 2, 3, 20,"Wilhelm" 
+COLUMNBOX ADD "testcolumn", 3, 3, 20,"8.83" 
+COLUMNBOX ADD "testcolumn", 1, 4, 20,"4" 
+COLUMNBOX ADD "testcolumn", 2, 4, 20,"Shake" 
+COLUMNBOX ADD "testcolumn", 3, 4, 20,"18.83" 
+
+textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe1", 1, "Tab1"
+textedit add "ausgabe1","COLUMNBOX 10,40 TO (View GET \"Tab\", \"width\")-20,(View GET \"Tab\", \"Height\")-310, \"testcolumn\", true, \"movable, resizable, popup, removable\", \"Tab1\"\n"
+textedit add "ausgabe1","COLUMNBOX COLUMN \"testcolumn\", \"ID\", 1, 20, 20, 20, \"align-center\"\n"
+textedit add "ausgabe1","COLUMNBOX COLUMN \"testcolumn\", \"Customer\", 2, 100, 50, 150, \"align-left\"\n"
+textedit add "ausgabe1","COLUMNBOX COLUMN \"testcolumn\", \"Price\", 3, 100, 50, 150, \"align-right\"\n"
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 1, 1, 20,\"1\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 2, 1, 20,\"Harry\"\n" 
+textedit add "ausgabe1","OLUMNBOX ADD \"testcolumn\", 3, 1, 20,\"33.33\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 1, 2, 20,\"2\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 2, 2, 20,\"Sally\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 3, 2, 20,\"56.31\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 1, 3, 20,\"3\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 2, 3, 20,\"Wilhelm\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 3, 3, 20,\"8.83\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 1, 4, 20,\"4\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 2, 4, 20,\"Shake\"\n" 
+textedit add "ausgabe1","COLUMNBOX ADD \"testcolumn\", 3, 4, 20,\"18.83\"\n" 
+// on the 2 Tab
+
+draw text 10,15 ,"TEXTCONTROL WITH / WITHOUT LABEL", "Tab2"
+textcontrol 10,20 to 300,40, "ID", "Label","with Label", "Tab2"
+textcontrol 10,50 to 300,70, "ID", "","without Label","Tab2"
+textcontrol 10,80 to 300,100, "ID", "Label1","with Label", "Tab2"
+textcontrol 10,110 to 300,130, "ID", "Label and Label","with Label","Tab2"
+textcontrol 10,140 to 300,160, "ID", "","without Label","Tab2"
+textcontrol 10,170 to 300,190, "ID-right", "Label and Label","with Label align right","Tab2"
+textcontrol 10,200 to 300,220, "ID-right1", "","without Label align right","Tab2"
+textcontrol 10,230 to 300,250, "ID-center", "Label and Label","with Label align center","Tab2"
+textcontrol 10,260 to 300,290, "ID-center1", "","without Label align center","Tab2"
+TEXTCONTROL SET "ID-right", "align", "right"
+TEXTCONTROL SET "ID-right1", "align", "right"
+TEXTCONTROL SET "ID-center", "align", "center"
+TEXTCONTROL SET "ID-center1", "align", "center"
+
+textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe2", 1, "Tab2"
+textedit add "ausgabe2","textcontrol 10,20 to 300,40, \"ID\", \"Label\",\"with Label\", \"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,50 to 300,70, \"ID\", \"\",\"without Label\", \"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,80 to 300,100, \"ID\", \"Label1\",\"with Label\", \"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,110 to 300,130, \"ID\", \"Label and Label\",\"with Label\", \"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,140 to 300,160, \"ID\", \"\",\"without Label\", \"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,170 to 300,190, \"ID-right\", \"Label and Label\",\"with Label align right\",\"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,200 to 300,220, \"ID-right1\", \"\",\"without Label align right\",\"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,230 to 300,250, \"ID-center\", \"Label and Label\",\"with Label align center\",\"Tab2\"\n"
+textedit add "ausgabe2","textcontrol 10,260 to 300,290, \"ID-center1\", \"\",\"without Label align center\",\"Tab2\"\n"
+textedit add "ausgabe2","TEXTCONTROL SET \"ID-right\", \"align\", \"right\",\"Tab2\"\n"
+textedit add "ausgabe2","TEXTCONTROL SET \"ID-right1\", \"align\", \"right\",\"Tab2\"\n"
+textedit add "ausgabe2","TEXTCONTROL SET \"ID-center\", \"align\", \"center\",\"Tab2\"\n"
+textedit add "ausgabe2","TEXTCONTROL SET \"ID-center1\", \"align\", \"center\",\"Tab2\""
+
+// on the 3 Tab
+draw text 10,15 ,"TEXTEDIT align left/center/right", "Tab3"
+textedit 10,40 to (View GET "Tab", "width")-20,100, "test-left", 1, "Tab3"
+TEXTEDIT SET "test-left", "align", "left"
+textedit add "test-left","This is the test text align left\n"
+textedit 10,110 to (View GET "Tab", "width")-20,170, "test-center", 1, "Tab3"
+TEXTEDIT SET "test-center", "align", "center"
+textedit add "test-center","This is the test text  align center\n"
+textedit 10,180 to (View GET "Tab", "width")-20,240,"test-right", 1, "Tab3"
+TEXTEDIT SET "test-right", "align", "right"
+textedit add "test-right","This is the test text  align right\n"
+
+textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe3", 1, "Tab3"
+textedit add "ausgabe3","textedit 10,40 to (View GET \"Tab\", \"width\")-20,100, \"test-left\", 1, \"Tab3\"\n"
+textedit add "ausgabe3","TEXTEDIT SET \"test-left\", \"align\", \"left\"\n"
+textedit add "ausgabe3","textedit add \"test-left\",\"This is the test text align left\\n\"\n"
+textedit add "ausgabe3","textedit 10,110 to (View GET \"Tab\", \"width\")-20,170, \"test-center\", 1, \"Tab3\"\n"
+textedit add "ausgabe3","TEXTEDIT SET \"test-center\", \"align\", \"center\"\n"
+textedit add "ausgabe3","textedit add \"test-center\",\"This is the test text  align center\\n\"\n"
+textedit add "ausgabe3","textedit 10,180 to (View GET \"Tab\", \"width\")-20,240,\"test-right\", 1, \"Tab3\"\n"
+textedit add "ausgabe3","TEXTEDIT SET \"test-right\", \"align\", \"right\"\n"
+textedit add "ausgabe3","textedit add \"test-right\",\"This is the test text  align right\\n\"\n"
+
+// on the 4 Tab
+draw text 10,15 ,"TEXTURL without duplication on mouseover", "Tab4"
+texturl 10,50, "email","mailto: xyz@ddd.de", "xyz@ddd.de",  "Tab4"
+texturl 10,90, "file","file://www.besly.de", "file://www.besly.de",  "Tab4"
+texturl 10,130, "https","https://software.besly.de", "https://software.besly.de",  "Tab4"
+texturl 10,170, "http","http://www.besly.de", "http://www.besly.de",  "Tab4"
+texturl 10,210, "ftp","ftp://www.besly.de", "ftp://www.besly.de",  "Tab4"
+
+textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe5", 1, "Tab4"
+textedit add "ausgabe5","texturl 10,50, \"email\",\"mailto: xyz@ddd.de\", \"xyz@ddd.de\",  \"Tab4\"\n"
+textedit add "ausgabe5","texturl 10,90, \"file\",\"file://www.besly.de\", \"file://www.besly.de\",  \"Tab4\"\n"
+textedit add "ausgabe5","texturl 10,130, \"https\",\"https://www.besly.de\", \"https://www.besly.de\",  \"Tab4\"\n"
+textedit add "ausgabe5","texturl 10,170, \"https\",\"http://www.besly.de\", \"http://www.besly.de\",  \"Tab4\"\n"
+textedit add "ausgabe5","texturl 10,210, \"ftp\",\"ftp://www.besly.de\", \"ftp://www.besly.de\",  \"Tab4\"\n"
+
+// on the 5 Tab
+//Sound
+
+Button 20,10 to 200,30, "start","Playsound Start","Tab5"
+Button 20,40 to 200,60, "stop","Playsound Stop","Tab5"
+Button 20,70 to 200,90, "pause","Playsound Pause / Continue","Tab5"
+
+Button 20,100 to 200,120, "start_Media","MediaSound Start","Tab5"
+Button 20,130 to 200,150, "stop_Media","MediaSound Stop","Tab5"
+//tooltip "start_Media", "testetxt"
+//tooltipnew "start_Media" , "testetxt" ,"lowcolor", 255,255,255
+textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe9", 1, "Tab5"
+//textedit 10,200 to 460,380, "ausgabe9", 3, "Tab5"
+textedit add "ausgabe9","case \"start|\"\n"
+textedit add "ausgabe9","  ID= SOUND PLAY \"yab_testsong.mp3\", 1\n"
+textedit add "ausgabe9","  IF sound is playing, you get 1 back, so you can use for the stop command. \n"				
+textedit add "ausgabe9","break\n"
+textedit add "ausgabe9","case \"stop|\n"
+textedit add "ausgabe9","  SOUND STOP ID\n"		
+textedit add "ausgabe9","break \n"
+textedit add "ausgabe9","case \"pause|\"\n"
+textedit add "ausgabe9","  SOUND WAIT ID \n Sound wait works, but with my soundcard i get a brumm signal. maybe on other soundcard is nothing or is a Haiku problem.\n"
+textedit add "ausgabe9","break\n"
+textedit add "ausgabe9","MEDIASOUND you must wait a little before you hear the stream\"\n"	
+textedit add "ausgabe9","  ID = MEDIASOUND play \"https://swr-edge-10b8-fra-dtag-cdn.cast.addradio.de/swr/swr3/live/mp3/128/stream.mp3\"\n"				
+textedit add "ausgabe9","break\n"
+textedit add "ausgabe9","case \"stop|\n"
+textedit add "ausgabe9","  MEDIASOUND STOP ID\n"		
+textedit add "ausgabe9","break \n"
+textedit add "ausgabe9","//If you click MEDIASOUND STOP  twice, the program breaks, because there is a little bug in my code. I'am working on this issue. \n"
+
+//-------------------------------------
+	dim mouse$(1)
+	dim part$(1)
+	inloop = true
+	while(inloop)
+
+		msg$ = message$
+
+		if (split(msg$, part$(), ":|") > 2) then
+			PartTwo$ = part$(2)
+			PartThree$ = part$(3)
+	         fi
+
+		if (msg$ <> "") print msg$
+			switch (msg$)
+
+				case "Main:_QuitRequested|":
+					window close "Main"
+					//window close "View"
+				break
+
+				case "Quit|"
+					window close "Main"
+				break
+
+				case "View:Spiel:Beenden|"
+				        window close "Main"
+				break
+				case ":_Select:"+PartThree$+"|"
+					eintragnummer=val(PartThree$)
+					print eintragnummer					
+				         rechte_seite(eintragnummer)				
+				break
+				case "tabdel|"
+				       tabview remove "Tab",1
+					//print old_tab
+				break
+				case "tabadd|"					
+				        TABVIEW ADD "Tab", "Textcontrol"
+					//draw text 10,15 ,"TEXTCONTROL WITH / WITHOUT LABEL", "Tab2"
+				break
+				case "start|"
+					ID=SOUND PLAY "yab_testsong.mp3", 1
+					
+					print "------"	
+					print ID
+					print "------"					
+				break
+				case "stop|"
+					IF (ID=1) THEN
+						SOUND STOP ID
+						ID=0
+						//print "ID:"+str$(ID)
+					ELSE
+						print "Nothing to do"
+					ENDIF				
+								
+				break 
+				case "pause|"
+					SOUND WAIT ID // 2
+				break 
+
+				case "start_Media|"
+					//ID = MEDIASOUND play "02 - Let Her Go.mp3"
+					NEW_ID = MEDIASOUND play "https://swr-edge-10b8-fra-dtag-cdn.cast.addradio.de/swr/swr3/live/mp3/128/stream.mp3"
+				break
+				case "stop_Media|"
+					IF (NEW_ID=1) THEN
+						MEDIASOUND STOP NEW_ID
+						NEW_ID=0
+						//print "NEW_ID:"+str$(NEW_ID)
+					ELSE
+						print "Nothing to do"
+					ENDIF						
+				break
+				
+				default
+				break
+			end switch	
+			if(window count<1) inloop = false
+		    sleep 0.1
+ mmsg$ = MOUSE MESSAGE$
+                        if (mmsg$<>"" and mmsg$<>old_mmsg$) then
+                                //print mmsg$
+                                //old_mmsg$= mmsg$ 
+                                nx = split(mmsg$, mouse$(), ":")
+                                Viewname$=mouse$(1)
+                                //print Viewname$
+                                Xmouse  = val(mouse$(2))
+                                Ymouse  = val(mouse$(3))
+                                BLmouse= val(mouse$(4))
+                                BCmouse= val(mouse$(5))
+                                BRmouse= val(mouse$(6))
+                                casestring$=Viewname$+":"+mouse$(4)+":"+mouse$(5)+":"+mouse$(6)
+                                print casestring$
+                        endif
+	wend
+
+sub baummenu(x,i,d)
+fileload$="hilfe.csv"
+	auslesen=open(fileload$, "r")
+	
+	while (not EOF(auslesen))
+	line input #auslesen b$
+	TEXTEDIT ADD "ausgabe", b$+"\n"
+	dim elements$(1)
+	
+	numElements = split(b$, elements$(),";")
+	for i = 1 to numElements
+			x=x+1
+			dim d$(x)
+			d$(x) = elements$(i)
+			
+	//print d$(x)
+	next i
+	wend
+	close(auslesen)
+
+anzahlspalten=numElements
+anzahlzeilen=x/anzahlspalten
+eintraege=anzahlspalten*anzahlzeilen
+name_baummenu$=d$(0)
+treebox 0,50 to 147,250, name_baummenu$, 3, "Tab1"
+for treezeilen=1 to anzahlzeilen*anzahlspalten step anzahlspalten
+	
+		          if (d$(treezeilen+2)="") then
+				treebox add name_baummenu$, d$(treezeilen+1)
+			
+			else
+				treebox add name_baummenu$, d$(treezeilen+1), d$(treezeilen+2),true		
+			endif
+		
+	print treezeilen
+next treezeilen
+
+end sub

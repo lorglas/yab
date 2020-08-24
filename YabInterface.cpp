@@ -945,7 +945,7 @@ void YabInterface::Launch(const char* strg)
 	status_t t = be_roster->Launch(ref);
 	if(t != B_OK)
 	{
-		if(tst.FindFirst("http://") != B_ERROR || tst.FindFirst("file://") != B_ERROR || tst.FindFirst("www.") != B_ERROR)
+		if(tst.FindFirst("http://")  != B_ERROR || tst.FindFirst("https://") != B_ERROR || tst.FindFirst("file://") != B_ERROR || tst.FindFirst("www.") != B_ERROR)
 		{
 			char *link = tst.LockBuffer( tst.Length()+1 );
                		status_t result = be_roster->Launch( "text/html", 1, &link );
@@ -5481,7 +5481,7 @@ void YabInterface::FileBox(BRect frame, const char* id, bool hasHScrollbar, cons
 			msg2->AddPointer("source", myColumnList);
 			myColumnList->SetInvocationMessage(msg1);
 			myColumnList->SetSelectionMessage(msg2);
-			myColumnList->SetSortingEnabled(false);
+			myColumnList->SetSortingEnabled(true);
 			myColumnList->SetSelectionMode(B_SINGLE_SELECTION_LIST);
 			rgb_color rgb = {195,195,195,255};
 			myColumnList->SetColor(B_COLOR_SELECTION, rgb);
@@ -8998,8 +8998,10 @@ void YabInterface::Canvas(BRect frame, const char* id, const char* view)
 	}
 	Error(view, "VIEW");
 }
-int YabInterface::Sound(const char* filename) //Reactivate Sound Lorglas 2020.01.02
+int YabInterface::Sound(const char* filename, int status) //Reactivate Sound Lorglas 2020.01.02
 {
+	
+	//printf("%s - %d",filename, status);
 	entry_ref ref; 
 	BEntry entry(filename, true); 
 	//Check, if filename is ok
@@ -9007,10 +9009,10 @@ int YabInterface::Sound(const char* filename) //Reactivate Sound Lorglas 2020.01
 		if (entry.GetRef(&ref) == B_OK) 
 		//delete playing fplayer, because we get no ID back from fplayer. So if we didn't deleting fplayer, a second sound will be played and the first one can't be stopped
 			delete fPlayer;
-			fPlayer = new BFileGameSound(&ref, false);
-			fPlayer->StartPlaying();
-			
-	return 1;	
+	
+	  		fPlayer = new BFileGameSound(&ref, status);			
+			fPlayer->StartPlaying();	
+			return 1;
 }
 
 void YabInterface::SoundStop(int32) //Reactivate Sound Lorglas 2020.01.02
@@ -10923,19 +10925,19 @@ void yi_Canvas(double x1, double y1, double x2, double y2, const char* id, const
 	yab->Canvas(BRect(x1,y1,x2,y2), id,view);
 }
 
-int yi_Sound(const char* filename, YabInterface* yab) //Reactivate Sound Lorglas 2020.01.02
+int yi_Sound(const char* filename, int status, YabInterface* yab) //Reactivate Sound Lorglas 2020.01.02
 {
-	return yab->Sound(filename);
+	return yab->Sound(filename, status);
 }
 
 void yi_SoundStop(int id, YabInterface* yab) //Reactivate Sound Lorglas 2020.01.02
 {
-	yab->SoundStop(id);
+	return yab->SoundStop(id);
 }
 
 void yi_SoundWait(int id, YabInterface* yab) //Reactivate Sound Lorglas 2020.01.03
 {
-	yab->SoundWait(id);
+	return yab->SoundWait(id);
 }
 
 int yi_MediaSound(const char* filename, YabInterface* yab)

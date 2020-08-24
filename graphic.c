@@ -2405,10 +2405,16 @@ void launch(struct command *cmd, YabInterface *yab)
 	yi_Launch(strg, yab);
 }
 
-int sound(const char* filename, YabInterface *yab, int line, const char* libname)
+//int sound(struct command *cmd, YabInterface *yab)
+int sound(const char* filename, int status, YabInterface *yab, int line, const char* libname)
 {
+	//char *filename;
+	//int status;
+	//status =pop(stNUMBER)->value;
+	//filename = pop(stSTRING)->pointer;
 	yi_SetCurrentLineNumber(line, libname, yab);
-	return yi_Sound(filename, yab);
+	//yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	return yi_Sound(filename, status, yab);
 }
 
 void soundstop(struct command *cmd, YabInterface *yab)
