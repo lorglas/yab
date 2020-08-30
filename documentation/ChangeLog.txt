@@ -4,13 +4,8 @@ Bug fixes
 - Bug fixes in YabInterfaces (some return Statement added (bbjimmy/lorglas)
 Reactivating Feature
 - Columnbox sorting activated
-<<<<<<< HEAD
-enhancement
-- Sound command loop activted
-=======
 Enhancement 
 - Sound command loop activted, Example: sound play "file.mp3", loop
->>>>>>> hotfix_1_7_9
 - texturl allow to use https
 - Change Cursor to Haiku Style
 
