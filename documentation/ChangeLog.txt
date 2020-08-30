@@ -4,7 +4,7 @@ Bug fixes
 - Bug fixes in YabInterfaces (some return Statement added (bbjimmy/lorglas)
 Reactivating Feature
 - Columnbox sorting activated
-Enchencemnet 
+enhancement
 - Sound command loop activted
 - texturl allow to use https
 
