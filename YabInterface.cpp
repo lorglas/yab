@@ -75,6 +75,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "YabInterface.h"
 #include "YabWindow.h"
@@ -89,7 +90,8 @@
 #include "column/ColorTools.h"
 #include "column/ColumnListView.h"
 
-
+thread_id reader = -1;
+sem_id finished = -1;
 BMediaTrack* playTrack;
 media_format playFormat;
 BSoundPlayer* player = 0;
@@ -220,7 +222,7 @@ YabInterface::~YabInterface()
 	// delete fopen;
 	// delete fsave;
 	delete viewList;
-	// delete Roster;
+	//delete Roster;
 	delete myProps;
 	delete fPlayer;
 	if(yabCatalog)
@@ -303,10 +305,29 @@ void YabInterface::MessageReceived(BMessage *message)
  */
 bool YabInterface::QuitRequested()
 {
+	/*printf("%d\n",player);
+	if (player == NULL) {
+		
+	}
+	else{
+		
+		player->Stop();
+		player->SetHasData(false);
+		delete player;
+		delete Roster;
+	}*/
+	
+	if (fPlayer->IsPlaying()) {
+		fPlayer->StopPlaying();
+	}
+		kill_thread(reader);
+		delete fPlayer;
+		fPlayer = NULL;
 	//exiting = true;
 	//return false;
 	exiting = true;
 	ExitRequested();
+	
 	snooze(20000);
 	return true;
 }
@@ -9000,18 +9021,23 @@ void YabInterface::Canvas(BRect frame, const char* id, const char* view)
 }
 int YabInterface::Sound(const char* filename, int status) //Reactivate Sound Lorglas 2020.01.02
 {
-	
-	//printf("%s - %d",filename, status);
+	BMediaFile* fplayer;
+		BEntry entry(filename,true);
 	entry_ref ref; 
-	BEntry entry(filename, true); 
+	//entry.GetRef(&ref) ;
+  //  printf("> %s\n", filename);
 	//Check, if filename is ok
 	if (entry.InitCheck() == B_OK) 
-		if (entry.GetRef(&ref) == B_OK) 
+		if (entry.GetRef(&ref) == B_OK) 		
 		//delete playing fplayer, because we get no ID back from fplayer. So if we didn't deleting fplayer, a second sound will be played and the first one can't be stopped
 			delete fPlayer;
-	
-	  		fPlayer = new BFileGameSound(&ref, status);			
+		
+			 finished = create_sem(255255255, "yab");
+	  		fPlayer = new BFileGameSound(filename, status);	
+	  			
 			fPlayer->StartPlaying();	
+			printf("%s is playing\n", filename);
+			acquire_sem(finished);
 			return 1;
 }
 
@@ -9023,6 +9049,8 @@ void YabInterface::SoundStop(int32) //Reactivate Sound Lorglas 2020.01.02
 	//Check, if fplayer is Playing, then stop playing and delete fplayer
 	if (fPlayer->IsPlaying()) {
 		fPlayer->StopPlaying();
+		//	interrupt = true;
+		kill_thread(reader);
 		delete fPlayer;
 		fPlayer = NULL;
 	}		
@@ -9048,7 +9076,7 @@ void play_buffer(void *cookie, void * buffer, size_t size, const media_raw_audio
 
 	if (frames <=0) {
 		player->SetHasData(false);
-		
+			release_sem(finished);
 	}
 }
 int YabInterface::MediaSound(const char* filename) //Implementation MediaSound Lorglas 2020.01.02 code used and modified from media_client
@@ -9057,28 +9085,21 @@ int YabInterface::MediaSound(const char* filename) //Implementation MediaSound L
 	entry_ref ref;
 	BMediaFile* playFile;
 	int finished;
-	if (get_ref_for_path(filename, &ref) != B_OK)
-	{
+	BString tempstr;
+	if (get_ref_for_path(filename, &ref) != B_OK) {
 		url.SetUrlString(filename);
-		if (url.IsValid())
-		{
+		if (url.IsValid()) {
 			playFile = new BMediaFile(url);
-		} 
-		else
-		{
+		} else
 			return 2;
-		}
-	} 
-	else
-	{
-		playFile = new BMediaFile(&ref);
-	}
-	if (playFile->InitCheck() != B_OK) 
-	{
+	} else
+		playFile = new BMediaFile(&ref);	
+		
+	if (playFile->InitCheck() != B_OK) {
 		delete playFile;
 		return 2;
 	}
-
+	//printf(" %s is playing %sd \n",filename,playFile);
 	for (int i = 0; i < playFile->CountTracks(); i++) 
 	{
 		BMediaTrack* track = playFile->TrackAt(i);
@@ -9092,31 +9113,25 @@ int YabInterface::MediaSound(const char* filename) //Implementation MediaSound L
 			}
 			playFile->ReleaseTrack(track);
 		}
-	}
-	
-	player = new BSoundPlayer(&playFormat.u.raw_audio, "playFile", play_buffer);
-	player->SetVolume(1.0f);
-	player->SetHasData(true);
-	player->Start();	
-	finished=1;
-	printf(" %s is playing \n",filename);
-	return finished;
+	}			
+		player = new BSoundPlayer(&playFormat.u.raw_audio, "Yab-Mediaoutput", play_buffer);
+		//player->SetVolume(1.0f);
+		player->SetHasData(true);
+		player->Start();	
+		finished=1;
+		printf(" %s is playing \n",filename);
+		return finished;
 	
 }
 void YabInterface::MediaSoundStop(int32 finished) //New Version Sound Lorglas 2020.01.02
 {
-	//Check, if fplayer is NULL, then do nothing
-	//if (player == NULL) {
-	//}
-	//Check, if fplayer is Playing, then stop playing and delete fplayer
-	
+	//Check, if player is NULL, then do nothing
+	if (player == NULL) {
+	}
+	//Check, if player is Playing, then stop playing and delete player
 		player->Stop();
 		delete player;
-		//delete_sem(finished);
-		//delete playFile;
-		//player = NULL;
-		
-		
+		//finished=0;
 }
 void YabInterface::SetOption(const char* id, const char* option, double x, double y)
 {

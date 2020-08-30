@@ -1,4 +1,4 @@
-#!/boot/home/config/bin/yab
+#!/boot/home/config/non-packaged/bin/yab
 
 screenWidth = peek("desktopwidth")
 screenHeight = peek("desktopheight")
@@ -19,6 +19,7 @@ TABVIEW ADD "Tab","Sound"
 
 // on the 1 Tab
 draw text 10,15 ,upper$("Demonstration Columnbox sorting"), "Tab1"
+draw text 10,30 ,"!!! The sorting algorythm isn't perfect. This is an issue for next version", "Tab1"
 x=0
 i=0
 d=0
@@ -135,6 +136,20 @@ Button 20,70 to 200,90, "pause","Playsound Pause / Continue","Tab5"
 
 Button 20,100 to 200,120, "start_Media","MediaSound Start","Tab5"
 Button 20,130 to 200,150, "stop_Media","MediaSound Stop","Tab5"
+
+draw text 250,30, "To avoid accidental crashes when exiting the program with sound, here is a solution to deal with this","Tab5"
+draw text 250,50, "this can you put in the quit cases","Tab5"
+draw text 250,90, "case \"Quit|\"","Tab5"
+draw text 250,110,"   IF (ID=1) THEN","Tab5"
+draw text 250,130,"      SOUND STOP ID","Tab5"
+draw text 250,150,"   ENDIF","Tab5"
+draw text 250,170,"   IF (NEW_ID=1) THEN","Tab5"
+draw text 250,190,"      MEDIASOUND STOP NEW_ID","Tab5"
+draw text 250,210,"   endif","Tab5"
+draw text 250,230,"   window close \"Main\"","Tab5"
+draw text 250,250,"   exit","Tab5"
+draw text 250,270,"break", "Tab5"
+
 //tooltip "start_Media", "testetxt"
 //tooltipnew "start_Media" , "testetxt" ,"lowcolor", 255,255,255
 textedit 10,300 to (View GET "Tab", "width")-20,(View GET "Tab", "Height")-40, "ausgabe9", 1, "Tab5"
@@ -174,16 +189,33 @@ textedit add "ausgabe9","//If you click MEDIASOUND STOP  twice, the program brea
 			switch (msg$)
 
 				case "Main:_QuitRequested|":
+					IF (ID=1) THEN
+						SOUND STOP ID
+					ENDIF
+					IF (NEW_ID=1) THEN
+						MEDIASOUND STOP NEW_ID
+						wait 0.1
+					endif
+					
 					window close "Main"
+					exit
 					//window close "View"
 				break
 
 				case "Quit|"
+				IF (ID=1) THEN
+						SOUND STOP ID
+					ENDIF
+					IF (NEW_ID=1) THEN
+						MEDIASOUND STOP NEW_ID
+					endif
 					window close "Main"
+					exit
 				break
 
 				case "View:Spiel:Beenden|"
 				        window close "Main"
+						exit
 				break
 				case ":_Select:"+PartThree$+"|"
 					eintragnummer=val(PartThree$)
@@ -199,11 +231,18 @@ textedit add "ausgabe9","//If you click MEDIASOUND STOP  twice, the program brea
 					//draw text 10,15 ,"TEXTCONTROL WITH / WITHOUT LABEL", "Tab2"
 				break
 				case "start|"
-					ID=SOUND PLAY "yab_testsong.mp3", 1
+					IF (ID=1) THEN
+						SOUND STOP ID
+						
+						ID=SOUND PLAY "Examples/yab_testsong.mp3", 1
+					ELSE
+						ID=SOUND PLAY "Examples/yab_testsong.mp3", 1
+					ENDIF				
 					
-					print "------"	
-					print ID
-					print "------"					
+					
+					//print "------"	
+					//print ID
+					//print "------"					
 				break
 				case "stop|"
 					IF (ID=1) THEN
@@ -216,12 +255,25 @@ textedit add "ausgabe9","//If you click MEDIASOUND STOP  twice, the program brea
 								
 				break 
 				case "pause|"
-					SOUND WAIT ID // 2
+					IF (ID=1) THEN
+						SOUND WAIT ID // 2
+					ELSE
+						print "Nothing to do"
+					ENDIF				
+								
+					
 				break 
 
 				case "start_Media|"
-					//ID = MEDIASOUND play "02 - Let Her Go.mp3"
-					NEW_ID = MEDIASOUND play "https://swr-edge-10b8-fra-dtag-cdn.cast.addradio.de/swr/swr3/live/mp3/128/stream.mp3"
+					
+					IF (NEW_ID=1) THEN
+						MEDIASOUND STOP NEW_ID
+						NEW_ID = MEDIASOUND play "Examples/yab_testsong.mp3"
+						//print "NEW_ID:"+str$(NEW_ID)
+					ELSE
+						NEW_ID = MEDIASOUND play "Examples/yab_testsong.mp3"
+					ENDIF				
+					//NEW_ID = MEDIASOUND play "https://swr-edge-10b8-fra-dtag-cdn.cast.addradio.de/swr/swr3/live/mp3/128/stream.mp3"
 				break
 				case "stop_Media|"
 					IF (NEW_ID=1) THEN
