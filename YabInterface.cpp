@@ -5502,7 +5502,15 @@ void YabInterface::FileBox(BRect frame, const char* id, bool hasHScrollbar, cons
 			msg2->AddPointer("source", myColumnList);
 			myColumnList->SetInvocationMessage(msg1);
 			myColumnList->SetSelectionMessage(msg2);
-			myColumnList->SetSortingEnabled(true);
+			if(tmp.IFindFirst("no-sorting")!=B_ERROR)
+			{
+				myColumnList->SetSortingEnabled(false);
+			}
+			else
+			{
+				myColumnList->SetSortingEnabled(true);
+			}
+			
 			myColumnList->SetSelectionMode(B_SINGLE_SELECTION_LIST);
 			rgb_color rgb = {195,195,195,255};
 			myColumnList->SetColor(B_COLOR_SELECTION, rgb);
