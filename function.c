@@ -1680,7 +1680,7 @@ static double peek(char *dest, YabInterface *yab) /* peek into internals */
     return 0;
   }
  
-  sprintf(stderr, "PEEK is set to %s\n", dest);
+  fprintf(stderr, "PEEK is set to %s\n", dest);
   error(ERROR,"invalid peek");
   return 0;
 }
