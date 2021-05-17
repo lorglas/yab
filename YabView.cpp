@@ -192,6 +192,42 @@ void YabView::Draw(BRect updateRect)
 					SetFont(&e->font, B_FONT_ALL);
 				}
 				break;
+			case 13: /* draw Roundrect added lorglas 2020/09/14 */
+			{
+					BPoint p[3];
+				    p[0].Set(e->x1,e->y1);
+					p[1].Set(e->x2,e->y2);
+					p[2].Set(e->x3,e->y3);					
+					//SetPenSize(1.01);
+					//StrokeLine(BPoint(e->x1,e->y1),BPoint(e->x2,e->y2), e->p);
+					StrokeTriangle(BPoint(e->x1,e->y1),BPoint(e->x2,e->y2),BPoint(e->x3,e->y3), e->p);
+					
+					//SetPenSize(1.0);
+					 
+				}
+				break;
+			case 14: /* draw Roundrect added lorglas 2020/09/14 */
+			 {
+					BPoint p[3];
+				    p[0].Set(e->x1,e->y1);
+					p[1].Set(e->x2,e->y2);
+					p[2].Set(e->x3,e->y3);					
+					//SetPenSize(2.0);
+					//FillTriangle(p[0],p[1],p[3], e->p);
+					FillTriangle(BPoint(e->x1,e->y1),BPoint(e->x2,e->y2),BPoint(e->x3,e->y3), e->p);
+					//SetPenSize(1.0);
+				}
+				break;
+				case 15:	/* draw Roundrect added lorglas 2020/09/14 */
+				{
+					StrokeRoundRect(BRect(e->x1,e->y1,e->x2,e->y2),e->r1,e->r2, e->p);
+				}
+				break;
+				case 16: /* draw Roundrect added lorglas 2020/09/14 */
+				{
+					FillRoundRect(BRect(e->x1,e->y1,e->x2,e->y2),e->r1,e->r2, e->p);
+				}
+				break;
 		}
 	}
 }

@@ -325,11 +325,12 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
 {
   struct stackentry *stack,*a1,*a2,*a3,*a4,*a5,*a6;
   char *pointer;
-  double value;
+  double value,result2;
   time_t datetime;
-  int type,result,len,start,i,max, linenum;
+  int type,result,len,start,i,max, linenum,x;
   char *str,*str2, *str3, *str4, *str5;
-
+	char out[512];
+	int d = 0;
   a3=NULL;
   a4=NULL;
   a5=NULL;
@@ -392,7 +393,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
   case fSTR2:
   case fSTR3:
     result=stSTRING;
-    if (!myformat(string,a1->value,a2->pointer,a3?a3->pointer:NULL)) {
+    if (!myformat(string,INBUFFLEN, a1->value,a2->pointer,a3?a3->pointer:NULL)) {
       pointer=my_strdup("");
       sprintf(string,"'%s' is not a valid format",(char *)a2->pointer);
       error(ERROR,string);
@@ -400,6 +401,12 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     }
     pointer=my_strdup(string);
     break;
+  case fCHOMP: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+        result = stSTRING;
+	pointer = a1->pointer;
+	a1->pointer = NULL;
+	pointer[strcspn(pointer, "\r\n")] = 0;
+	break;
   case fSQRT:
     value=sqrt(a1->value);
     result=stNUMBER;
@@ -415,6 +422,19 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
       value=floor(a1->value);
     result=stNUMBER;
     break;
+  /*case fROUND: //new command 05.06.2020 Lorglas
+  		if((x * pow(10, a2->value + 1)) - (floor(x * pow(10, a2->value))) > 4) 
+      	{
+      		d = 1;
+      	}
+	value = (floor(x * pow(10, a2->value)) + d) / pow(10, a2->value);
+  		sprintf(out,"%.*f\n\n",(int)a2->value,value);
+   		 result=stNUMBER;
+    break;*/
+  case fROUND:
+	value = round(a1->value);
+    result = stNUMBER;
+  break;
   case fFRAC:
     if (a1->value<0)
       value=a1->value+floor(-a1->value);
@@ -509,6 +529,18 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value=(int)a1->value ^ (int)a2->value;
     result=stNUMBER;
     break;
+  case fBITNOT: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+        value = ~ (unsigned int) a1->value;
+        result = stNUMBER;
+        break;
+  case fSHL: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+	value = (unsigned int) a1->value << (int) a2->value;
+	result = stNUMBER;
+  break;
+  case fSHR: //new command from yabsic 2.8,6  05.06.2020 Lorglas
+	value = (unsigned int) a1->value >> (int) a2->value;
+	result = stNUMBER;
+  break;
 /*
   case fMOUSEX:
     getmousexybm(a1->pointer,&i,NULL,NULL,NULL);
@@ -655,7 +687,15 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
       value=i+1;
     }
     result=stNUMBER;
-    break;   
+    break;       
+   case fSTR_REPLACE:   
+    str=a1->pointer;
+    str2=a2->pointer;
+     str3=a3->pointer;
+   pointer= replaceWordInText(str, str2, str3);
+    result=stSTRING;
+
+    break;
   case fDATE:
     pointer=my_malloc(100);
     time(&datetime);
@@ -701,7 +741,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     result=stNUMBER;
     break;
   case fGETCHAR:
-    pointer=getchars((int)a1->value,(int)a2->value,(int)a3->value,(int)a4->value);
+    pointer=getchars((int)a1->value,(int)a2->value,(int)a3->value,(int)a4->value,(int)a5->value,(int)a6->value);
     result=stSTRING;
     break;
   case fTELL:
@@ -791,7 +831,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     str=a1->pointer;
     str2=a2->pointer;
     str3=a3->pointer;
-    pointer = getloadfilepanel(str,str2,str3,yab,linenum, current->lib->s);
+    pointer = (str,str2,str3,yab,linenum, current->lib->s);
     result = stSTRING;
     break;
   case fSAVE:
@@ -999,8 +1039,8 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     str3=a3->pointer;
     value = bitmapsave(str,str2,str3,yab,linenum, current->lib->s);
     result = stNUMBER;
-    break;
-  case fSOUND:
+    break;  
+  case fSOUND:  //Reactivate Sound Lorglas 2020.01.02
  	str=a1->pointer;
     //value=a2->value;
     //sprintf(string,"stream %s %s not opened",str,value);
@@ -1008,7 +1048,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value = sound(str, a2->value, yab, linenum, current->lib->s);
     result = stNUMBER;
     break;
-  case fMEDIASOUND:
+  case fMEDIASOUND: //added Sound Lorglas 2020.01.02
     str=a1->pointer;
     value = mediasound(str, yab, linenum, current->lib->s);
     result = stNUMBER;
@@ -1050,6 +1090,10 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value = iscomputeron(yab,linenum, current->lib->s);
     result = stNUMBER;
     break;
+  case fPCWORKSPACES: //added new command Lorglas 2020.09.11
+    value = pcworkspaces(yab,linenum, current->lib->s);
+    result = stNUMBER;
+    break;
   case fMESSAGESEND:
     str=a1->pointer;
     str2=a2->pointer;
@@ -1068,6 +1112,12 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value = attributeget2(str,str2,yab,linenum, current->lib->s);
     result = stNUMBER;
     break;
+  case fAVAILABLELANGUAGE:
+    str=a1->pointer;    
+  	pointer = availablelanguage(str,yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;    
+  
   default:
     error(ERROR,"function called but not implemented");
     return;
@@ -1338,11 +1388,11 @@ static double other2dec(char *hex,int base) /* convert hex or binary to double n
 }
 
 
-int myformat(char *dest,double num,char *format,char *sep) /* format number according to string */
-{
-  int i1,i2; /* dummy */
-  char c1; /* dummy */
-  static char ctrl[6];
+//int myformat(char *dest,double num,char *format,char *sep) /* format number according to string */
+//{
+ // int i1,i2; /* dummy */
+  //char c1; /* dummy */
+/*  static char ctrl[6];
   char *found,*form;
   int pre,post,dot,len,i,j,digit,colons,dots;
   int neg=FALSE;
@@ -1351,8 +1401,8 @@ int myformat(char *dest,double num,char *format,char *sep) /* format number acco
   
   form=format;
   if (*form=='%') { /* c-style format */
-    strcpy(ctrl,"+- #0"); /* allowed control chars for c-format */
-    form++;
+//    strcpy(ctrl,"+- #0"); /* allowed control chars for c-format */
+/*    form++;
     while((found=strchr(ctrl,*form))!=NULL) {
       *found='?';
       form++;
@@ -1363,9 +1413,9 @@ int myformat(char *dest,double num,char *format,char *sep) /* format number acco
 	sscanf(form,"%u%c%n",&i2,&c1,&i)!=2) return FALSE;
     if (!strchr("feEgG",c1) || form[i]) return FALSE;
     /* seems okay, let's print */
-    sprintf(dest,format,num);
-  } else { /* basic-style format */
-    if (num<0) {
+//    sprintf(dest,format,num);
+//  } else { /* basic-style format */
+/*    if (num<0) {
       neg=TRUE;
       num=-num;
     }
@@ -1444,9 +1494,186 @@ int myformat(char *dest,double num,char *format,char *sep) /* format number acco
     }
   }
   return TRUE;
+}*/
+int myformat (char *dest, int max, double num, char *format, char *sep)	/* format number according to string */
+{
+    int ret = myformat2 (dest, max, num, format, sep);
+    if (ret == 0) return TRUE;
+    if (ret == 1) sprintf (errorstring, "'%s' is not a valid format", format);
+    if (ret == 2) sprintf (errorstring, "length of formatted string exceeds maximum of %d bytes", INBUFFLEN);
+    error (ERROR, errorstring);
+    return FALSE;
 }
 
+int myformat2 (char *dest, int max, double num, char *format, char *sep)	/* do the work for myformat */
+{
+    static char *ctrl = "+- #0";	/* allowed control chars for c-format */
+    char formchar;
+    char *found, *form;
+    int pre, post, len, nread, digit, commas, dots, i, cr;
+    int neg = FALSE;
+    double ipdbl, fp, round;
+    unsigned long ip;
+    static char *digits = "0123456789";
 
+    form = format;
+    if (*form == '%') {
+        /* c-style format */
+        form++;
+        while ((found = strchr (ctrl, *form)) != NULL) form++;
+        if (sscanf (form, "%*u.%*u%c%n", &formchar, &nread) != 1 &&
+	    sscanf (form, "%*u.%c%n", &formchar, &nread) != 1 &&
+	    sscanf (form, ".%*u%c%n", &formchar, &nread) != 1 &&
+	    sscanf (form, "%*u%c%n", &formchar, &nread) != 1 &&
+	    sscanf (form, "%c%n", &formchar, &nread) != 1) {
+            return 1;
+        }
+        if (!strchr ("feEgG", formchar) || form[nread]) {
+            return 1;
+        }
+        /* seems okay, let's try to print */
+        len = snprintf (dest, max, format, num);
+	if (len >= max) {
+	    return 2;
+	}
+    } else {
+        /* basic-style format */
+
+	/* make num positive and remember if it has been negative initially */
+        if (num < 0) {
+            neg = TRUE;
+            num = fabs (num);
+        }
+
+	/* verify form of ##.###.###,## (e.g.) up front to be able to rely on this; 
+	   also count various parts */
+        commas = 0;
+        dots = 0;
+        pre = 0;
+        post = 0;
+        for (form = format; *form; form++) {
+            if (*form == ',') {
+                if (dots) {
+		    /* commas in fractional part are not supported */
+                    return 1; 
+                }
+                commas++;
+            } else if (*form == '.') {
+		if (dots) {
+		    /* format has more than one decimal dot */
+		    return 1;
+		}
+                dots++;
+            } else if (*form == '#') {
+                if (dots) {
+                    post++;
+                } else {
+                    pre++;
+                }
+            } else {
+		/* neither '#' nor '.' nor ',' */
+                return 1;
+            }
+        }
+
+	/* prepare destination */
+        len = strlen (format);
+        dest[len] = '\0';
+
+	/* round to given precision; round away from zero */
+        round = 0.5;
+        for (i = 0; i < post; i++) {
+            round /= 10.;
+        }
+	/* if number is below round offset, treat it as zero */
+        if (num < round) {
+            neg = FALSE;
+	    num = 0.0;
+	} else {
+	    /* do the rounding away from zero */
+	    num += round;
+	}
+
+	/* because we cast to long we cannot cope with numbers larger than its max */
+	/* not casting to long on the other hand leads to frequent arithmetic errors */
+        if (num > LONG_MAX) {
+            strcpy (dest, format);
+            return 0;
+        }
+
+	/* disassemble in integer and fractional part; both ip and fp will be consumed stepwise in the process */
+	fp = modf(num, &ipdbl);
+	ip = (unsigned long) ipdbl;
+	
+	/* variable cr serves as our cursor running from right to left and marks the position to be written next */
+	
+	/* write integer part */
+	cr = pre + commas - 1;
+	do {
+	    if (format[cr] == '#') {
+		/* get digit and reduce integer part */
+		digit = ip % 10;
+		ip = ip/10;
+		dest[cr--] = digits[digit];
+	    } else {
+		/* format[cr] == ','; i.e. we do not need a new digit */
+		dest[cr--] = ip ? ',' : ' ';
+	    }
+	} while (ip && cr >= 0);
+
+	/* given format does not have enough room, this is an error; just copy format into dest and return */
+        if ((neg && cr < 0) || ip) {
+            strcpy (dest, format);
+            return 0;
+        }
+
+	/* minus if appropriate */
+        if (neg) {
+            dest[cr--] = '-';
+        }
+	
+	/* fill from cursor position back to start */
+        while (cr >= 0) {
+            dest[cr--] = ' ';
+        }
+
+	/* cursor cr now runs from left to right */
+	
+	/* do we need to write a fractional part ? */
+	cr = pre + commas;
+	if (dots) {
+	    /* write decimal dot */
+	    dest[cr++] = '.';
+	    /* construct fractional part digit by digit */
+	    while (cr < len) {
+		fp *= 10;
+		digit = ((unsigned long) fp) % 10;
+		dest[cr++] = digits[digit];
+	    }
+	} else {
+	    /* no fractional part needed */
+	    dest[cr++] = '\0';
+	}
+
+	/* until now we used fixed separators ',' for thousands and '.' for decimal; but if
+	   user has given his own separators (e.g. german or swiss style) we need to correct this */
+        if (sep) {
+	    if (sep[0] && sep[1]) {
+		for (i = 0; i < len; i++) {
+		    if (dest[i] == ',') {
+			dest[i++] = sep[0];
+		    }
+		    if (dest[i] == '.') {
+			dest[i++] = sep[1];
+		    }
+		}
+	    } else {
+		return 1;
+	    }
+        }
+    }
+    return 0;
+}
 static char *fromto(char *str,int from,int to) /* gives back portion of string */
 /* from and to can be in the range 1...strlen(str) */
 {
@@ -1673,14 +1900,14 @@ static double peek(char *dest, YabInterface *yab) /* peek into internals */
   else if (!strcmp(dest,"error")) return errorcode;
   else if (!strcmp(dest,"read_controls")) return read_controls;
   else if (!strcmp(dest,"isbound")) return is_bound;
-  
+  else if (!strcmp(dest, "loudness")) return yi_LoudnessGet(yab);	
    
   else if (dest[0]=='#') {
     error(ERROR,"don't use quotes when peeking into a file");
     return 0;
   }
  
-  fprintf(stderr, "PEEK is set to %s\n", dest);
+  sprintf(stderr, "PEEK is set to %s\n", dest);
   error(ERROR,"invalid peek");
   return 0;
 }
@@ -2062,3 +2289,40 @@ void boole(struct command *type)  /* perform and/or/not */
   result->type=stNUMBER;
 }
 
+char* replaceWordInText(char *text,  char *oldWord,  char *newWord) {
+	char *newString;
+	int i = 0, cnt = 0; int u=1;
+   	int len1 = strlen(newWord);
+   	int len2 = strlen(oldWord);     
+	
+   for (i = 0; text[i] != '\0'; i++) 
+   {
+      if (strstr(&text[i], oldWord) == &text[i]) 
+      {
+         cnt++;
+         i += len2 - 1;
+      }
+   }
+   
+  newString = (char *)malloc(i + cnt * (len1 - len2) + 1);
+   i = 0;
+   while (*text) {
+   	
+        	 if (strstr(text, oldWord) == text) 
+        	 {
+        
+        	 strcpy(&newString[i], newWord);
+         	i += len1;
+        	 text += len2;   
+        	
+      		}
+     		else
+     		{
+     		 newString[i++] = *text++;
+     		}
+   }
+   //printf("New String: %s\n", newString);
+    //return newString; 
+	return my_strdup(newString); 
+     	
+ }

@@ -54,7 +54,7 @@ OPT = -O
 ##
 ## set libtrary name
 ##
-YABLIBRARY := libyab_1.7.9.so
+YABLIBRARY := libyab_1.8.0.so
 ##
 #
 
@@ -70,13 +70,13 @@ GPP_OPT = $(DBG) $(OPT) -I. -DHAVE_CONFIG -DUNIX $(HAIKUOPT)
 ## find out if we need to change the library to libyab_x86.so and use gcc instead of ld
 ifeq ($(USEDARCH), x86)
 	LD = gcc
-	YABLIBRARY:=libyab_x86_1.7.9.so
+	YABLIBRARY:=libyab_x86_1.8.0.so
 else
 	LD = ld
 endif
 ifeq ($(SYSTEMARCH),x86_64)
 	LD=gcc
-	YABLIBRARY:=libyab_1.7.9.so
+	YABLIBRARY:=libyab_1.8.0.so
 endif
 #
 
@@ -89,7 +89,7 @@ LD_OPT = -shared
 LIBPATHS = $(shell findpaths -a `getarch` B_FIND_PATH_LIB_DIRECTORY;findpaths -a `getarch` B_FIND_PATH_DEVELOP_LIB_DIRECTORY) .
 LIBPATH=$(addprefix -L,$(LIBPATHS))
 ##LIBPATH = -L`finddir B_SYSTEM_LIB_DIRECTORY` ##/boot/system/lib    
-LIB = -lbe -lroot -ltranslation -ltracker -lmedia -llocalestub -lgame
+LIB = -lbe -lroot -ltranslation -ltracker -lmedia -llocalestub -lgame 
 
 ## flags for flex (-d for debugging)
 FLEXFLAGS = -i -I -L -s
@@ -157,7 +157,7 @@ URLView.o: URLView.cpp URLView.h
 	$(GPP) $(GPP_OPT) -c URLView.cpp -o URLView.o
 Spinner.o: Spinner.cpp Spinner.h
 	$(GPP) $(GPP_OPT) -c Spinner.cpp -o Spinner.o
-column/ColumnListView.o: column/ColumnListView.cpp column/ColumnListView.h column/ObjectList.h 
+column/ColumnListView.o: column/ColumnListView.cpp column/ColumnListView.h column/ObjectList.h
 	$(GPP) $(GPP_OPT) -c column/ColumnListView.cpp -o column/ColumnListView.o
 column/ColorTools.o: column/ColorTools.cpp column/ColorTools.h 
 	$(GPP) $(GPP_OPT) -c column/ColorTools.cpp -o column/ColorTools.o

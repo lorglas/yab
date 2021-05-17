@@ -16,8 +16,8 @@
 
 #define YABLICENSE \
 "\n"\
-"  Yab may only be copied under the terms of the Artistic                 \n"\
-"  License which can be found at yab-interpreter.sourceforge.net.         \n"\
+"  yab may only be copied under the terms of the Artistic                 \n"\
+"  License which can be found at https://github.com/lorglas/yab/blob/master/data/licenses/Artistic        \n"\
 "\n"\
 "  The Artistic License gives you the right to use and distribute         \n"\
 "  yab in a more-or-less customary fashion, plus the right to make        \n"\
@@ -57,6 +57,7 @@ UNIX and WINDOWS are defined at once; check your compiler settings
 #include <time.h>
 #include <limits.h>
 #include <errno.h>
+#include <string.h>
 #ifdef WINDOWS
 #include <string.h>
 #include <windows.h>
@@ -77,7 +78,6 @@ UNIX and WINDOWS are defined at once; check your compiler settings
 #elif HAS_STRINGS_HEADER
 #include <strings.h>
 #endif
-
 #include <sys/time.h>
 #include <sys/wait.h>
 
@@ -289,27 +289,28 @@ enum endreasons { /* ways to end the program */
 enum streammodes { /* ways to access a stream */
   smCLOSED=0,smREAD=1,smWRITE=2,smPRINT=4,smREADWRITE=3
 };
-
+/* added fCHOMP,fBITNOT,fSHL, fSHR,fCEIL,fFLOOR lorglas 12.6.2020*/
+/* added fPCWORKSPACES lorglas 11.09.2020*/
 enum functions { /* functions in yabasic (sorted by number of arguments) */
-  fRAN2,fDATE,fTIME,fMESSAGE,fNUMWINDOWS,fCLIPBOARDPASTE,fISCOMPUTERON,fMOUSEMOVE, 
+  fRAN2,fDATE,fTIME,fMESSAGE,fNUMWINDOWS,fCLIPBOARDPASTE,fISCOMPUTERON,fMOUSEMOVE, fPCWORKSPACES, fAVAILABLELANGUAGE,
   fZEROARGS,
   fINKEY,/* fMOUSEX,fMOUSEY,fMOUSEB,fMOUSEMOD,*/
   fSIN,fASIN,fCOS,fACOS,fTAN,
   fATAN,fSYSTEM,fSYSTEM2,fPEEK,fPEEK2,fPEEK4,fTELL,fEXP,fLOG,fLEN,fSTR,
-  fSQRT,fSQR,fFRAC,fABS,fSIG,fRAN,fINT,fVAL,fASC,fHEX,fBIN,fDEC,fUPPER,fLOWER,
+  fSQRT,fSQR,fFRAC,fABS,fSIG,fRAN,fINT,fVAL,fASC,fHEX,fBIN,fDEC,fUPPER,fLOWER,fCHOMP,fROUND,fBITNOT,
   fLTRIM,fRTRIM,fTRIM,fCHR,fTRANSLATE,fMENUTRANSLATE,fMOUSE, fISMOUSEIN,fTEXTCONTROLGET,
   fKEYBOARD,fCOLUMNBOXCOUNT, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
   fSPINCONTROLGET, fDROPBOXCOUNT, fSLIDERGET, fTEXTGET, fDRAWGET3, fTABVIEWGET,
-  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND,
+  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND, fLOUDNESS, fLOUDNESSGET, 
   fONEARGS, 
-  fDEC2,fATAN2,fLEFT,fAND,fOR,fEOR,fLOG2,
+  fDEC2,fATAN2,fLEFT,fAND,fOR,fEOR,fLOG2,fSHL,fSHR,
   fRIGHT,fINSTR,fRINSTR,fSTR2,fMOD,fMIN,fMAX,fPEEK3,fMID2,fWINDOWGET, fVIEWGET /* vasper */,
   fLISTBOXGET, fTREEBOXGET, fSCROLLBARGET, fSPLITVIEWGET, fDROPBOXGET, fCOLORCONTROLGET,
   fTEXTGET2,fTEXTGET6,fDRAWGET2, fTEXTGET3, fMESSAGESEND, fTHREADKILL, fTHREADGET, fBITMAPGET, 
-  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2, fSOUND, 
+  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2,fSOUND,
   fTWOARGS,
   fMID,fINSTR2,fRINSTR2,fSTR3,fCOLUMNBOXGET,fDRAWGET1,fTEXTGET4,fTEXTGET5,fPRINTER,
-  fLOAD, fTREEBOXGETOPT,fBITMAPSAVE, 
+  fLOAD, fTREEBOXGETOPT,fBITMAPSAVE, fSTR_REPLACE,  /* STR_REPLACE added 2020.12.02*/
   fTHREEARGS,
   fGETCHAR,fDRAWIMAGE,fPOPUPMENU,fSAVE,fDRAWGET4,fBITMAPCOLOR,
   fFOURARGS,
@@ -376,7 +377,7 @@ enum cmd_type { /* type of command */
   cLISTBOX, cDROPBOX, cITEMADD, cITEMDEL, cITEMCLEAR, cLOCALIZE, cLOCALIZE2, cLOCALIZESTOP, cTEXT, cTEXT2, cTEXTALIGN,
   cTEXTEDIT, cTEXTADD, cTEXTSET, cTEXTSET2, cTEXTCOLOR1, cTEXTCOLOR2, cTEXTSET3,  cTEXTCLEAR,  
   cVIEW, cBOXVIEW, cBOXVIEWSET, cTAB, cSLIDER1, cSLIDER2, cSLIDER3, cSLIDER4, cSLIDER5, cSLIDER6,
-  cOPTION1, cOPTION2, cOPTION3, cDROPZONE, cTEXTCONTROL2, cTEXTCONTROL3, cTEXTCONTROL4, cTEXTCONTROL5, 
+  cOPTION1, cOPTION2, cOPTION3, cDROPZONE, cTEXTCONTROL2, cTEXTCONTROL3, cTEXTCONTROL4, cTEXTCONTROL5, cSCALE,
   cCOLORCONTROL1, cCOLORCONTROL2, cTREEBOX1, cTREEBOX2, cTREEBOX3, cTREEBOX4, cTREEBOX5,
   cBUTTONIMAGE, cCHECKBOXIMAGE, cCHECKBOXSET, cRADIOSET, cTOOLTIP, cTOOLTIPCOLOR, cTREESORT,
   cLISTSORT, cFILEBOX, cFILEBOXADD2, cFILEBOXCLEAR, cCOLUMNBOXREMOVE,
@@ -386,10 +387,10 @@ enum cmd_type { /* type of command */
   cTREEBOX9, cTREEBOX10, cTREEBOX11, cSPLITVIEW1, cSPLITVIEW2, cSPLITVIEW3, 
   cSTACKVIEW1, cSTACKVIEW2, cTEXTURL1, cTEXTURL2, cDRAWSET3, cSPINCONTROL1, cTABSET, cTABDEL, cTABADD,
   cSPINCONTROL2, cDROPBOXREMOVE, cDROPBOXCLEAR, cSUBMENU3, cMENU3, cCALENDARSET,
-  cDOT, cLINE, cCIRCLE,  cDRAWTEXT, cDRAWRECT, cTREEBOX12, cOPTION4, cOPTION5,
+  cDOT, cLINE, cCIRCLE, cTRIANGLE, cDRAWTEXT, cDRAWRECT, cTREEBOX12, cOPTION4, cOPTION5,cDRAWROUNDRECT, cLOUDNESS,/* draw Roundrect added lorglas 2020/09/14 */
   cDRAWCLEAR, cDRAWSET1, cDRAWSET2, cELLIPSE, cCURVE,   /* Drawing */
   cBITMAP, cBITMAPDRAW, cBITMAPDRAW2, cBITMAPGET, cBITMAPGET2, cBITMAPGETICON, cBITMAPDRAG, cBITMAPREMOVE, cCANVAS, /* Bitmaps */
-  cSOUNDSTOP, cSOUNDWAIT, cMEDIASOUNDSTOP, /* Sound */
+  cSOUNDSTOP, cSOUNDWAIT, cMEDIASOUNDSTOP,  
   cTREEBOX13, cDRAWSET4, cSHORTCUT, cMOUSESET,
   cSCREENSHOT, cSTATUSBAR, cSTATUSBARSET, cSTATUSBARSET2, cSTATUSBARSET3, cLAUNCH, cRESTORE2, cRESTORE3,
   cATTRIBUTE1, cATTRIBUTE2, cATTRIBUTECLEAR,
@@ -551,7 +552,7 @@ void push_switch(struct command *); /* push current stream on stack and switch t
 void pop_switch(void); /* pop current stream from stack and switch to it */
 void mymove(); /* move to specific position on screen */
 void clearscreen(); /* clear entire screen */
-char *inkey(double); /* gets char from keyboard, blocks and doesn´t print */
+char *inkey(double); /* gets char from keyboard, blocks and does not print */
 char *replace(char *); /* replace \n,\a, etc. */
 
 /* graphic.c */
@@ -567,6 +568,7 @@ int ismousein(const char* view, YabInterface *yab, int line, const char* libname
 char* getmousein(YabInterface *yab, int line, const char* libname); /* check which view the mouse is in */ //vasper
 void drawtext(struct command *, YabInterface* yab); /* draw text */
 void drawrect(struct command *, YabInterface* yab); /* draw rectangle */
+void drawroundrect(struct command *, YabInterface* yab); /* draw Roundrect added lorglas 2020/09/14 */
 void drawclear(struct command *, YabInterface* yab); /* clears canvas */
 void createmenu(struct command *, YabInterface* yab); /* add a menu */
 void createalert(struct command *, YabInterface* yab); /* alert */
@@ -626,6 +628,7 @@ void drawline(struct command *, YabInterface *yab); /* draw a line */
 void drawcircle(struct command *, YabInterface *yab); /* draw a circle */
 void drawellipse(struct command *, YabInterface *yab); /* draw a ellipse */
 void drawcurve(struct command *, YabInterface *yab); /* draw a curve */
+void drawtriangle(struct command *, YabInterface *yab); /* draw a Triangle */ /* draw Roundrect added lorglas 2020/09/14 */
 void slider1(struct command *, YabInterface *yab);
 void slider2(struct command *, YabInterface *yab);
 void slider3(struct command *, YabInterface *yab);
@@ -636,6 +639,7 @@ void option1(struct command *, YabInterface *yab);
 void option2(struct command *, YabInterface *yab);
 void option3(struct command *, YabInterface *yab);
 void dropzone(struct command *, YabInterface *yab);
+void scale(struct command *, YabInterface *yab); /* scale a veiw*/
 void colorcontrol1(struct command *, YabInterface *yab);
 void colorcontrol2(struct command *, YabInterface *yab);
 void textcontrol2(struct command *, YabInterface *yab);
@@ -755,6 +759,8 @@ int treeboxgetnum(const char*, YabInterface *yab, int line, const char* libname)
 int treeboxgetopt(const char*, const char*, int, YabInterface *yab, int line, const char* libname);
 void treebox13(struct command *, YabInterface *yab);
 void drawset4(struct command *, YabInterface *yab);
+void loudness(struct command *,  YabInterface *yab); //added lorglas 2020/09/15
+float loudnessget(float,YabInterface *yab, int line, const char* libname);//added lorglas 2020/09/15
 int sound(const char*, int , YabInterface *yab, int line, const char* libname);
 void soundstop(struct command *, YabInterface *yab);
 void soundwait(struct command *, YabInterface *yab);
@@ -768,7 +774,8 @@ void attribute1(struct command *, YabInterface *yab);
 void attributeclear(struct command *, YabInterface *yab);
 char* attributeget1(const char*, const char*, YabInterface *yab, int line, const char* libname);
 double attributeget2(const char*, const char*, YabInterface *yab, int line, const char* libname);
-
+char* availablelanguage(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2021/02/22
+int pcworkspaces(YabInterface *yab, int line, const char* libname); /*return the workspaces you set in prefs added 11.09.2020 lorglas */
 /* function.c */
 void create_exception(int); /* create command 'exception' */
 void exception(struct command *); /* change handling of exceptions */
@@ -787,7 +794,8 @@ void create_boole(char); /* create command boole */
 void boole(struct command *);  /* perform and/or/not */
 void create_function(int); /* create command 'function' */
 void function(struct command *, YabInterface* yab); /* performs a function */
-int myformat(char *,double,char *,char *); /* format number */
+int myformat(char *, int, double, char *,char *); /* format number */
+int myformat2 (char *, int, double, char *, char *); /*Added from yabasic  2.7.8  //20201116
 void create_restore(char *); /* create command 'restore' */
 void restore(struct command *); /* reset data pointer to given label */
 void create_dbldata(double);  /* create command dbldata */
@@ -799,7 +807,7 @@ void mybell(); /* ring ascii bell */
 void getmousexybm(char *,int *,int *,int *,int *); /* get mouse coordinates */
 void token(struct command *); /* extract token from variable */
 void tokenalt(struct command *); /* extract token from variable with alternate semantics */
-
+char* replaceWordInText(char*, char*,  char*); /* replace string with other string sometimes */
 
 /* symbol.c */
 struct array *create_array(int,int); /* create an array */
