@@ -26,7 +26,7 @@ can be found at www.yabasic.de
 /* ------------- defines ---------------- */
 
 #define DONE {current=current->next;break;}  /* reduces type-work */
-#define COPYRIGHT "  Original yabasic Copyright 1995-2006 by Marc-Oliver Ihm\n\tyab Copyright 2006-2009 by Jan Bungeroth\n\tyab improvements Copyright 2013-2018 by Jim Saxton\n\tyab improvements Copyright 2018-2020 by BeSly Software Solutions (also thanks to Stephan Aßmus for Correction of Code)\n"
+#define COPYRIGHT "  Original yabasic Copyright 1995-2006 by Marc-Oliver Ihm\n\tyab Copyright 2006-2009 by Jan Bungeroth\n\tyab improvements Copyright 2013-2018 by Jim Saxton\n\tyab improvements Copyright 2018-2020 by BeSly Software Solutions (also thanks to Stephan Aßmus for Correction of Code)\n\tyab improvements Copyright 2021 by BeSly Software Solutions\n"
 #define BANNER \
 "\n        yab is yabasic, a BASIC programming language for Haiku.\n        This is version " VERSION ", built on "\
 ARCHITECTURE " on " BUILD_TIME "\n\n      " COPYRIGHT "\n\n"
@@ -1397,6 +1397,8 @@ static void run_it(YabInterface* yab)
         clearitems(current, yab); DONE;
       case cDRAWRECT:
 		drawrect(current, yab); DONE;
+	  case cDRAWROUNDRECT:
+		drawroundrect(current, yab); DONE; /* draw Roundrect added lorglas 2020/09/14 */
       case cDRAWTEXT:
 		drawtext(current, yab); DONE;
       case cDRAWCLEAR:
@@ -1413,6 +1415,12 @@ static void run_it(YabInterface* yab)
 		drawcurve(current,yab); DONE;
       case cELLIPSE:
 		drawellipse(current,yab); DONE;
+	  case cTRIANGLE: 
+		drawtriangle(current,yab); DONE; /* draw Roundrect added lorglas 2020/09/14 */
+	  case cLOUDNESS:
+		loudness(current, yab); DONE; /* loudness added lorglas 2020/09/15 */
+	//case cLOUDNESSGET:
+		//loudnessget(current, yab); DONE; /* loudness added lorglas 2020/09/15 */
 /*      case cTEXT:
 	text(current); DONE;*/
       case cCLOSEWIN:
@@ -1455,6 +1463,8 @@ static void run_it(YabInterface* yab)
 		option5(current, yab); DONE;
       case cDROPZONE:
 		dropzone(current, yab); DONE;
+	  case cSCALE:
+		scale(current, yab); DONE;
       case cCOLORCONTROL1:
 		colorcontrol1(current, yab); DONE;
       case cCOLORCONTROL2:

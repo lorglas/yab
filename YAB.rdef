@@ -25,8 +25,8 @@ resource app_signature "application/x-vnd.yab-app";
 
 resource app_version {
 	major  = 1,
-	middle = 7,
-	minor  = 9,
+	middle = 8,
+	minor  = 0,
 
 	variety = B_APPV_FINAL,
 	internal = 1,
