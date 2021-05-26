@@ -6740,12 +6740,14 @@ void YabInterface::ClipboardCopy(const char* text)
 		be_clipboard->Unlock(); 
 	}
 }
+
 int YabInterface::Printer(const char* docname, const char *config, const char* view)
 {
+	
 	BPrintJob job(docname);
 	BMessage *setup;
 	BFile myFile(config, B_READ_ONLY);
-
+	int32 firstPage, lastPage, nbPages;
 	if(myFile.InitCheck()!=B_OK)
 	{
 		if(job.ConfigPage()==B_OK)
@@ -6784,14 +6786,15 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 				return 2;
 			}*/
 	}
-
-	int32 firstPage, lastPage, nbPages;
+	
 	BRect printableRect = job.PrintableRect();
-	firstPage =0 ;//= job.FirstPage(); Since we aren't calling the set-up print pages, firstpage is always 0
+	firstPage = job.FirstPage(); //Since we aren't calling the set-up print pages, firstpage is always 0
 	lastPage = job.LastPage();
-	// printf("PRINTER DEBUG Printable BRect %f %f %f %f\n", printableRect.left,printableRect.top, printableRect.right, printableRect.bottom);
+	
+	
+	// printf("PRINTE,R DEBUG Printable BRect %f %f %f %f\n", printableRect.left,printableRect.top, printableRect.right, printableRect.bottom);
 	YabView *myView = NULL;
-	BView *newView = NULL;
+	BView *newView1 = NULL;
 	for(int i=0; i<viewList->CountItems(); i++)
 	{
 		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
@@ -6801,65 +6804,83 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			if(w)
 			{
 				w->Lock();
-				newView = myView->FindView(view);
+				newView1 = myView->FindView(view);
 				w->Unlock();
-				if(newView)
+				if(newView1)
 					break;
 			}
 		}
 	}
 
-	if(!newView)
+	if(!newView1)
 	{
 		// (new BAlert(_L("Printer Error!"),_L("Could not setup the printer!"), "Ok"))->Go();
 		return 3;
 	}
-
-
-	BWindow *w = newView->Window();
+	int32 printableHeight = printableRect.IntegerHeight();
+	float printableWidth = printableRect.Width();	
+	//printf("printableWidth() %f :  printableHeight  %d \n",printableWidth , printableHeight);
+	BWindow *w = newView1->Window();
 	w->Lock();
+	int32 viewHeight=0;	
+	viewHeight = newView1->Bounds().IntegerHeight();
+	float viewWidth = newView1->Bounds().Width();
+	//printf ("%f %d\n",viewWidth, viewHeight);
+	
+	int32 currentLine = 0;
+	int32 pagesInDocument = 1;
+	float textWidth, textHeight;	
+	int32 firstLine = 0;
+	int32 maxPages=0;
+	int32 lastLine =(int32)((YabText*)newView1)->CountLines();
+		//printf("%d", lastLine);
+		bool hasWordWrap;
+	
+	if(is_kind_of(newView1, YabText))
+	{
+		//viewHeight = (int32)((YabText*)newView)->TextHeight(0, ((YabText*)newView)->CountLines());
+		viewHeight = (int32)((YabText*)newView1)->TextRect().Height(); //changed 26/05/2021 by lorglas
+		//viewheight wasn't correct calculated, change to textrect().Height has bring the right Height
+		//printf("pagesInDocument %d viewHeight %d\n",pagesInDocument,viewHeight); 
+	}	
 
-	int32 viewHeight = newView->Bounds().IntegerHeight();
-	float viewWidth = newView->Bounds().Width();
-	if(is_kind_of(newView, YabText))
-		viewHeight = (int32)((YabText*)newView)->TextHeight(0, ((YabText*)newView)->CountLines());
-	if(is_kind_of(newView, BScrollView))
+	if(is_kind_of(newView1, BScrollView))
 	{
 		float a,b;
 
-		if(((BScrollView*)newView)->ScrollBar(B_VERTICAL))
+		if(((BScrollView*)newView1)->ScrollBar(B_VERTICAL))
 		{
-			((BScrollView*)newView)->ScrollBar(B_VERTICAL)->GetRange(&a, &b);
+			((BScrollView*)newView1)->ScrollBar(B_VERTICAL)->GetRange(&a, &b);
 			viewHeight = viewHeight + (int32)b;
-			if(((BScrollView*)newView)->ScrollBar(B_HORIZONTAL))
+			if(((BScrollView*)newView1)->ScrollBar(B_HORIZONTAL))
 				viewHeight -= (int32)B_H_SCROLL_BAR_HEIGHT;
 		}
-		if(((BScrollView*)newView)->ScrollBar(B_HORIZONTAL))
+		if(((BScrollView*)newView1)->ScrollBar(B_HORIZONTAL))
 		{
-			((BScrollView*)newView)->ScrollBar(B_HORIZONTAL)->GetRange(&a, &b);
+			((BScrollView*)newView1)->ScrollBar(B_HORIZONTAL)->GetRange(&a, &b);
 			viewWidth = viewWidth + b;
-			if(((BScrollView*)newView)->ScrollBar(B_VERTICAL))
+			if(((BScrollView*)newView1)->ScrollBar(B_VERTICAL))
 				viewWidth -= B_V_SCROLL_BAR_WIDTH;
 		}
 
-		if(((BScrollView*)newView)->ScrollBar(B_VERTICAL))
-			newView = ((BScrollView*)newView)->ScrollBar(B_VERTICAL)->Target();
+		if(((BScrollView*)newView1)->ScrollBar(B_VERTICAL))
+			newView1 = ((BScrollView*)newView1)->ScrollBar(B_VERTICAL)->Target();
 		else
-			newView = ((BScrollView*)newView)->ScrollBar(B_HORIZONTAL)->Target();
-	}
-
-	// printf("  %d %f \n", viewHeight, viewWidth);
-	int32 printableHeight = printableRect.IntegerHeight();
-	float printableWidth = printableRect.Width();
+			newView1 = ((BScrollView*)newView1)->ScrollBar(B_HORIZONTAL)->Target();
+			//printf("First %d\n",viewHeight);
+	}	
 	w->Unlock();
 
-	int32 maxPages = viewHeight / printableHeight + 1;
-	if(lastPage>maxPages) 
+	//int32 
+	maxPages = viewHeight / printableHeight + 1;
+	if(lastPage<maxPages) 
+	{
 		lastPage = maxPages;
 		nbPages = lastPage - firstPage + 1;
+	}
 
-	 //printf("PRINTER DEBUG First Page %d Last Page %d \n", firstPage, lastPage);
-	// printf("PRINTER DEBUG View Height %d Printable Height %d \n", viewHeight, printableHeight);
+	//printf("PRINTER DEBUG First Page %d Last Page %d nbPages %d MaxPages %d\n", firstPage, lastPage, nbPages,maxPages);
+	//printf("PRINTER DEBUG View Height %d Printable Height %d \n", viewHeight, printableHeight);
 
 	if(nbPages<=0)
 	{
@@ -6872,28 +6893,27 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 
 	w->Lock();
 
-	bool hasWordWrap;
-	float textWidth, textHeight;
-
-	if(is_kind_of(newView, YabText))
+	if(is_kind_of(newView1, YabText))
 	{
 		int lineheight; 
-		hasWordWrap = ((YabText*)newView)->DoesWordWrap();
-		if(!hasWordWrap) ((YabText*)newView)->SetWordWrap(true);
-		lineheight = (int)((YabText*)newView)->LineHeight();
-		textWidth = ((YabText*)newView)->TextRect().Width();
-		textHeight = ((YabText*)newView)->TextRect().Height();
 
-		((YabText*)newView)->SetTextRect(BRect(0,0,printableWidth, viewHeight));
+		hasWordWrap = ((YabText*)newView1)->DoesWordWrap();
+		if(!hasWordWrap) ((YabText*)newView1)->SetWordWrap(true);
+		lineheight = (int)((YabText*)newView1)->LineHeight();
+		textWidth = ((YabText*)newView1)->TextRect().Width();
+		textHeight = ((YabText*)newView1)->TextRect().Height();
+		// printf("  %f %f\n", textWidth, textHeight);
+		((YabText*)newView1)->SetTextRect(BRect(0,0,printableWidth, viewHeight )); //viewHeight
 		
 		printableHeight -= printableHeight%lineheight;
+		//printf("PRINTER DEBUG View Height %d Printable Height %d textheight %f\n", viewHeight, printableHeight,textHeight);
 	}
-
+	
 	int32 newHeight;
 	if(printableHeight<viewHeight)
 		newHeight = printableHeight;
 	else
-		newHeight = viewHeight;
+		newHeight =viewHeight;  // viewHeight;
 
 	if(viewWidth<printableWidth)
 		printableWidth = viewWidth;
@@ -6917,27 +6937,33 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 
 	for(int i=firstPage; i<=lastPage; i++)
 	{
-		job.DrawView(newView, currentRect, printableRect.LeftTop());
+		job.DrawView(newView1, currentRect, printableRect.LeftTop());
 		job.SpoolPage();
 		can_continue = job.CanContinue();
 		if(!can_continue)
 			break;
 		currentRect.SetLeftTop(BPoint(0,newHeight+1));
 		if(printableHeight<viewHeight-newHeight)
+		{
 			newHeight = newHeight + printableHeight;
+			 
+		}
 		else
-			newHeight = viewHeight;
-
+		{
+				newHeight = viewHeight;
+		}
 		currentRect.SetRightBottom(BPoint(printableWidth, newHeight));
 		if(currentRect.bottom<currentRect.top)
 			break;
 		// printf("PRINTER DEBUG Spooling current BRect: %f %f %f %f\n", currentRect.left,currentRect.top, currentRect.right, currentRect.bottom);
 	}
 
-	if(is_kind_of(newView, YabText))
+	if(is_kind_of(newView1, YabText))
 	{
-		((YabText*)newView)->SetWordWrap(hasWordWrap);
-		((YabText*)newView)->SetTextRect(BRect(0,0,textWidth, textHeight));
+		
+		((YabText*)newView1)->SetWordWrap(hasWordWrap);		
+		((YabText*)newView1)->SetTextRect(BRect(0,0,textWidth, textHeight));
+	//printf("%f : %f",textWidth,textHeight);
 	}
 
 	w->Unlock();
@@ -6953,8 +6979,11 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 void YabInterface::PrinterConfig(const char* config)
 {
 	BPrintJob job("");
-	if(job.ConfigPage()==B_OK)
-	{
+
+	status_t result = job.ConfigPage();
+	
+	if(result==B_OK) //job.ConfigPage()
+	{		
 		BMessage *setup = job.Settings();
 		BFile myFile(config, B_WRITE_ONLY|B_CREATE_FILE|B_ERASE_FILE);
 		if(myFile.InitCheck()==B_OK)
