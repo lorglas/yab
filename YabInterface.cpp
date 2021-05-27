@@ -6751,7 +6751,9 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	if(myFile.InitCheck()!=B_OK)
 	{
 		if(job.ConfigPage()==B_OK)
-			setup = job.Settings();
+			{
+				setup = job.Settings();
+			}
 		else
 		{
 			// (new BAlert(_L("Printer Error!"),_L("Could not setup the printer!"), "Ok"))->Go();
@@ -6761,6 +6763,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	else
 	{
 		setup = new BMessage();
+		
 		if(setup->Unflatten(&myFile)!=B_OK)
 		{
 			if(job.ConfigPage()==B_OK)
@@ -6768,15 +6771,14 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			else
 			{
 				// (new BAlert(_L("Printer Error!"),_L("Could not setup the printer!"), "Ok"))->Go();
+				
 				return 1;
 			}
 		}
 		else
-			job.SetSettings(setup); //changed to job.SetSettings() 2021/13/05 by lorglas
-			/*if(job.ConfigPage()==B_OK) 
-			setup = job.Settings();
-			
-			if(job.IsSettingsMessageValid(setup))
+		
+		/*if(job.ConfigPage()==B_OK) 
+					if(job.IsSettingsMessageValid(setup))
 			{
 				job.SetSettings(setup);
 			}
@@ -6785,6 +6787,8 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			 (new BAlert(_L("Printer Error!"),_L("Could not setup the printer!"), "Ok"))->Go();
 				return 2;
 			}*/
+			
+				job.SetSettings(setup); //changed to job.SetSettings() 2021/13/05 by lorglas
 	}
 	
 	BRect printableRect = job.PrintableRect();
@@ -6805,11 +6809,12 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			{
 				w->Lock();
 				newView1 = myView->FindView(view);
+			//printf("myview: %d %s\n",is_kind_of(newView1, YabText), newView1);
 				w->Unlock();
 				if(newView1)
 					break;
 			}
-		}
+		} 
 	}
 
 	if(!newView1)
@@ -6820,24 +6825,27 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	int32 printableHeight = printableRect.IntegerHeight();
 	float printableWidth = printableRect.Width();	
 	//printf("printableWidth() %f :  printableHeight  %d \n",printableWidth , printableHeight);
+	
 	BWindow *w = newView1->Window();
 	w->Lock();
+	
 	int32 viewHeight=0;	
 	viewHeight = newView1->Bounds().IntegerHeight();
 	float viewWidth = newView1->Bounds().Width();
 	//printf ("%f %d\n",viewWidth, viewHeight);
 	
 	int32 currentLine = 0;
-	int32 pagesInDocument = 1;
-	float textWidth, textHeight;	
-	int32 firstLine = 0;
-	int32 maxPages=0;
-	int32 lastLine =(int32)((YabText*)newView1)->CountLines();
-		//printf("%d", lastLine);
-		bool hasWordWrap;
 	
+	float textWidth, textHeight;	
+	
+	int32 maxPages=0;
+	bool hasWordWrap;
+	
+	
+		
 	if(is_kind_of(newView1, YabText))
 	{
+		//int32 lastLine = ((YabText*)newView1)->CountLines();
 		//viewHeight = (int32)((YabText*)newView)->TextHeight(0, ((YabText*)newView)->CountLines());
 		viewHeight = (int32)((YabText*)newView1)->TextRect().Height(); //changed 26/05/2021 by lorglas
 		//viewheight wasn't correct calculated, change to textrect().Height has bring the right Height
@@ -6869,6 +6877,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			newView1 = ((BScrollView*)newView1)->ScrollBar(B_HORIZONTAL)->Target();
 			//printf("First %d\n",viewHeight);
 	}	
+
 	w->Unlock();
 
 	//int32 
@@ -6878,7 +6887,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 		lastPage = maxPages;
 		nbPages = lastPage - firstPage + 1;
 	}
-
+	
 	//printf("PRINTER DEBUG First Page %d Last Page %d nbPages %d MaxPages %d\n", firstPage, lastPage, nbPages,maxPages);
 	//printf("PRINTER DEBUG View Height %d Printable Height %d \n", viewHeight, printableHeight);
 
@@ -6957,13 +6966,12 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 			break;
 		// printf("PRINTER DEBUG Spooling current BRect: %f %f %f %f\n", currentRect.left,currentRect.top, currentRect.right, currentRect.bottom);
 	}
-
 	if(is_kind_of(newView1, YabText))
 	{
 		
 		((YabText*)newView1)->SetWordWrap(hasWordWrap);		
 		((YabText*)newView1)->SetTextRect(BRect(0,0,textWidth, textHeight));
-	//printf("%f : %f",textWidth,textHeight);
+	
 	}
 
 	w->Unlock();
