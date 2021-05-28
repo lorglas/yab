@@ -6748,6 +6748,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	BMessage *setup;
 	BFile myFile(config, B_READ_ONLY);
 	int32 firstPage, lastPage, nbPages;
+
 	if(myFile.InitCheck()!=B_OK)
 	{
 		if(job.ConfigPage()==B_OK)
@@ -6794,7 +6795,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	BRect printableRect = job.PrintableRect();
 	firstPage = job.FirstPage(); //Since we aren't calling the set-up print pages, firstpage is always 0
 	lastPage = job.LastPage();
-	
+
 	
 	// printf("PRINTE,R DEBUG Printable BRect %f %f %f %f\n", printableRect.left,printableRect.top, printableRect.right, printableRect.bottom);
 	YabView *myView = NULL;
@@ -6881,13 +6882,28 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	w->Unlock();
 
 	//int32 
+		printf("%d %d\n",firstPage,lastPage);
 	maxPages = viewHeight / printableHeight + 1;
-	if(lastPage<maxPages) 
+	//printf("%d\n",(int32)maxPages);
+	job.SetSettings(new BMessage(firstPage));
+	job.SetSettings(new BMessage((int32)maxPages));
+	
+	job.ConfigJob();
+	firstPage = job.FirstPage(); //Since we aren't calling the set-up print pages, firstpage is always 0
+	lastPage = job.LastPage();
+	//printf("%d %d\n",firstPage,lastPage);
+	if(lastPage>maxPages) 
 	{
 		lastPage = maxPages;
 		nbPages = lastPage - firstPage + 1;
 	}
-	
+	else
+	{
+		//lastPage = maxPages;
+		nbPages = lastPage - firstPage + 1;
+	}
+	// enforce job config properties
+
 	//printf("PRINTER DEBUG First Page %d Last Page %d nbPages %d MaxPages %d\n", firstPage, lastPage, nbPages,maxPages);
 	//printf("PRINTER DEBUG View Height %d Printable Height %d \n", viewHeight, printableHeight);
 
