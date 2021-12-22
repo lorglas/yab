@@ -104,26 +104,26 @@ void report_missing(int severity,char *text) {
 %token tIF tTHEN tELSE tELSIF tENDIF tUSING
 %token tPRINT tINPUT tLINE tRETURN tDIM tEND tEXIT tAT tSCREEN tSCREENSHOT
 %token tREVERSE tCOLOUR
-%token tAND tOR tNOT tEOR
+%token tAND tOR tNOT tEOR tSHL tSHR tBITNOT
 %token tNEQ tLEQ tGEQ tLTN tGTN tEQU tPOW
 %token tREAD tDATA tRESTORE
 %token tOPEN tCLOSE tSEEK tTELL tAS tREADING tWRITING 
 %token tWAIT tBELL tLET tARDIM tARSIZE tBIND
-%token tWINDOW tDOT tCIRCLE tCLEAR tFILL tPRINTER tSETUP
+%token tWINDOW tDOT tCIRCLE tTRIANGLE tCLEAR tFILL tPRINTER tSETUP
 %token tBUTTON tALERT tMENU tCHECKBOX tRADIOBUTTON tTEXTCONTROL
-%token tLISTBOX tDROPBOX tADD tREMOVE tLOCALIZE tFILEPANEL tSLIDER tSTATUSBAR
+%token tLISTBOX tDROPBOX tADD tREMOVE tLOCALIZE tFILEPANEL tSLIDER tSTATUSBAR tLANGUAGEAVAILABLE
 %token tLAYOUT tSET tTEXTEDIT tCOUNT tVIEW tBOXVIEW tTABVIEW tTEXTURL tBITMAP tCANVAS
-%token tOPTION tDROPZONE tCOLORCONTROL tTREEBOX tCOLUMNBOX tCOLUMN tSORT tTOOLTIP tCALENDAR
+%token tOPTION tDROPZONE tCOLORCONTROL tTREEBOX tCOLUMNBOX tCOLUMN tSORT tTOOLTIP tCALENDAR tSCALE
 %token tCLIPBOARD tCOPY tSUBMENU tSELECT tSCROLLBAR tEXPAND tCOLLAPSE tSPLITVIEW tSTACKVIEW
-%token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON
+%token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON tPCWORKSPACES tLOUDNESS
 %token tDRAW tTEXT tFLUSH tELLIPSE tSAVE
-%token tRECT tGETCHAR tPUTCHAR tNEW tCURVE tLAUNCH tATTRIBUTE
+%token tRECT tGETCHAR tPUTCHAR tNEW tCURVE tLAUNCH tATTRIBUTE tROUNDRECT
 
 %token tSIN tASIN tCOS tACOS tTAN tATAN tEXP tLOG
 %token tSQRT tSQR tMYEOF tABS tSIG
-%token tINT tFRAC tMOD tRAN tLEN tVAL tLEFT tRIGHT tMID tMIN tMAX
+%token tINT tFRAC tROUND tMOD tRAN tLEN tVAL tLEFT tRIGHT tMID tMIN tMAX 
 %token tSTR tINKEY tCHR tASC tHEX tDEC tBIN tUPPER tLOWER 
-%token tTRIM tLTRIM tRTRIM tINSTR tRINSTR
+%token tTRIM tLTRIM tRTRIM tINSTR tRINSTR tCHOMP tSTR_REPLACE
 %token tSYSTEM tSYSTEM2 tPEEK tPEEK2 tPOKE 
 %token tDATE tTIME tTOKEN tTOKENALT tSPLIT tSPLITALT tGLOB
 %token tMESSAGE tIMAGE tSVG tTRANSLATE tGET tMOUSE tISMOUSEIN 
@@ -238,6 +238,7 @@ statement:  /* empty */
   | tLOCALIZE tSTOP {add_command(cLOCALIZESTOP, NULL);}
   | tDRAW tTEXT coordinates ',' string_expression ',' string_expression {add_command(cDRAWTEXT,NULL);}
   | tDRAW tRECT coordinates to coordinates ',' string_expression {add_command(cDRAWRECT,NULL);}
+  | tDRAW tROUNDRECT coordinates to coordinates ',' expression ',' expression ',' string_expression {add_command(cDRAWROUNDRECT,NULL);}
   | tDRAW tFLUSH string_expression {add_command(cDRAWCLEAR,NULL);}
   | tWINDOW tCLOSE string_expression {add_command(cCLOSEWIN,NULL);}
   | tLAYOUT string_expression ',' string_expression {add_command(cLAYOUT,NULL);}
@@ -275,6 +276,8 @@ statement:  /* empty */
   | tDRAW tCIRCLE coordinates ',' expression ',' string_expression {add_command(cCIRCLE,NULL);}
   | tDRAW tELLIPSE coordinates ',' expression ',' expression ',' string_expression {add_command(cELLIPSE,NULL);}
   | tDRAW tCURVE coordinates ',' coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cCURVE,NULL);}
+  | tDRAW tTRIANGLE coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cTRIANGLE,NULL);} 
+  | tLOUDNESS tSET expression {add_command(cLOUDNESS,NULL);}
   | tSLIDER coordinates to coordinates ',' string_expression ',' string_expression ',' expression ',' expression ',' string_expression {add_command(cSLIDER1,NULL);}
   | tSLIDER coordinates to coordinates ',' string_expression ',' string_expression ',' expression ',' expression ',' string_expression ',' string_expression {add_command(cSLIDER2,NULL);}
   | tSLIDER tLABEL string_expression ',' string_expression ',' string_expression {add_command(cSLIDER3,NULL);}
@@ -303,6 +306,7 @@ statement:  /* empty */
   | tSCREENSHOT coordinates to coordinates ',' string_expression {add_command(cSCREENSHOT,NULL);}
   | tCANVAS coordinates to coordinates ',' string_expression ',' string_expression {add_command(cCANVAS,NULL);}
   | tVIEW tDROPZONE string_expression {add_command(cDROPZONE,NULL);}
+  | tVIEW tSCALE string_expression ',' string_expression ',' expression {add_command(cSCALE,NULL);}
   | tCOLORCONTROL coordinates ',' string_expression ',' string_expression {add_command(cCOLORCONTROL1,NULL);}
   | tCOLORCONTROL tSET string_expression ',' expression ',' expression ',' expression {add_command(cCOLORCONTROL2,NULL);}
   | tTEXTCONTROL tSET string_expression ',' string_expression {add_command(cTEXTCONTROL2,NULL);}
@@ -451,6 +455,7 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tLTRIM '(' string_expression ')' {create_function(fLTRIM);}
   | tRTRIM '(' string_expression ')' {create_function(fRTRIM);}
   | tTRIM '(' string_expression ')' {create_function(fTRIM);}
+  | tCHOMP '(' string_expression ')' {create_function(fCHOMP);}
   | tSYSTEM '(' string_expression ')' {create_function(fSYSTEM);}
   | tDATE {create_function(fDATE);}
   | tDATE '(' ')' {create_function(fDATE);}
@@ -491,6 +496,8 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tDROPBOX tGET string_expression ',' expression {create_function(fDROPBOXGET);}
   | tDRAW tGET string_expression {create_function(fDRAWGET3);}
   | tATTRIBUTE tGET string_expression ',' string_expression {create_function(fATTRIBUTEGET1);}
+  | tSTR_REPLACE '(' string_expression ',' string_expression ',' string_expression ')' {create_function(fSTR_REPLACE);}
+  | tLANGUAGEAVAILABLE {create_function(fAVAILABLELANGUAGE);}
   ;
 
 assignment: tSYMBOL tEQU expression {add_command(cPOPDBLSYM,dotify($1,FALSE));} 
@@ -553,6 +560,7 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tSQRT '(' expression ')' {create_function(fSQRT);}
   | tSQR '(' expression ')' {create_function(fSQR);}
   | tINT '(' expression ')' {create_function(fINT);}
+  | tROUND '(' expression ')' {create_function(fROUND);}
   | tFRAC '(' expression ')' {create_function(fFRAC);}
   | tABS '(' expression ')' {create_function(fABS);}
   | tSIG '(' expression ')' {create_function(fSIG);}
@@ -589,6 +597,9 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tAND '(' expression ',' expression ')' {create_function(fAND);}
   | tOR '(' expression ',' expression ')' {create_function(fOR);}
   | tEOR '(' expression ',' expression ')' {create_function(fEOR);}
+  | tSHL '(' expression ',' expression ')' {create_function(fSHL);}
+  | tSHR '(' expression ',' expression ')' {create_function(fSHR);}
+  | tBITNOT '(' expression ')' {create_function(fBITNOT);}
   | tTELL '(' hashed_number ')' {create_function(fTELL);}
   | tTOKEN '(' string_expression ',' string_arrayref ',' string_expression ')' {add_command(cTOKEN2,NULL);}
   | tTOKEN '(' string_expression ',' string_arrayref ')' {add_command(cTOKEN,NULL);}
@@ -642,6 +653,8 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tBITMAP tGETNUM string_expression ',' string_expression {create_function(fBITMAPGET);}
   | tBITMAP tCOLOUR expression ',' expression ',' string_expression ',' string_expression {create_function(fBITMAPCOLOR);}
   | tATTRIBUTE tGETNUM string_expression ',' string_expression {create_function(fATTRIBUTEGET2);}
+  | tPCWORKSPACES {create_function(fPCWORKSPACES);}
+  | tLOUDNESS tGETNUM {create_function(fLOUDNESSGET);}
   ;
 
 const: number {$$=$1;}

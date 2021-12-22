@@ -59,6 +59,7 @@ void YabTabView::AddTab(BView *tabView, const char* label)
 {
 	if(tabView)
 	{
+		//printf("Tabnames  %d %d \n",fTabNames->CountItems(),tabView);	
 		BTab *tab = new BTab();
 		BTabView::AddTab(tabView, tab);
 		tab->SetLabel(label);
@@ -203,14 +204,14 @@ void YabTabView::FindTabName(const char* tabname )
 		//printf("%s \n", tabname);
 		for(int i=0; i<fTabNames->CountItems(); i++)
 		{
-			printf("%s\n", ((BString*)(fTabNames->ItemAt(i)))->String());
+			//printf("%s\n", ((BString*)(fTabNames->ItemAt(i)))->String());
 			test=((BString*)(fTabNames->ItemAt(i)))->String();
 			
 			if (test == tabname)			
 			{
 				//printf("stimmt"); 
-				printf("%s %d",test,i );
-				printf("\n");
+				//printf("%s %d",test,i );
+				//printf("\n");
 				//return tabname;
 				//return true;
 			}

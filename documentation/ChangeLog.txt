@@ -1,8 +1,31 @@
+yab 1.8.1
+Bug fixes
+- closing programs
+
+yab 1.8
+Bug fixes
+- Translate
+- localize
+- Printer
+
+Reactivating feature
+- Translate
+- localize
+- Print function is working again
+
+New feature
+- Draw Triangle
+- Loudness Set
+- peek("loudness")
+- PCWorkspaces()
+- Available_Languages
+- STR_REPLACE$(source_string,find_string,replace_string)
+
 yab 1.7.9
 
 Bug fixes
 - Bug fixes in YabInterfaces (some return Statement added (bbjimmy/lorglas)
-Reactivating Feature
+Reactivating feature
 - Columnbox sorting activated
 Enhancement 
 - Sound command loop activted, Example: sound play "file.mp3", loop
@@ -13,7 +36,7 @@ See in Examples directory Changes_to_1_7_9.yab
 
 yab 1.7.8
 
-New Feature
+New feature
 - Mediasound play
 - Mediasound stop
 - Textcontrol with/without label
@@ -22,13 +45,13 @@ New Feature
 - Checkbox with/without label
 - Dropbox with/without label
 
-Reactivating Feature
+Reactivating feature
 - Sound play
 - Sound stop
 - Sound pause
 - Tabdel (it works, but there is still a problem with add the same tab a second time, issue in the view ID)
 
-closed Bugs
+closed bugs
 - Texturl shows URL twice when mouseover, fixed
 - Spincontrol, height from spinner icon fixed
 - textcontrol allow by numeric charaters special chararaters, fixed

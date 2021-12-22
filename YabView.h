@@ -8,6 +8,7 @@ struct YabDrawing
 {
 	int command;
 	double x1,y1,x2,y2,x3,y3,x4,y4;
+	float r1,r2;
 	int r,g,b,alpha;
 	const char* chardata;
 	pattern p;

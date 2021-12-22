@@ -34,6 +34,7 @@
 		int CreateSVG(BRect frame, const char* imagefile, const char* window);
 		void DrawText(BPoint coordinates, const char* text, const char* window);
 		void DrawRect(BRect frame, const char* window);  
+		void DrawRoundRect(double x1, double y1, double x2, double y2,float r1, float r2, const char* window);  
 		void DrawClear(const char* window, bool isExit);  
 		void CreateAlert(const char* text, const char* button1, const char* option);
 		void CreateMenu(const char* menuhead, const char* menuitem, const char *shortcut, const char* window); 
@@ -73,6 +74,7 @@
 		void DrawSet1(const char* option, const char* window);
 		void DrawSet2(int fillorstroke, const char* mypattern);
 		void View(BRect frame, const char* id, const char* view);
+		void ViewTransparency(BRect frame, const char* id, const char* view);
 		void BoxView(BRect frame, const char* id, const char* text, int lineType, const char* view);
 		void BoxViewSet(const char* id, const char* option, const char* value);
 		void Tab(BRect frame, const char* id, const char* names, const char* view);
@@ -85,6 +87,7 @@
 		void DrawCircle(double x, double y, double r, const char* window);  
 		void DrawEllipse(double x, double y, double r1, double r2, const char* window);  
 		void DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window);  
+		void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window);  		
 		void Slider(BRect frame, const char* id, const char* title, int min, int max, const char* view);
 		void Slider(BRect frame, const char* id, const char* title, int min, int max, const char* option, const char* view);
 		void SetSlider(const char* id, const char* label1, const char* label2);
@@ -97,6 +100,7 @@
 		void SetOption(const char* id, const char* option);
 		void SetOption(const char* id, const char* option, int value);
 		void DropZone(const char* view);
+		void Scale(const char* id, const char* option, double value);
 		void ColorControl(double x, double y, const char* id, const char* view);
 		void ColorControl(const char* id, int r, int g, int b);
 		void TextControl(const char* id, const char* text);
@@ -215,6 +219,8 @@
 		void Screenshot(BRect frame, const char* bitmap);
 		int BitmapSave(const char* id, const char* filename, const char* type);
 		void Canvas(BRect frame, const char* id, const char* view);
+		void Loudness(float volume);
+		float LoudnessGet();
 		int Sound(const char* filename, int status);
 		void SoundStop(int32 id); 
 		void SoundWait(int32 id);
@@ -229,11 +235,12 @@
 		int DropboxGetNum(const char* id);
 		int TreeboxGetNum(const char* id);
 		int ColumnboxGetNum(const char* id);
+	
 		void Attribute1(const char* type, const char* name, const char* value, const char* filename);
 		void AttributeClear(const char* name, const char* filename);
 		const char* AttributeGet1(const char* name, const char* filename);
 		double AttributeGet2(const char* name, const char* filename);
-
+		const char* Available_Languages(); //const char* name, added 20210224 lorglas
 		const int GetErrorCode();
 		void Error(const char* id, const char* type);
 		void ErrorGen(const char* msg);
@@ -245,7 +252,7 @@
 		void StatusBarSet(BRect frame, const char* id, const char* view);
 		void StatusBarSet(const char* id, int r, int g, int b);
 		void RefsReceived(BMessage *message);
-		
+		int PCWorkspaces();
 	private:
 		BFileGameSound* fPlayer;
 		int status;
@@ -253,6 +260,7 @@
 		void GetMMsgInfo(BString &t, int mouseStateInfo, int mouseLButton, int mouseMButton, int mouseRButton, int x, int y, const char* name);
 		BBitmap* loadImage(const char* name);
 		static int compare(BListItem **firstArg, BListItem **secondArg);
+		
 		void CleanupYabTabView(BView* view);
 		void CleanupSubchildView(BView* view);
 
@@ -312,6 +320,7 @@ extern void yi_RemoveItem(const char* title,const char* item, YabInterface *yab)
 extern void yi_ClearItems(const char* title, YabInterface *yab);
 extern void yi_DrawText(double x, double y, const char* text, const char* window, YabInterface* yab);
 extern void yi_DrawRect(double x1, double y1, double x2, double y2, const char* window, YabInterface* yab);
+extern void yi_DrawRoundRect(double x1, double y1, double x2, double y2, float r1, float r2, const char* window, YabInterface* yab);
 extern void yi_DrawClear(const char* window, YabInterface* yab);
 extern void yi_CreateAlert(const char* text, const char* button1, const char* type, YabInterface* yab);
 extern void yi_CreateText(double x, double y, const char *id, const char* text, const char* window, YabInterface *yab);
@@ -346,6 +355,7 @@ extern int yi_TextGet2(const char* title, const char* option, YabInterface *yab)
 extern void yi_DrawSet1(const char* option, const char* window, YabInterface *yab);
 extern void yi_DrawSet2(int fillorstroke, const char* mypattern, YabInterface *yab);
 extern void yi_View(double x1, double y1, double x2, double y2, const char* id, const char* view, YabInterface *yab);
+extern void ViewTransparency(double x1, double y1, double x2, double y2, const char* id, const char* view, YabInterface *yab);
 extern void yi_BoxView(double x1, double y1, double x2, double y2, const char* id, const char* text, int lineType, const char* view, YabInterface *yab);
 extern void yi_BoxViewSet(const char* id, const char* option, const char* value, YabInterface *yab);
 extern void yi_Tab(double x1, double y1, double x2, double y2, const char* id, const char* names, const char* view, YabInterface *yab);
@@ -357,6 +367,7 @@ extern void yi_DrawDot(double x, double y, const char* window, YabInterface *yab
 extern void yi_DrawLine(double x1, double y1, double x2, double y2, const char* window, YabInterface *yab);
 extern void yi_DrawCircle(double x, double y, double r, const char* window, YabInterface *yab);
 extern void yi_DrawEllipse(double x, double y, double r1, double r2, const char* window, YabInterface *yab);
+extern void yi_DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window, YabInterface *yab);
 extern void yi_DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window, YabInterface *yab);
 extern void yi_Slider1(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* view, YabInterface *yab);
 extern void yi_Slider2(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* option, const char* view, YabInterface *yab);
@@ -370,6 +381,7 @@ extern void yi_SetOption3(const char* id, const char* option, double x, double y
 extern void yi_SetOption4(const char* id, const char* option, YabInterface *yab);
 extern void yi_SetOption5(const char* id, const char* option, int value, YabInterface *yab);
 extern void yi_DropZone(const char* view, YabInterface *yab);
+extern void yi_Scale(const char* id, const char* option, double value, YabInterface *yab);
 extern void yi_ColorControl1(double x, double y, const char* id, const char* view, YabInterface* yab);
 extern void yi_ColorControl2(const char* id, int r, int g, int b, YabInterface* yab);
 extern void yi_TextControl2(const char* id, const char* text, YabInterface* yab);
@@ -495,6 +507,8 @@ extern void yi_BitmapRemove(const char* bitmap,YabInterface* yab);
 extern void yi_Screenshot(double x1, double y1, double x2, double y2, const char* bitmap, YabInterface* yab);
 extern int yi_BitmapSave(const char* id, const char* filename, const char* type, YabInterface* yab);
 extern void yi_Canvas(double x1, double y1, double x2, double y2, const char* id, const char* view, YabInterface *yab);
+extern void yi_Loudness(float volume, YabInterface *yab);
+extern float yi_LoudnessGet(YabInterface *yab);
 extern int yi_Sound(const char* filename, int status, YabInterface* yab);
 extern void yi_SoundStop(int id, YabInterface* yab);
 extern void yi_SoundWait(int id, YabInterface* yab);
@@ -521,6 +535,8 @@ extern void yi_Attribute1(const char* type, const char* name, const char* value,
 extern void yi_AttributeClear(const char* name, const char* filename, YabInterface* yab);
 extern const char* yi_AttributeGet1(const char* name, const char* filename, YabInterface* yab);
 extern double yi_AttributeGet2(const char* name, const char* filename, YabInterface* yab);
+extern const char* yi_AvailableLanguage(const char* text, YabInterface *yab);
+extern int yi_PCWorkspaces(YabInterface* yab);
 extern char* refsRec;	//refs received
 
 #ifdef LOCALIZE

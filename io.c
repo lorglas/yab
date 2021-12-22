@@ -221,7 +221,7 @@ void print(struct command *cmd) /* print on screen */
       *s=' ';
       s++;
     }
-    if (!myformat(s,q->value,p->pointer,r?r->pointer:NULL)) {
+    if (!myformat(s,INBUFFLEN,q->value,p->pointer,r?r->pointer:NULL)) { //INBUFFLEN added 20201116
       sprintf(string,"'%s' is not a valid format",(char *)p->pointer);
       error(ERROR,string);
       break;

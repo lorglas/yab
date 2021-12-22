@@ -277,7 +277,7 @@ void drawtext(struct command *cmd, YabInterface* yab) /* draw text */
 	yi_DrawText(x,y,text, window, yab);
 }
 
-void drawrect(struct command *cmd, YabInterface* yab) /* draw rect */
+void drawrect(struct command *cmd,  YabInterface* yab) /* draw rect */
 {
         double x1,y1,x2,y2;
         char *window;
@@ -291,7 +291,23 @@ void drawrect(struct command *cmd, YabInterface* yab) /* draw rect */
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DrawRect(x1,y1,x2,y2,window, yab);
 }
+void drawroundrect(struct command *cmd, YabInterface* yab) /* draw Roundrect added lorglas 2020/09/14 */
+{
+        double x1,y1,x2,y2;
+        float r1,r2;
+        char *window;
 
+        window = pop(stSTRING)->pointer;
+        r2=pop(stNUMBER)->value;
+        r1=pop(stNUMBER)->value;
+        y2=pop(stNUMBER)->value;
+        x2=pop(stNUMBER)->value;
+        y1=pop(stNUMBER)->value;
+        x1=pop(stNUMBER)->value;
+
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_DrawRoundRect(x1,y1,x2,y2,r1,r2, window, yab);
+}
 void drawdot(struct command *cmd, YabInterface* yab) /* draw dot */
 {
         double x1,y1;
@@ -366,6 +382,22 @@ void drawcurve(struct command *cmd, YabInterface* yab) /* draw a curve */
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DrawCurve(x1,y1,x2,y2,x3,y3,x4,y4,window, yab);
+}
+void drawtriangle(struct command *cmd, YabInterface* yab) /* draw Roundrect added lorglas 2020/09/14 */
+{
+        double x1,y1,x2,y2,x3,y3;
+        char *window;
+
+        window = pop(stSTRING)->pointer;
+        y3=pop(stNUMBER)->value;
+        x3=pop(stNUMBER)->value;
+        y2=pop(stNUMBER)->value;
+        x2=pop(stNUMBER)->value;
+        y1=pop(stNUMBER)->value;
+        x1=pop(stNUMBER)->value;
+
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_DrawTriangle(x1,y1,x2,y2,x3,y3,window, yab);
 }
 
 void drawclear(struct command *cmd, YabInterface* yab) /* clear canvas */
@@ -563,6 +595,7 @@ char* getmenutranslation(const char* text, YabInterface* yab, int line, const ch
 	return my_strdup((char*) translationbuffer);
 }
 
+
 void localize()
 {
 	yi_SetLocalize();
@@ -581,6 +614,7 @@ void localize2(struct command *cmd, YabInterface *yab)
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SetLocalize2(path, yab);
+	
 }
 
 char* getloadfilepanel(const char* mode, const char* title, const char* dir,  YabInterface *yab, int line, const char* libname) /* load panel */
@@ -1024,13 +1058,22 @@ void dropzone(struct command *cmd, YabInterface *yab)
 {
 	char *view;
 	
-	
 	view = pop(stSTRING)->pointer;
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DropZone(view,yab);
 }
 
+void scale(struct command *cmd, YabInterface *yab)
+{
+	char *id, *option;
+	double value;
+	value = pop(stNUMBER)->value;
+	option = pop(stSTRING)->pointer;
+	id = pop(stSTRING)->pointer;
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_Scale(id,option,value,yab);
+}
 void colorcontrol1(struct command *cmd, YabInterface *yab)
 {
 	char *view, *id;
@@ -2405,6 +2448,21 @@ void launch(struct command *cmd, YabInterface *yab)
 	yi_Launch(strg, yab);
 }
 
+void loudness(struct command *cmd, YabInterface* yab) /* LOUDNESS added by lorglas 2020/09/15*/
+{
+	float volume;
+	volume = pop(stNUMBER)->value;
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	return yi_Loudness(volume, yab);
+}
+float loudnessget(float volume,YabInterface *yab, int line, const char* libname)/* LOUDNESSGET added by lorglas 2020/09/15*/
+{
+	//float volume;
+	//volume = pop(stNUMBER)->value;
+	yi_SetCurrentLineNumber(line, libname, yab);
+	return yi_LoudnessGet(yab);
+}
+
 //int sound(struct command *cmd, YabInterface *yab)
 int sound(const char* filename, int status, YabInterface *yab, int line, const char* libname)
 {
@@ -2422,7 +2480,7 @@ void soundstop(struct command *cmd, YabInterface *yab)
 	int id;
 
 	id = pop(stNUMBER)->value;
-
+	
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SoundStop(id, yab);
 }
@@ -2457,7 +2515,11 @@ int iscomputeron(YabInterface *yab, int line, const char* libname)
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_IsComputerOn(yab);
 }
-
+int pcworkspaces(YabInterface *yab, int line, const char* libname)
+{
+	yi_SetCurrentLineNumber(line, libname, yab);
+	return yi_PCWorkspaces(yab);
+}
 void attribute1(struct command *cmd, YabInterface *yab)
 {
 	char *type, *name, *value, *filename;
@@ -2493,6 +2555,12 @@ double attributeget2(const char* name, const char* filename, YabInterface *yab, 
 {
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_AttributeGet2(name, filename, yab);	
+}
+
+char* availablelanguage(const char* name, YabInterface *yab, int line, const char* libname) /* get translation string */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_AvailableLanguage(name, yab));
 }
 
 void shortcut(struct command *cmd, YabInterface *yab)
