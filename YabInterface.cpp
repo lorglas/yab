@@ -351,14 +351,14 @@ void YabInterface::MessageReceived(BMessage *message)
 bool YabInterface::QuitRequested()
 {
 	
-	if (fPlayer->IsPlaying()) {
+	/*if (fPlayer->IsPlaying()) {
 		fPlayer->StopPlaying();
 		
 	}
 		kill_thread(reader);
 		delete fPlayer;
 		fPlayer = NULL;
-		//delete_sem(255255255);
+	*/
 		
 	//exiting = true;
 	//return false;
@@ -6882,7 +6882,7 @@ int YabInterface::Printer(const char* docname, const char *config, const char* v
 	w->Unlock();
 
 	//int32 
-		printf("%d %d\n",firstPage,lastPage);
+		//printf("%d %d\n",firstPage,lastPage);
 	maxPages = viewHeight / printableHeight + 1;
 	//printf("%d\n",(int32)maxPages);
 	job.SetSettings(new BMessage(firstPage));
@@ -10365,7 +10365,7 @@ int YabInterface::MessageSend(const char* app, const char* msg)
 void YabInterface::SetLocalize(const char* path) //new Implemented 2021.02.22 Lorglas
 {
 	//printf("PATH FOR TRANSLATION:\n\n%s\n\nEND",path);
-	//printf("%s\n\n",path);
+	
 	status_t result; 
 	
 	BMessage message;
@@ -10376,18 +10376,19 @@ void YabInterface::SetLocalize(const char* path) //new Implemented 2021.02.22 Lo
 		const char *language;
 
 		for (int32 i = 0; (language = message.GetString("language", i, NULL))	!= NULL; i++) {
-			//printf("%d",i);
+			printf("%d",i);
 			if (i==0)
 			{	
 			
 			pos = strcspn(language,"_");
 			//printf("%d",pos);
 			 strncpy(prefered_language,language,pos);
-			// printf("%s\n",prefered_language);
+			//printf("%s\n",prefered_language);
 			}
 		}
 	}
-
+	
+ printf("%s\n",prefered_language);
 		yabCatalog = new BCatalog(path,prefered_language); //
 		result=yabCatalog->InitCheck();
 		
