@@ -59,14 +59,19 @@ class YabText : public BTextView
 		bool isCaseSensitive, hasChanged, isJapanese;
 		int myFontSize;
 		rgb_color bgcolor;
-		rgb_color textcolor, punc_symbol_color, comment_color, ignore_color;
-		rgb_color format_cmd_color, special_cmd_color, generic_cmd_color;
+		rgb_color textcolor, punc_symbol_color, comment_color, ignore_color, div1_color, div2_color,div3_color,div4_color,div5_color; //added div1_color -div5_color  11.11.2021 lorglas
+		rgb_color format_cmd_color, special_cmd_color, generic_cmd_color, div1_cmd_color, div2_cmd_color, div3_cmd_color, div4_cmd_color, div5_cmd_color; //added div1_color -div5_color 11.11.2021 lorglas
 		BFont f;
 
 		std::vector <BString> green_matches;
 		std::vector <BString> purple_matches;
 		std::vector <BString> generic_matches;
 		std::vector <BString> comment_matches;
+		std::vector <BString> div1_matches;  //added div1_color -div5_color  11.11.2021 lorglas
+		std::vector <BString> div2_matches; 
+		std::vector <BString> div3_matches; 
+		std::vector <BString> div4_matches; 
+		std::vector <BString> div5_matches; 
 		std::vector <char> punctuation;
 
 		BList *words;

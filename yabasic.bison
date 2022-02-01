@@ -95,6 +95,8 @@ void report_missing(int severity,char *text) {
 %token <symbol> tSTRSYM
 %token <symbol> tDOCU
 %token <digits> tDIGITS
+%token <digits> tHEXDIGITS
+%token <digits> tBINDIGITS
 %token <string> tSTRING
 
 %token tFOR tTO tSTEP tNEXT tWHILE tWEND tREPEAT tUNTIL tIMPORT
@@ -105,7 +107,7 @@ void report_missing(int severity,char *text) {
 %token tPRINT tINPUT tLINE tRETURN tDIM tEND tEXIT tAT tSCREEN tSCREENSHOT
 %token tREVERSE tCOLOUR
 %token tAND tOR tNOT tEOR tSHL tSHR tBITNOT
-%token tNEQ tLEQ tGEQ tLTN tGTN tEQU tPOW
+%token tNEQ tLEQ tGEQ tLTN tGTN tEQU tEQU2 tPOW
 %token tREAD tDATA tRESTORE
 %token tOPEN tCLOSE tSEEK tTELL tAS tREADING tWRITING 
 %token tWAIT tBELL tLET tARDIM tARSIZE tBIND
@@ -116,12 +118,12 @@ void report_missing(int severity,char *text) {
 %token tOPTION tDROPZONE tCOLORCONTROL tTREEBOX tCOLUMNBOX tCOLUMN tSORT tTOOLTIP tCALENDAR tSCALE
 %token tCLIPBOARD tCOPY tSUBMENU tSELECT tSCROLLBAR tEXPAND tCOLLAPSE tSPLITVIEW tSTACKVIEW
 %token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON tPCWORKSPACES tLOUDNESS
-%token tDRAW tTEXT tFLUSH tELLIPSE tSAVE
+%token tDRAW tTEXT tFLUSH tELLIPSE tSAVE tARC
 %token tRECT tGETCHAR tPUTCHAR tNEW tCURVE tLAUNCH tATTRIBUTE tROUNDRECT
 
 %token tSIN tASIN tCOS tACOS tTAN tATAN tEXP tLOG
 %token tSQRT tSQR tMYEOF tABS tSIG
-%token tINT tFRAC tROUND tMOD tRAN tLEN tVAL tLEFT tRIGHT tMID tMIN tMAX 
+%token tINT tCEIL tFLOOR tFRAC tROUND tMOD tRAN tLEN tVAL tLEFT tRIGHT tMID tMIN tMAX
 %token tSTR tINKEY tCHR tASC tHEX tDEC tBIN tUPPER tLOWER 
 %token tTRIM tLTRIM tRTRIM tINSTR tRINSTR tCHOMP tSTR_REPLACE
 %token tSYSTEM tSYSTEM2 tPEEK tPEEK2 tPOKE 
@@ -138,6 +140,7 @@ void report_missing(int severity,char *text) {
 %left tLTN
 %left tGTN
 %left tEQU
+%left tEQU2
 %left '-' '+'
 %left '*' '/'
 %left tPOW
@@ -275,6 +278,7 @@ statement:  /* empty */
   | tDRAW tLINE coordinates to coordinates ',' string_expression {add_command(cLINE,NULL);}
   | tDRAW tCIRCLE coordinates ',' expression ',' string_expression {add_command(cCIRCLE,NULL);}
   | tDRAW tELLIPSE coordinates ',' expression ',' expression ',' string_expression {add_command(cELLIPSE,NULL);}
+  | tDRAW tARC coordinates ',' expression ',' expression ',' expression ',' expression ',' string_expression {add_command(cARC,NULL);}
   | tDRAW tCURVE coordinates ',' coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cCURVE,NULL);}
   | tDRAW tTRIANGLE coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cTRIANGLE,NULL);} 
   | tLOUDNESS tSET expression {add_command(cLOUDNESS,NULL);}
@@ -508,6 +512,7 @@ expression: expression tOR {add_command(cORSHORT,NULL);pushlabel();} expression 
   | expression tAND {add_command(cANDSHORT,NULL);pushlabel();} expression {poplabel();create_boole('&');}
   | tNOT expression {create_boole('!');}
   | expression tEQU expression {create_dblrelop('=');}
+  | expression tEQU2 expression {create_dblrelop('=');}
   | expression tNEQ expression {create_dblrelop('!');}
   | expression tLTN expression {create_dblrelop('<');}
   | expression tLEQ expression {create_dblrelop('{');}
@@ -529,6 +534,7 @@ expression: expression tOR {add_command(cORSHORT,NULL);pushlabel();} expression 
   | expression tPOW expression {create_dblbin('^');}
   | '-' expression %prec UMINUS {add_command(cNEGATE,NULL);}
   | string_expression tEQU string_expression {create_strrelop('=');}
+  | string_expression tEQU2 string_expression {create_strrelop('=');}
   | string_expression tNEQ string_expression {create_strrelop('!');}
   | string_expression tLTN string_expression {create_strrelop('<');}
   | string_expression tLEQ string_expression {create_strrelop('{');}
@@ -561,6 +567,8 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tSQR '(' expression ')' {create_function(fSQR);}
   | tINT '(' expression ')' {create_function(fINT);}
   | tROUND '(' expression ')' {create_function(fROUND);}
+  | tCEIL '(' expression ')' {create_function(fCEIL);}
+  | tFLOOR '(' expression ')' {create_function(fFLOOR);}
   | tFRAC '(' expression ')' {create_function(fFRAC);}
   | tABS '(' expression ')' {create_function(fABS);}
   | tSIG '(' expression ')' {create_function(fSIG);}
@@ -664,6 +672,8 @@ const: number {$$=$1;}
 
 number: tFNUM {$$=$1;}
   | tDIGITS {$$=strtod($1,NULL);}
+  | tHEXDIGITS {$$=(double)strtoul($1,NULL,16);}
+  | tBINDIGITS {$$=(double)strtoul($1,NULL,2);}
   ;
 
 symbol_or_lineno: tDIGITS {$$=my_strdup(dotify($1,FALSE));}
