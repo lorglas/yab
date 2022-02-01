@@ -1,0 +1,19 @@
+new Feature
+ROUND()
+FLOOR()
+CEIL()
+BITNOT()
+added == and != as logical condition
+draw arc x1,y1, r1, r2,r3,r4 , View$
+
+closed BUGS
+SHL / SHR / DEC wasn't working, because bin and hex digits wasn't allowed. 
+
+Other fixes 
+EXECUTE()
+COMPILE()
+
+Documentation updated
+
+Known Problems
+Build Factory doesn't work under Haiku nightly

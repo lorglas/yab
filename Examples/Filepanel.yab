@@ -1,0 +1,25 @@
+window open 100,100 to 300,300, "Example", "Example"
+button 10,10 to 190,30, "OpenFile", "Open a file...", "Example"
+button 10,40 to 190,60, "OpenDir", "Open a directory...", "Example"
+button 10,70 to 190,90, "OpenDir2", "Open file and directory...", "Example"
+button 10,100 to 190,120, "Save", "Save a file...", "Example"
+
+while(not quitting)
+        m$ = message$
+        if(instr(m$, "OpenFile")) then
+			filename$ = filepanel "load-file", "Open File", "",""			
+		elseif(instr(m$, "OpenDir")) then
+			filename$ = filepanel "load-directory", "Open Directory", "", ""
+		elseif(instr(m$, "OpenDir2")) then
+			filename$ = filepanel "Load-File-and-Directory", "Open Directory", "", ""			
+        elseif(instr(m$, "Save"))   then
+			filename$ = filepanel "save-file", "Save File", "", "SuggestedFile"
+        elseif(instr(m$, "Quit")) then
+			quitting = true
+        elseif(filename$ <> "") then
+                alert "You haven chosen "+filename$, "Ok", "info"
+                filename$ = ""
+        endif
+wend
+
+window close "Example"

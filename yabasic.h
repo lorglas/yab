@@ -297,7 +297,7 @@ enum functions { /* functions in yabasic (sorted by number of arguments) */
   fINKEY,/* fMOUSEX,fMOUSEY,fMOUSEB,fMOUSEMOD,*/
   fSIN,fASIN,fCOS,fACOS,fTAN,
   fATAN,fSYSTEM,fSYSTEM2,fPEEK,fPEEK2,fPEEK4,fTELL,fEXP,fLOG,fLEN,fSTR,
-  fSQRT,fSQR,fFRAC,fABS,fSIG,fRAN,fINT,fVAL,fASC,fHEX,fBIN,fDEC,fUPPER,fLOWER,fCHOMP,fROUND,fBITNOT,
+  fSQRT,fSQR,fFRAC,fABS,fSIG,fRAN,fINT,fVAL,fASC,fHEX,fBIN,fDEC,fUPPER,fLOWER,fCHOMP,fROUND, fBITNOT,fCEIL, fFLOOR,
   fLTRIM,fRTRIM,fTRIM,fCHR,fTRANSLATE,fMENUTRANSLATE,fMOUSE, fISMOUSEIN,fTEXTCONTROLGET,
   fKEYBOARD,fCOLUMNBOXCOUNT, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
   fSPINCONTROLGET, fDROPBOXCOUNT, fSLIDERGET, fTEXTGET, fDRAWGET3, fTABVIEWGET,
@@ -388,7 +388,7 @@ enum cmd_type { /* type of command */
   cSTACKVIEW1, cSTACKVIEW2, cTEXTURL1, cTEXTURL2, cDRAWSET3, cSPINCONTROL1, cTABSET, cTABDEL, cTABADD,
   cSPINCONTROL2, cDROPBOXREMOVE, cDROPBOXCLEAR, cSUBMENU3, cMENU3, cCALENDARSET,
   cDOT, cLINE, cCIRCLE, cTRIANGLE, cDRAWTEXT, cDRAWRECT, cTREEBOX12, cOPTION4, cOPTION5,cDRAWROUNDRECT, cLOUDNESS,/* draw Roundrect added lorglas 2020/09/14 */
-  cDRAWCLEAR, cDRAWSET1, cDRAWSET2, cELLIPSE, cCURVE,   /* Drawing */
+  cDRAWCLEAR, cDRAWSET1, cDRAWSET2, cELLIPSE, cCURVE, cARC, /* Drawing */
   cBITMAP, cBITMAPDRAW, cBITMAPDRAW2, cBITMAPGET, cBITMAPGET2, cBITMAPGETICON, cBITMAPDRAG, cBITMAPREMOVE, cCANVAS, /* Bitmaps */
   cSOUNDSTOP, cSOUNDWAIT, cMEDIASOUNDSTOP,  
   cTREEBOX13, cDRAWSET4, cSHORTCUT, cMOUSESET,
@@ -627,6 +627,7 @@ void drawdot(struct command *, YabInterface *yab); /* draw a dot */
 void drawline(struct command *, YabInterface *yab); /* draw a line */
 void drawcircle(struct command *, YabInterface *yab); /* draw a circle */
 void drawellipse(struct command *, YabInterface *yab); /* draw a ellipse */
+void drawarc(struct command *, YabInterface *yab); /* draw a Arc */
 void drawcurve(struct command *, YabInterface *yab); /* draw a curve */
 void drawtriangle(struct command *, YabInterface *yab); /* draw a Triangle */ /* draw Roundrect added lorglas 2020/09/14 */
 void slider1(struct command *, YabInterface *yab);

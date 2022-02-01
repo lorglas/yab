@@ -60,7 +60,7 @@ YabView::~YabView()
 	while(drawList->CountItems()>0)
 	{
 		YabDrawing *t = (YabDrawing*)drawList->LastItem();
-		drawList->RemoveItem(t);
+		drawList->RemoveItem(t);	
 		if(t->command == 0) delete [] t->chardata;
 		delete t;
 	}
@@ -113,7 +113,9 @@ void YabView::Draw(BRect updateRect)
 	SetDrawingMode(B_OP_OVER);
 	for(int i=0; i<drawList->CountItems(); i++)
 	{
+		
 		YabDrawing *e = (YabDrawing*)drawList->ItemAt(i);
+		
 		switch(e->command)
 		{
 			case 0: DrawString(e->chardata, BPoint(e->x1, e->y1));
@@ -192,7 +194,7 @@ void YabView::Draw(BRect updateRect)
 					SetFont(&e->font, B_FONT_ALL);
 				}
 				break;
-			case 13: /* draw Roundrect added lorglas 2020/09/14 */
+			case 13: /* draw Triangle added lorglas 2020/09/14 */
 			{
 					BPoint p[3];
 				    p[0].Set(e->x1,e->y1);
@@ -206,7 +208,7 @@ void YabView::Draw(BRect updateRect)
 					 
 				}
 				break;
-			case 14: /* draw Roundrect added lorglas 2020/09/14 */
+			case 14: /* draw Triangle added lorglas 2020/09/14 */
 			 {
 					BPoint p[3];
 				    p[0].Set(e->x1,e->y1);
@@ -226,6 +228,16 @@ void YabView::Draw(BRect updateRect)
 				case 16: /* draw Roundrect added lorglas 2020/09/14 */
 				{
 					FillRoundRect(BRect(e->x1,e->y1,e->x2,e->y2),e->r1,e->r2, e->p);
+				}
+				break;
+				case 17:	
+				{
+					StrokeArc(BPoint(e->x1,e->y1), e->r1, e->r2, e->r3, e->r4, e->p);
+				}
+				break;
+				case 18:	
+				{
+					FillArc(BPoint(e->x1,e->y1), e->r1, e->r2, e->r3, e->r4, e->p);
 				}
 				break;
 		}

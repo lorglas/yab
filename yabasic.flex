@@ -212,6 +212,7 @@ VIEW return tVIEW;
 BOXVIEW return tBOXVIEW;
 TABVIEW return tTABVIEW;
 ELLIPSE return tELLIPSE;
+ARC return tARC;
 DOT return tDOT;
 LINE return tLINE;
 CURVE return tCURVE;
@@ -284,7 +285,9 @@ LOG return tLOG;
 SQRT return tSQRT;
 SQR return tSQR;
 INT return tINT;
-ROUNDB return tROUND;
+CEIL return tCEIL;
+FLOOR return tFLOOR;
+ROUND return tROUND;
 FRAC return tFRAC;
 ABS return tABS;
 SIG return tSIG;
@@ -335,14 +338,26 @@ GLOB return tGLOB;
 "**" return tPOW;
 
 "<>" return tNEQ;
+"!=" return tNEQ;
 "<=" return tLEQ;
 ">=" return tGEQ;
 "=" return tEQU;
+"==" return tEQU2;
 "<" return tLTN;
 ">" return tGTN;
 "!" return tNOT;
 
 [-+*/:(),.;] {return yytext[0];}
+
+0x[0-9a-zA-Z]+ {
+  yylval.digits=(char *)my_strdup(yytext+2);
+  return tHEXDIGITS;
+}
+
+0b[0-1]+ {
+  yylval.digits=(char *)my_strdup(yytext+2);
+  return tBINDIGITS;
+}
 
 [0-9]+ {
   yylval.digits=(char *)my_strdup(yytext);
