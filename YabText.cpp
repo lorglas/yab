@@ -11,7 +11,12 @@ const rgb_color Red = {255,0,0,255};
 const rgb_color Grey = {185,185,185,255};
 const rgb_color Green = {0,200,000,255};
 const rgb_color Magenta = {200,0,255,255};
-
+//added 5 colors  11.11.2021 lorglas
+const rgb_color blueViolet = {138,43,226,255};
+const rgb_color brown = {165,42,42,255};
+const rgb_color tan1 = {255,165,79,255};
+const rgb_color gray = {127,127,127,255};
+const rgb_color darkOliveGreen = {85,107,47,255};
 YabText::YabText(BRect frame, const char* name, BRect textRect, uint32 resizeMode, uint32 flags)
 	: BTextView(frame, name, textRect, resizeMode, flags)
 {
@@ -27,7 +32,13 @@ YabText::YabText(BRect frame, const char* name, BRect textRect, uint32 resizeMod
 	special_cmd_color = Green;
 	comment_color = Grey;
 	punc_symbol_color = Magenta;
-
+	//added div1_color -div5_color  11.11.2021 lorglas
+	div1_cmd_color= blueViolet; 
+	div2_cmd_color= brown; 
+	div3_cmd_color= tan1; 
+	div4_cmd_color= gray; 
+	div5_cmd_color= darkOliveGreen; 
+	
 	SetStylable(true);
 	// BFont myFont(be_fixed_font);
 	// myFontSize = 12;
@@ -81,6 +92,16 @@ void YabText::AddCommand(const char* command, int colorGroup)
 			break;
 		case 4: punctuation.push_back(command[0]);
 			break;
+		case 5: div1_matches.push_back(command); 	//added div1_color -div5_color  11.11.2021 lorglas
+			break;
+		case 6: div2_matches.push_back(command); 	
+			break;
+		case 7: div3_matches.push_back(command); 	
+			break;
+		case 8: div4_matches.push_back(command); 	
+			break;
+		case 9: div5_matches.push_back(command); 	
+			break;
 		default:
 			break;
 	}
@@ -129,6 +150,31 @@ void YabText::SetColors(int id, int r, int g, int b)
 				SetFontAndColor(0,TextLength()-1,&default_font,B_FONT_ALL,&textcolor);		
 				ParseAll(0,TextLength()-1,true);	
 			}
+			break;
+		case 7: div1_cmd_color.red = r; //added div1_color -div5_color  11.11.2021 lorglas
+			div1_cmd_color.green = g;
+			div1_cmd_color.blue = b;
+			ParseAll(0,TextLength()-1,true);	
+			break;
+		case 8: div2_cmd_color.red = r; //added div1_color -div5_color  11.11.2021 lorglas
+			div2_cmd_color.green = g;
+			div2_cmd_color.blue = b;
+			ParseAll(0,TextLength()-1,true);	
+			break;
+		case 9: div3_cmd_color.red = r; //added div1_color -div5_color  11.11.2021 lorglas
+			div3_cmd_color.green = g;
+			div3_cmd_color.blue = b;
+			ParseAll(0,TextLength()-1,true);	
+			break;
+		case 10: div4_cmd_color.red = r; //added div1_color -div5_color  11.11.2021 lorglas
+			div4_cmd_color.green = g;
+			div4_cmd_color.blue = b;
+			ParseAll(0,TextLength()-1,true);	
+			break;
+		case 11: div5_cmd_color.red = r; //added div1_color -div5_color  11.11.2021 lorglas
+			div5_cmd_color.green = g;
+			div5_cmd_color.blue = b;
+			ParseAll(0,TextLength()-1,true);	
 			break;
 		default:
 			break;
@@ -655,7 +701,7 @@ void YabText::ICheckWordLists(int sol,int eol,std::vector<rgb_color>& colorVec)
 		int j=i;
 		for(j=i;j < eol;j++)
 		{
-			if(isalpha(ByteAt(j)) || (char)ByteAt(j) == ':' || (char)ByteAt(j) == '$' || ((char)ByteAt(j)>='0' && (char)ByteAt(j)<='9')) 
+			if(isalpha(ByteAt(j)) || (char)ByteAt(j) == ':' || (char)ByteAt(j) == '.' || (char)ByteAt(j) == '$' || ((char)ByteAt(j)>='0' && (char)ByteAt(j)<='9')) //added "." Lorenz Glaser (aka lorglas) on 26.01.2022
 			// if(ByteAt(j)>32)
 			{
 				match << (char)ByteAt(j);
@@ -684,6 +730,31 @@ void YabText::ICheckWordLists(int sol,int eol,std::vector<rgb_color>& colorVec)
 			{
 				for(int k=i;k<j;k++)
 					colorVec[k-sol] = comment_color;
+			}
+			else if(Contains(div1_matches,match))  //added div1_color -div5_color  11.11.2021 lorglas
+			{
+				for(int k=i;k<j;k++)
+					colorVec[k-sol] = div1_cmd_color;  
+			}
+			else if(Contains(div2_matches,match))
+			{
+				for(int k=i;k<j;k++)
+					colorVec[k-sol] = div2_cmd_color;
+			}
+			else if(Contains(div3_matches,match))
+			{
+				for(int k=i;k<j;k++)
+					colorVec[k-sol] = div3_cmd_color;
+			}
+			else if(Contains(div4_matches,match))
+			{
+				for(int k=i;k<j;k++)
+					colorVec[k-sol] = div4_cmd_color;
+			}
+			else if(Contains(div5_matches,match))
+			{
+				for(int k=i;k<j;k++)
+					colorVec[k-sol] = div5_cmd_color;
 			}
 		}
 	}

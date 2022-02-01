@@ -1415,6 +1415,8 @@ static void run_it(YabInterface* yab)
 		drawcurve(current,yab); DONE;
       case cELLIPSE:
 		drawellipse(current,yab); DONE;
+	  case cARC:
+		drawarc(current,yab); DONE;
 	  case cTRIANGLE: 
 		drawtriangle(current,yab); DONE; /* draw Roundrect added lorglas 2020/09/14 */
 	  case cLOUDNESS:

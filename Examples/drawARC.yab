@@ -1,0 +1,24 @@
+window open 100,100 to 800,800, "Example", "Example"
+//Bogen1 auf Window
+draw set true, "HighSolidFill"
+draw arc 150,150, 80, 80,270,30, "Example"
+draw set false, "HighSolidFill"
+draw arc 250,250, 250, 250, 85,30,"Example"
+
+view 0,400 to 400,800,"DrawarcView","Example"
+draw set "bgcolor", 233,123,123,"DrawarcView"
+draw arc 150,150, 80, 80,270,30, "DrawarcView"
+draw set true, "HighSolidFill"
+draw arc 50,50, 18, 18,180,30, "DrawarcView"
+
+canvas 400,400 to 800,800, "DRAWARC","Example"
+draw arc 125,125, 50, 50,270,180, "DRAWARC"
+draw set true, "HighSolidFill"
+draw arc 50,50, 18, 18,180,30, "DRAWARC"
+sleep 7
+window close "Example"
+window open 100,100 to 800,800, "Example", "Example"
+draw set true, "HighSolidFill"
+draw arc 150,150, 80, 180, 270,30, "Example"
+sleep 7
+window close "Example"

@@ -18,7 +18,7 @@ else
  	"
 	print "usage:"
 	print "RdefApply <RdefFilename> <OutputFilename> <M>"
-	print "if M is used, OutoutFilename is created if it does not exist
+	print "if M is used, OutputFilename is created if it does not exist
 or the creation date is set if it does exist."
 endif	
 

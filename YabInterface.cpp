@@ -350,8 +350,8 @@ void YabInterface::MessageReceived(BMessage *message)
  */
 bool YabInterface::QuitRequested()
 {
-	
-	/*if (fPlayer->IsPlaying()) {
+	//Deactivating this check, because it makes some error by closing 26.01.2022 Lorenz Glaser (aka Lorglas)
+	/*if (fPlayer->IsPlaying()) { 
 		fPlayer->StopPlaying();
 		
 	}
@@ -2308,6 +2308,98 @@ void YabInterface::DrawCircle(double x, double y, double r, const char* window)
 	}
 }
 
+//Draw ARC added by Lorenz Glaser (aka Lorglas) on 26.01.2022
+void YabInterface::DrawArc(double x1, double y1, double r1, double r2, double r3, double r4, const char* window)
+{
+
+	YabView *myView = cast_as((BView*)viewList->GetView(window), YabView);
+	if(myView)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+		
+			w->Lock();
+			YabDrawing *t = new YabDrawing();
+			if(drawStroking)
+			{
+				t->command = 17;					
+			}
+			else
+			{
+				t->command = 18;
+			}
+			t->x1 = x1; t->y1 = y1;
+			t->r1 = r1; t->r2 = r2;
+			t->r3 = r3; t->r4 = r4;
+			t->p = yabPattern;
+			myView->drawList->AddItem(t);
+			myView->Invalidate(BRect(x1-r1,y1-r2,x1+r1,y1+r2));
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+	{
+		
+                for(int i=0; i<yabbitmaps->CountItems(); i++)
+                {
+                        BBitmap *b = (BBitmap*)yabbitmaps->ItemAt(i);
+                        BView *bview = b->FindView(window);
+                        if(bview)
+                        {
+                        		b->Lock();
+                        		//  bview->SetDrawingMode(B_OP_ALPHA);
+                             // 	bview->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_COMPOSITE);
+                        		if(drawStroking)
+								{
+                                	bview->StrokeArc(BPoint(x1,y1), r1, r2, r3, r4, yabPattern);
+								}
+								else
+								{
+								   	bview->FillArc(BPoint(x1,y1), r1, r2, r3, r4, yabPattern);                                	
+                                }
+                                bview->Sync();								
+                                b->Unlock();
+                                return;                          
+                        }
+                }
+           		for(int i=0; i<yabcanvas->CountItems(); i++)
+                {
+                        YabBitmapView *myView = (YabBitmapView*)yabcanvas->ItemAt(i);
+                        if(!strcmp(myView->Name(), window))
+                        {
+                                YabWindow *w = cast_as(myView->Window(), YabWindow);
+                                if(w)
+                                {
+                                        w->Lock();
+                                        BBitmap *b = myView->GetBitmap();
+                                        BView *bView = myView->GetBitmapView();
+                                        b->Lock();
+                                         if(drawStroking)
+                                         {
+                                         		bView->StrokeArc(BPoint(x1,y1), r1, r2,r3,r4,yabPattern);                                         		                                         	
+                                         }
+                                         else
+                                         {
+                                               bView->FillArc(BPoint(x1,y1), r1, r2, r3,r4, yabPattern);                                            	
+                                         }
+                                         bView->Sync();                                      
+                                         b->Unlock();				
+										myView->Draw(BRect(x1-r1,y1-r2,x1+r1,y1+r2));
+                                        w->Unlock();
+                                        return;
+                                }  
+                                else
+                                        ErrorGen("Unable to lock window");
+                        } 
+				}
+		Error(window, "VIEW, BITMAP or CANVAS");
+	}
+}
+
+
 void YabInterface::DrawEllipse(double x, double y, double r1, double r2, const char* window)
 {
 	
@@ -2326,6 +2418,7 @@ void YabInterface::DrawEllipse(double x, double y, double r1, double r2, const c
 				t->command = 3;
 			t->x1 = x; t->y1 = y;
 			t->x2 = r1; t->y2 = r2;
+	
 			t->p = yabPattern;
 			myView->drawList->AddItem(t);
 			myView->Invalidate(BRect(x-r1,y-r2,x+r1,y+r2));
@@ -4120,11 +4213,6 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 				myText = cast_as(myView->FindView(title),YabText);
 				if(myText)
 				{
-					
-									
-					
-					
-					
 					if(tmp.IFindFirst("align")!=B_ERROR)
 					{ 
 						if(tmp2.IFindFirst("left")!=B_ERROR)
@@ -4394,6 +4482,16 @@ void YabInterface::TextColor(const char* title, const char* option, const char* 
 						myText->AddCommand(command,3);
 					else if(tmp.IFindFirst("char-color")!=B_ERROR)
 						myText->AddCommand(command,4);
+					else if(tmp.IFindFirst("Color5")!=B_ERROR) //added 5 more colors 11.11.2021 lorglas
+						myText->AddCommand(command,5);
+					else if(tmp.IFindFirst("Color6")!=B_ERROR)
+						myText->AddCommand(command,6);
+					else if(tmp.IFindFirst("Color7")!=B_ERROR)
+						myText->AddCommand(command,7);
+					else if(tmp.IFindFirst("Color8")!=B_ERROR)
+						myText->AddCommand(command,8);
+					else if(tmp.IFindFirst("Color9")!=B_ERROR)
+						myText->AddCommand(command,9);
 					else
 						ErrorGen("Unknown option");
 					w->Unlock();
@@ -4438,6 +4536,16 @@ void YabInterface::TextColor(const char* title, const char* option, int r, int g
 						myText->SetColors(5,r,g,b);
 					else if(tmp.IFindFirst("textcolor")!=B_ERROR)
 						myText->SetColors(6,r,g,b);
+					else if(tmp.IFindFirst("color5")!=B_ERROR)  //added 5 more colors 11.11.2021 lorglas
+						myText->SetColors(7,r,g,b);
+					else if(tmp.IFindFirst("color6")!=B_ERROR)
+						myText->SetColors(8,r,g,b);
+					else if(tmp.IFindFirst("color7")!=B_ERROR)
+						myText->SetColors(9,r,g,b);
+					else if(tmp.IFindFirst("color8")!=B_ERROR)
+						myText->SetColors(10,r,g,b);
+					else if(tmp.IFindFirst("color9")!=B_ERROR)
+						myText->SetColors(11,r,g,b);
 					else
 						ErrorGen("Unknown option");
 					w->Unlock();
@@ -10809,6 +10917,10 @@ void yi_DrawCircle(double x, double y, double r, const char* window, YabInterfac
 void yi_DrawEllipse(double x, double y, double r1, double r2, const char* window, YabInterface *yab)
 {
 	yab->DrawEllipse(x,y,r1,r2, window);
+}
+void yi_DrawArc(double x, double y, double r1, double r2, double r3, double r4, const char* window, YabInterface *yab)
+{
+	yab->DrawArc(x,y,r1,r2, r3, r4, window);
 }
 
 void yi_DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window, YabInterface *yab)

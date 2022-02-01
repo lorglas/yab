@@ -364,7 +364,23 @@ void drawellipse(struct command *cmd, YabInterface* yab) /* draw ellipse */
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DrawEllipse(x1,y1,r1,r2,window, yab);
 }
+void drawarc(struct command *cmd, YabInterface* yab) /* draw ARC */
+{
+        double x1,y1,r1,r2, r3,r4;
+        char *window;
 
+        window = pop(stSTRING)->pointer;
+        r4=pop(stNUMBER)->value;
+        r3=pop(stNUMBER)->value;
+        r2=pop(stNUMBER)->value;
+        r1=pop(stNUMBER)->value;
+        y1=pop(stNUMBER)->value;
+        x1=pop(stNUMBER)->value;
+		
+    
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_DrawArc(x1,y1,r1,r2,r3, r4, window, yab);
+}
 void drawcurve(struct command *cmd, YabInterface* yab) /* draw a curve */
 {
         double x1,y1,x2,y2,x3,y3,x4,y4;
@@ -383,7 +399,7 @@ void drawcurve(struct command *cmd, YabInterface* yab) /* draw a curve */
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DrawCurve(x1,y1,x2,y2,x3,y3,x4,y4,window, yab);
 }
-void drawtriangle(struct command *cmd, YabInterface* yab) /* draw Roundrect added lorglas 2020/09/14 */
+void drawtriangle(struct command *cmd, YabInterface* yab) /* draw Triangle added lorglas 2020/09/14 */
 {
         double x1,y1,x2,y2,x3,y3;
         char *window;

@@ -343,7 +343,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
   if (type>fONEARGS) a2=pop(stSTRING_OR_NUMBER);
   if (type>fZEROARGS) a1=pop(stSTRING_OR_NUMBER);
   linenum = current->line;
-  
+
   switch (type) {
   case fSIN:
     value=sin(a1->value);
@@ -401,7 +401,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     }
     pointer=my_strdup(string);
     break;
-  case fCHOMP: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+  case fCHOMP: //new command from yabasic 2.8.6  05.06.2020 Lorglas
         result = stSTRING;
 	pointer = a1->pointer;
 	a1->pointer = NULL;
@@ -421,17 +421,16 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     else
       value=floor(a1->value);
     result=stNUMBER;
-    break;
-  /*case fROUND: //new command 05.06.2020 Lorglas
-  		if((x * pow(10, a2->value + 1)) - (floor(x * pow(10, a2->value))) > 4) 
-      	{
-      		d = 1;
-      	}
-	value = (floor(x * pow(10, a2->value)) + d) / pow(10, a2->value);
-  		sprintf(out,"%.*f\n\n",(int)a2->value,value);
-   		 result=stNUMBER;
-    break;*/
-  case fROUND:
+    break;  
+  case fCEIL: //added new command Lorglas 2020.09.11
+        value = ceil(a1->value);
+        result = stNUMBER;
+        break;
+    case fFLOOR: //added new command Lorglas 2020.09.11
+	value = floor(a1->value);
+        result = stNUMBER;
+        break;
+  case fROUND: //added new command Lorglas 2020.09.11
 	value = round(a1->value);
     result = stNUMBER;
   break;
@@ -529,15 +528,15 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value=(int)a1->value ^ (int)a2->value;
     result=stNUMBER;
     break;
-  case fBITNOT: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+  case fBITNOT: //new command from yabasic 2.8.6  05.06.2020 Lorglas
         value = ~ (unsigned int) a1->value;
         result = stNUMBER;
         break;
-  case fSHL: //new command from yabasic 2.8,6  05.06.2020 Lorglas
+  case fSHL: //new command from yabasic 2.8.6  05.06.2020 Lorglas
 	value = (unsigned int) a1->value << (int) a2->value;
 	result = stNUMBER;
   break;
-  case fSHR: //new command from yabsic 2.8,6  05.06.2020 Lorglas
+  case fSHR: //new command from yabsic 2.8.6  05.06.2020 Lorglas
 	value = (unsigned int) a1->value >> (int) a2->value;
 	result = stNUMBER;
   break;
@@ -688,7 +687,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     }
     result=stNUMBER;
     break;       
-   case fSTR_REPLACE:   
+   case fSTR_REPLACE:   //added new command Lorglas 2020.09.11
     str=a1->pointer;
     str2=a2->pointer;
      str3=a3->pointer;
@@ -1112,7 +1111,7 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value = attributeget2(str,str2,yab,linenum, current->lib->s);
     result = stNUMBER;
     break;
-  case fAVAILABLELANGUAGE:
+  case fAVAILABLELANGUAGE:  //added new command Lorglas 2020.09.11
     str=a1->pointer;    
   	pointer = availablelanguage(str,yab,linenum, current->lib->s);
     result = stSTRING;
@@ -1900,7 +1899,7 @@ static double peek(char *dest, YabInterface *yab) /* peek into internals */
   else if (!strcmp(dest,"error")) return errorcode;
   else if (!strcmp(dest,"read_controls")) return read_controls;
   else if (!strcmp(dest,"isbound")) return is_bound;
-  else if (!strcmp(dest, "loudness")) return yi_LoudnessGet(yab);	
+  else if (!strcmp(dest, "loudness")) return yi_LoudnessGet(yab);	//added new command Lorglas
    
   else if (dest[0]=='#') {
     error(ERROR,"don't use quotes when peeking into a file");
@@ -2163,8 +2162,8 @@ void dblrelop(struct command *type)  /* compare topmost double-values */
   b=pop(stNUMBER)->value;
   a=pop(stNUMBER)->value;
   switch(current->type) {
-  case cEQ:c=(a==b);break;
-  case cNE:c=(a!=b);break;
+  case cEQ:c=(a==b);break; //added new command Lorglas 2022.01.26
+  case cNE:c=(a!=b);break; //added new command Lorglas 2022.01.26
   case cLE:c=(a<=b);break;
   case cLT:c=(a<b);break;
   case cGE:c=(a>=b);break;
@@ -2201,8 +2200,8 @@ void strrelop(struct command *type)  /* compare topmost string-values */
   b=pop(stSTRING)->pointer;
   a=pop(stSTRING)->pointer;
   switch(current->type) {
-  case cSTREQ:c=(strcmp(a,b)==0);break;
-  case cSTRNE:c=(strcmp(a,b)!=0);break;
+  case cSTREQ:c=(strcmp(a,b)==0);break; //added new command Lorglas 2022.01.26
+  case cSTRNE:c=(strcmp(a,b)!=0);break; //added new command Lorglas 2022.01.26
   case cSTRLT:c=(strcmp(a,b)<0);break;
   case cSTRLE:c=(strcmp(a,b)<=0);break;
   case cSTRGT:c=(strcmp(a,b)>0);break;

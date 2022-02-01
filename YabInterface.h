@@ -86,6 +86,7 @@
 		void DrawLine(double x1, double y1, double x2, double y2, const char* window);  
 		void DrawCircle(double x, double y, double r, const char* window);  
 		void DrawEllipse(double x, double y, double r1, double r2, const char* window);  
+		void DrawArc(double x1, double y1, double r1, double r2, double r3, double r4, const char* window);  
 		void DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window);  
 		void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window);  		
 		void Slider(BRect frame, const char* id, const char* title, int min, int max, const char* view);
@@ -367,6 +368,7 @@ extern void yi_DrawDot(double x, double y, const char* window, YabInterface *yab
 extern void yi_DrawLine(double x1, double y1, double x2, double y2, const char* window, YabInterface *yab);
 extern void yi_DrawCircle(double x, double y, double r, const char* window, YabInterface *yab);
 extern void yi_DrawEllipse(double x, double y, double r1, double r2, const char* window, YabInterface *yab);
+extern void yi_DrawArc(double x1, double y1, double r1, double r2, double r3, double r4,  const char* window, YabInterface *yab);
 extern void yi_DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window, YabInterface *yab);
 extern void yi_DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window, YabInterface *yab);
 extern void yi_Slider1(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* view, YabInterface *yab);
