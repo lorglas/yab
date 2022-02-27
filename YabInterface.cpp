@@ -8900,6 +8900,18 @@ void YabInterface::BitmapDraw(double x, double y, const char* bitmap, const char
 		myMode = B_OP_COPY;
 	else if(tmp.IFindFirst("alpha")!=B_ERROR)
 		myMode = B_OP_ALPHA;
+	else if(tmp.IFindFirst("invert")!=B_ERROR)
+		myMode = B_OP_INVERT;	
+	else if(tmp.IFindFirst("max")!=B_ERROR)
+		myMode = B_OP_MAX;	
+	else if(tmp.IFindFirst("min")!=B_ERROR)
+		myMode = B_OP_MIN;	
+	else if(tmp.IFindFirst("subtract")!=B_ERROR)
+		myMode = B_OP_SUBTRACT;	
+	else if(tmp.IFindFirst("add")!=B_ERROR)
+		myMode = B_OP_ADD;	
+	else if(tmp.IFindFirst("blend")!=B_ERROR)
+		myMode = B_OP_BLEND;	
 	else
 		ErrorGen("Unknown option");
 
@@ -9454,6 +9466,8 @@ int YabInterface::BitmapSave(const char* id, const char* filename, const char* t
 		btype = B_PPM_FORMAT;
 	else if(t.IFindFirst("bmp") != B_ERROR)
 		btype = B_BMP_FORMAT;
+	//else if(t.IFindFirst("gif") != B_ERROR)
+	//	btype = B_GIF_FORMAT;
 	else
 		ErrorGen("Unknown type");
 	
