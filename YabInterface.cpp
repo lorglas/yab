@@ -8911,7 +8911,7 @@ void YabInterface::BitmapDraw(double x, double y, const char* bitmap, const char
 	else if(tmp.IFindFirst("add")!=B_ERROR)
 		myMode = B_OP_ADD;	
 	else if(tmp.IFindFirst("blend")!=B_ERROR)
-		myMode = B_OP_BLEND;	
+		myMode = B_OP_BLEND;		
 	else
 		ErrorGen("Unknown option");
 
