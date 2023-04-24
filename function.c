@@ -1112,11 +1112,19 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     result = stNUMBER;
     break;
   case fAVAILABLELANGUAGE:  //added new command Lorglas 2020.09.11
-    str=a1->pointer;    
+    str=a1->pointer; 
   	pointer = availablelanguage(str,yab,linenum, current->lib->s);
     result = stSTRING;
     break;    
-  
+  case fAVAILABLETIMEZONES:  //added new command Lorglas 2020.08.04
+    //str=a1->pointer;    
+  	pointer = availabletimezones(str,yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;    
+  case fDEFAULTTIMEZONE: //added new command Lorglas 2020.09.11
+    value = defaulttimezone(yab,linenum, current->lib->s);
+    result = stNUMBER;
+    break;
   default:
     error(ERROR,"function called but not implemented");
     return;

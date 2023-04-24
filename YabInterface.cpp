@@ -19,12 +19,12 @@
 #include <Locale.h>
 #include <LocaleRoster.h>
 #include <List.h>
-
 #include <ListView.h>
 #include <Menu.h>
 #include <MenuBar.h>
 #include <MenuItem.h>
 #include <MenuField.h>
+//#include <FormattingConventions.h>
 #include <NodeInfo.h>
 #include <OS.h>
 #include <OutlineListView.h>
@@ -42,12 +42,14 @@
 #include <Slider.h>
 #include <StatusBar.h>
 #include <String.h>
+
 //#include <PlaySound.h>
 //#include <FileGameSound.h>
 //#include "GameSoundDevice.h"
 #include <Sound.h>
 #include <SoundPlayer.h>
 #include <Url.h>
+//#include <UnicodeChar.h>
 #include <MediaPlay.h>
 #include <MediaFile.h>
 #include <MediaTrack.h>
@@ -4089,10 +4091,10 @@ void YabInterface::TextEdit(BRect frame, const char* title, int scrollbar, const
 			else
 				resizeMode = w->layout;
 
-			// BTextView *txtView = new BTextView(frame, title, textframe, B_FOLLOW_ALL_SIDES, B_WILL_DRAW|B_PULSE_NEEDED|B_NAVIGABLE); 
+			//BTextView *txtView = new BTextView(frame, title, textframe, B_FOLLOW_ALL_SIDES, B_WILL_DRAW|B_PULSE_NEEDED|B_NAVIGABLE); 
 			YabText *txtView = new YabText(frame, title, textframe, B_FOLLOW_ALL_SIDES, B_WILL_DRAW|B_PULSE_NEEDED|B_NAVIGABLE); 
 			txtView->SetWordWrap(true); 
-			// txtView->SetFontAndColor(be_fixed_font); 
+			
 			
 			switch(scrollbar)
 			{
@@ -4122,6 +4124,7 @@ void YabInterface::TextAdd(const char* title, const char* text)
 {
 	YabView *myView = NULL;
 	YabText *myText = NULL;
+	
 	for(int i=0; i<viewList->CountItems(); i++)
 	{
 		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
@@ -4134,7 +4137,7 @@ void YabInterface::TextAdd(const char* title, const char* text)
 				myText = cast_as(myView->FindView(title),YabText);
 				if(myText)
 				{
-					myText->Insert(text);
+					myText->Insert(text);	
 					w->Unlock();
 					return;
 				}
@@ -4231,6 +4234,7 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 							BFont myFont=(be_fixed_font);
 							int myFontSize = i;
 							myFont.SetSize(myFontSize);
+							//printf("FIXED: %d\n",myFontSize);
 							int TL = myText->TextLength();
 							const rgb_color Textcolor = {0,0,0,255};
 							myText->SetFontAndColor(0,TL,&myFont,B_FONT_ALL,&Textcolor);
@@ -4246,7 +4250,9 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 							BFont myFont=(be_plain_font);
 							int myFontSize = i;
 							myFont.SetSize(myFontSize);
+							//printf("PLAIN %d\n",myFontSize);
 							int TL = myText->TextLength();
+							//printf("TextLenght PLAIN %d\n",myFontSize);
 							const rgb_color Textcolor = {0,0,0,255};
 							myText->SetFontAndColor(0,TL,&myFont,B_FONT_ALL,&Textcolor);
 						}
@@ -4261,8 +4267,10 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 							BFont myFont=(be_bold_font);
 							int myFontSize = i;
 							myFont.SetSize(myFontSize);
+							//printf("BOLD: %d\n",myFontSize);
 							int TL = myText->TextLength();
-							const rgb_color Textcolor = {0,0,0,255};
+							//printf("TextLenght BOLD %d\n",TL);
+							const rgb_color Textcolor = {0, 0, 0, 255 };
 							myText->SetFontAndColor(0,TL,&myFont,B_FONT_ALL,&Textcolor);
 						}
 						
@@ -4329,16 +4337,16 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 					}
 					else if (tmp.IFindFirst("focus")!=B_ERROR)
 							{
-							if (tmp2.IFindFirst("true")!=B_ERROR)
-							{
-								bool focused = true;
-								myText->MakeFocus(focused);
-							}
-							else
-							{
-							bool focused = false;
-							myText->MakeFocus(focused);
-							}
+								if (tmp2.IFindFirst("true")!=B_ERROR)
+								{
+									bool focused = true;
+									myText->MakeFocus(focused);
+								}
+								else
+								{
+									bool focused = false;
+									myText->MakeFocus(focused);
+								}
 							}
 					else
 					
@@ -4352,6 +4360,7 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 	}
 	Error(title, "TEXTEDIT");
 }
+
 
 void YabInterface::TextSet(const char* title, const char* option, int value)
 {
@@ -4390,6 +4399,7 @@ void YabInterface::TextSet(const char* title, const char* option, int value)
 					else if(tmp.IFindFirst("textwidth")!=B_ERROR)
 						
 					{
+						
 						// BRect txtframe = myText->TextRect();
 						// txtframe.right = txtframe.left + value;
 						// myText->SetTextRect(txtframe);
@@ -10300,25 +10310,153 @@ void YabInterface::ShortCut(const char* view, const char* key, const char* msg)
 	Error(view,"VIEW");
 }
 
-const char* YabInterface::Available_Languages() //added 2021/02/22 lorglas
+const char* YabInterface::Available_Languages(const char* name) //added 2021/02/22 lorglas
 {
+	BMessage availableLanguages;
+	BLocaleRoster::Default()->GetAvailableLanguages(&availableLanguages);
+	
+	BString CurrentID;
+	BString L(name);
+	BString Lang_List;
+	BString Lang_List1;
+	BString Lang_List2;
+	
+	
+		if (BLocaleRoster::Default()->GetAvailableLanguages(&availableLanguages) == B_OK) 
+		{	
+			for (int i = 0; availableLanguages.FindString("language", i, &CurrentID) == B_OK; i++)
+			{	
+				
+				if (L.IFindFirst("code")!=B_ERROR)
+				{
+					Lang_List1 << CurrentID.String() << "\n";
+				}
+				else if (L.IFindFirst("CD_with_index")!=B_ERROR)
+				{
+					Lang_List1 << i << ":" << CurrentID.String() << "\n";
+				}
+				else if (L.IFindFirst("realname")!=B_ERROR)
+				{
+								
+					BLanguage currentLanguage(CurrentID);
+					currentLanguage.GetNativeName(CurrentID);
+					
+					//Lang_List1 << i << ":" << CurrentID.String() << "\n";		
+					
+					//printf("Country Code: %s\n",currentLanguage.GetNativeName(NativeName));
+					//printf("NativeName: %s\n",NativeName);
+					int nameLength = CurrentID.CountChars();
+					bool hasGlyphs[nameLength];
+					//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
+					for (int32 io = 0; io < nameLength; ++io) {
+						if (!hasGlyphs[io]) {
+							// replace by name translated to current language
+							currentLanguage.GetName(CurrentID);
+							//printf(" %s",NativeName);
+							break;
+						}
+					}	
+					Lang_List1 << CurrentID.String() << "\n";	
+				}
+				else if (L.IFindFirst("RN_with_index")!=B_ERROR)
+				{
+					Lang_List << i << ":" << CurrentID.String();			
+					BLanguage currentLanguage(CurrentID);
+					currentLanguage.GetNativeName(CurrentID);
+					
+					//Lang_List1 << i << ":" << CurrentID.String() << "\n";		
+					
+					//printf("Country Code: %s\n",currentLanguage.GetNativeName(NativeName));
+					//printf("NativeName: %s\n",NativeName);
+					int nameLength = CurrentID.CountChars();
+					bool hasGlyphs[nameLength];
+					//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
+					for (int32 iu = 0; iu < nameLength; ++iu) {
+						if (!hasGlyphs[iu]) {
+							// replace by name translated to current language
+							currentLanguage.GetName(CurrentID);
+							//printf(" %s",NativeName);
+							break;
+						}
+					}	
+					Lang_List1 << i << ":" << CurrentID.String() << "\n";	
+				}
+				else if (L.IFindFirst("all")!=B_ERROR)
+				{
+					Lang_List << i << ":" << CurrentID.String();
+					BLanguage currentLanguage(CurrentID);
+					currentLanguage.GetNativeName(CurrentID);			
+					
+					int nameLength = CurrentID.CountChars();
+					bool hasGlyphs[nameLength];				
+					for (int32 ip = 0; ip < nameLength; ++ip) {
+						if (!hasGlyphs[ip]) {
+							// replace by name translated to current language
+							currentLanguage.GetName(CurrentID);
+							Lang_List << ":" << Lang_List2 << CurrentID.String() << "\n";
+							//printf(" %s",NativeName);
+							break;
+						}
+					}	
+					
+					Lang_List1 << Lang_List << "\n";	
+				}
+			}			
+		}
+		else
+		{		
+			printf("Nothing found: %s");
+		}	
+	
+		if (Lang_List1=="")
+		{
+			printf("Please use one of the following options\n");
+			printf("LANGUAGE_AVAILABLE$(\"code\") output like this en-EN\n");
+			printf("LANGUAGE_AVAILABLE$(\"CD_with_index\") output like this 1:en-EN\n");
+			printf("LANGUAGE_AVAILABLE$(\"realname\") output like this Englisch (Europa)\n");
+			printf("LANGUAGE_AVAILABLE$(\"RN_with_index\") output like this 1:Englisch (Europa)\n");
+			printf("LANGUAGE_AVAILABLE$(\"all\") output like this 883:en_150:Englisch (Europa) \n");
+		
+		}	
+	return Lang_List1;
+}
 
-
-	BMessage languages;
-	BLocaleRoster::Default()->GetAvailableLanguages(&languages);
-	BString language;
+int YabInterface::Default_TimeZone()
+{
+	
+	//GetDefaultTimeZone(BTimeZone * timezone);
+}
+const char* YabInterface::Available_TimeZones() //added 2022/08/04 lorglas
+{
+	printf("Nothing found:");
+	/*BMessage availableTimezones;
+	BLocaleRoster::Default()->GetAvailableTimeZones(&availableTimezones);
+	BString CID;
 	BString List="";
-	for (int i = 0; languages.FindString("language", i, &language) == B_OK; i++)
+	BFont font;
+	if (BLocaleRoster::Default()->GetAvailableLanguages(&availableTimezones) == B_OK) 
+	{	
+		for (int i = 0; availableTimezones.FindString("timezones", i, &CID) == B_OK; i++)
+		{	
+			List << CID.String() << "\n";
+			BString NativeName;
+			BLanguage currentLanguage(CID.String());
+			
+		}		
+	}
+	else
 	{
-
-			List << language.String() << "\n";
-	}	
-	return List.String();
+		
+		printf("Nothing found: %s",CID.String());
+	}
+	return List.String();*/
 }
 int YabInterface::IsComputerOn()
 {
 	return is_computer_on();
 }
+
+/*
 /* added PCWORKSPACES lorglas 2020.09.11*/
 int YabInterface::PCWorkspaces()
 {
@@ -10498,7 +10636,7 @@ void YabInterface::SetLocalize(const char* path) //new Implemented 2021.02.22 Lo
 		const char *language;
 
 		for (int32 i = 0; (language = message.GetString("language", i, NULL))	!= NULL; i++) {
-			printf("%d",i);
+			//printf("%d",i);
 			if (i==0)
 			{	
 			
@@ -10510,7 +10648,7 @@ void YabInterface::SetLocalize(const char* path) //new Implemented 2021.02.22 Lo
 		}
 	}
 	
- printf("%s\n",prefered_language);
+		//printf("%s\n",prefered_language);
 		yabCatalog = new BCatalog(path,prefered_language); //
 		result=yabCatalog->InitCheck();
 		
@@ -10526,7 +10664,7 @@ void YabInterface::SetLocalize(const char* path) //new Implemented 2021.02.22 Lo
 		{
 			   printf("NULL\n");
 		}
-		  for(int i=0; i<yabCatalog->CountItems(); i++)
+		for(int i=0; i<yabCatalog->CountItems(); i++)
         {
         	//printf("%d\n",i);
         }
@@ -11772,5 +11910,13 @@ int yi_PCWorkspaces(YabInterface *yab)
 }
 const char* yi_AvailableLanguage(const char* name, YabInterface *yab)
 {
-	return yab->Available_Languages(); //name
+	return yab->Available_Languages(name); //name
+}
+const char* yi_AvailableTimeZones(const char* name, YabInterface *yab)
+{
+	return yab->Available_TimeZones(); //name
+}
+int yi_DefaultTimeZone(YabInterface *yab)
+{
+	return yab->Default_TimeZone(); //name
 }

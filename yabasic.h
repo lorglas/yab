@@ -292,7 +292,7 @@ enum streammodes { /* ways to access a stream */
 /* added fCHOMP,fBITNOT,fSHL, fSHR,fCEIL,fFLOOR lorglas 12.6.2020*/
 /* added fPCWORKSPACES lorglas 11.09.2020*/
 enum functions { /* functions in yabasic (sorted by number of arguments) */
-  fRAN2,fDATE,fTIME,fMESSAGE,fNUMWINDOWS,fCLIPBOARDPASTE,fISCOMPUTERON,fMOUSEMOVE, fPCWORKSPACES, fAVAILABLELANGUAGE,
+  fRAN2,fDATE,fTIME,fMESSAGE,fNUMWINDOWS,fCLIPBOARDPASTE,fISCOMPUTERON,fMOUSEMOVE, fPCWORKSPACES, fAVAILABLETIMEZONES, fDEFAULTTIMEZONE, 
   fZEROARGS,
   fINKEY,/* fMOUSEX,fMOUSEY,fMOUSEB,fMOUSEMOD,*/
   fSIN,fASIN,fCOS,fACOS,fTAN,
@@ -301,7 +301,7 @@ enum functions { /* functions in yabasic (sorted by number of arguments) */
   fLTRIM,fRTRIM,fTRIM,fCHR,fTRANSLATE,fMENUTRANSLATE,fMOUSE, fISMOUSEIN,fTEXTCONTROLGET,
   fKEYBOARD,fCOLUMNBOXCOUNT, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
   fSPINCONTROLGET, fDROPBOXCOUNT, fSLIDERGET, fTEXTGET, fDRAWGET3, fTABVIEWGET,
-  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND, fLOUDNESS, fLOUDNESSGET, 
+  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND, fLOUDNESS, fLOUDNESSGET, fAVAILABLELANGUAGE,
   fONEARGS, 
   fDEC2,fATAN2,fLEFT,fAND,fOR,fEOR,fLOG2,fSHL,fSHR,
   fRIGHT,fINSTR,fRINSTR,fSTR2,fMOD,fMIN,fMAX,fPEEK3,fMID2,fWINDOWGET, fVIEWGET /* vasper */,
@@ -776,7 +776,9 @@ void attributeclear(struct command *, YabInterface *yab);
 char* attributeget1(const char*, const char*, YabInterface *yab, int line, const char* libname);
 double attributeget2(const char*, const char*, YabInterface *yab, int line, const char* libname);
 char* availablelanguage(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2021/02/22
+char* availabletimezones(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2021/08/04
 int pcworkspaces(YabInterface *yab, int line, const char* libname); /*return the workspaces you set in prefs added 11.09.2020 lorglas */
+int defaulttimezone(YabInterface *yab, int line, const char* libname); /*return the workspaces you set in prefs added 11.09.2020 lorglas */
 /* function.c */
 void create_exception(int); /* create command 'exception' */
 void exception(struct command *); /* change handling of exceptions */
