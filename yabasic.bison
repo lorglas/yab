@@ -113,11 +113,11 @@ void report_missing(int severity,char *text) {
 %token tWAIT tBELL tLET tARDIM tARSIZE tBIND
 %token tWINDOW tDOT tCIRCLE tTRIANGLE tCLEAR tFILL tPRINTER tSETUP
 %token tBUTTON tALERT tMENU tCHECKBOX tRADIOBUTTON tTEXTCONTROL
-%token tLISTBOX tDROPBOX tADD tREMOVE tLOCALIZE tFILEPANEL tSLIDER tSTATUSBAR tLANGUAGEAVAILABLE
+%token tLISTBOX tDROPBOX tADD tREMOVE tLOCALIZE tFILEPANEL tSLIDER tSTATUSBAR tLANGUAGEAVAILABLE tTIMEZONESAVAILABLE
 %token tLAYOUT tSET tTEXTEDIT tCOUNT tVIEW tBOXVIEW tTABVIEW tTEXTURL tBITMAP tCANVAS
 %token tOPTION tDROPZONE tCOLORCONTROL tTREEBOX tCOLUMNBOX tCOLUMN tSORT tTOOLTIP tCALENDAR tSCALE
 %token tCLIPBOARD tCOPY tSUBMENU tSELECT tSCROLLBAR tEXPAND tCOLLAPSE tSPLITVIEW tSTACKVIEW
-%token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON tPCWORKSPACES tLOUDNESS
+%token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON tPCWORKSPACES tLOUDNESS tDEFAULTTIMEZONE
 %token tDRAW tTEXT tFLUSH tELLIPSE tSAVE tARC
 %token tRECT tGETCHAR tPUTCHAR tNEW tCURVE tLAUNCH tATTRIBUTE tROUNDRECT
 
@@ -501,7 +501,8 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tDRAW tGET string_expression {create_function(fDRAWGET3);}
   | tATTRIBUTE tGET string_expression ',' string_expression {create_function(fATTRIBUTEGET1);}
   | tSTR_REPLACE '(' string_expression ',' string_expression ',' string_expression ')' {create_function(fSTR_REPLACE);}
-  | tLANGUAGEAVAILABLE {create_function(fAVAILABLELANGUAGE);}
+  | tLANGUAGEAVAILABLE  '(' string_expression ')' {create_function(fAVAILABLELANGUAGE);}
+  | tTIMEZONESAVAILABLE {create_function(fAVAILABLETIMEZONES);}
   ;
 
 assignment: tSYMBOL tEQU expression {add_command(cPOPDBLSYM,dotify($1,FALSE));} 
@@ -662,6 +663,7 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tBITMAP tCOLOUR expression ',' expression ',' string_expression ',' string_expression {create_function(fBITMAPCOLOR);}
   | tATTRIBUTE tGETNUM string_expression ',' string_expression {create_function(fATTRIBUTEGET2);}
   | tPCWORKSPACES {create_function(fPCWORKSPACES);}
+  | tDEFAULTTIMEZONE {create_function(fDEFAULTTIMEZONE);}
   | tLOUDNESS tGETNUM {create_function(fLOUDNESSGET);}
   ;
 
