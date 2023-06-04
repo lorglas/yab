@@ -8,6 +8,8 @@ draw arc x1,y1, r1, r2,r3,r4 , View$
 
 closed BUGS
 SHL / SHR / DEC wasn't working, because bin and hex digits wasn't allowed. 
+Available Language fixed
+
 
 Other fixes 
 EXECUTE()
