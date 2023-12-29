@@ -2578,7 +2578,16 @@ char* availablelanguage(const char* name, YabInterface *yab, int line, const cha
 	yi_SetCurrentLineNumber(line, libname, yab);	
 	return my_strdup((char*)yi_AvailableLanguage(name, yab));
 }
-
+char* availabletimezones(const char* name, YabInterface *yab, int line, const char* libname) /* get translation string */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_AvailableTimeZones(name, yab));
+}
+int defaulttimezone(YabInterface *yab, int line, const char* libname)
+{
+	yi_SetCurrentLineNumber(line, libname, yab);
+	return yi_DefaultTimeZone(yab);
+}
 void shortcut(struct command *cmd, YabInterface *yab)
 {
 	char *view, *key, *msg;
