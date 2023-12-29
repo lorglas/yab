@@ -10320,10 +10320,6 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 	BString Lang_List;
 	BString Lang_List1;
 	BString Lang_List2;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 	BString Lang_List3;
 	BString Lang_List4;
 	BString old_Lang_List;
@@ -10357,49 +10353,10 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 						//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
 						for (int32 io = 0; io < nameLength; ++io) {
 							if (!hasGlyphs[io]) {
-<<<<<<< HEAD
-=======
-=======
-	
-	
-		if (BLocaleRoster::Default()->GetAvailableLanguages(&availableLanguages) == B_OK) 
-		{	
-			for (int i = 0; availableLanguages.FindString("language", i, &CurrentID) == B_OK; i++)
-			{	
-				
-				if (L.IFindFirst("code")!=B_ERROR)
-				{
-					Lang_List1 << CurrentID.String() << "\n";
-				}
-				else if (L.IFindFirst("CD_with_index")!=B_ERROR)
-				{
-					Lang_List1 << i << ":" << CurrentID.String() << "\n";
-				}
-				else if (L.IFindFirst("realname")!=B_ERROR)
-				{
-								
-					BLanguage currentLanguage(CurrentID);
-					currentLanguage.GetNativeName(CurrentID);
-					
-					//Lang_List1 << i << ":" << CurrentID.String() << "\n";		
-					
-					//printf("Country Code: %s\n",currentLanguage.GetNativeName(NativeName));
-					//printf("NativeName: %s\n",NativeName);
-					int nameLength = CurrentID.CountChars();
-					bool hasGlyphs[nameLength];
-					//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
-					for (int32 io = 0; io < nameLength; ++io) {
-						if (!hasGlyphs[io]) {
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 							// replace by name translated to current language
 							currentLanguage.GetName(CurrentID);
 							//printf(" %s",NativeName);
 							break;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 							}
 						}	
 						Lang_List1 << CurrentID.String() << "\n";	
@@ -10420,38 +10377,10 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 						//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
 						for (int32 iu = 0; iu < nameLength; ++iu) {
 							if (!hasGlyphs[iu]) {
-<<<<<<< HEAD
-=======
-=======
-						}
-					}	
-					Lang_List1 << CurrentID.String() << "\n";	
-				}
-				else if (L.IFindFirst("RN_with_index")!=B_ERROR)
-				{
-					Lang_List << i << ":" << CurrentID.String();			
-					BLanguage currentLanguage(CurrentID);
-					currentLanguage.GetNativeName(CurrentID);
-					
-					//Lang_List1 << i << ":" << CurrentID.String() << "\n";		
-					
-					//printf("Country Code: %s\n",currentLanguage.GetNativeName(NativeName));
-					//printf("NativeName: %s\n",NativeName);
-					int nameLength = CurrentID.CountChars();
-					bool hasGlyphs[nameLength];
-					//font.GetHasGlyphs(NativeName.String(), nameLength, hasGlyphs);
-					for (int32 iu = 0; iu < nameLength; ++iu) {
-						if (!hasGlyphs[iu]) {
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 							// replace by name translated to current language
 							currentLanguage.GetName(CurrentID);
 							//printf(" %s",NativeName);
 							break;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 							}
 						}	
 						Lang_List1 << i << ":" << CurrentID.String() << "\n";	
@@ -10501,36 +10430,6 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 				
 			}				
 					
-<<<<<<< HEAD
-=======
-=======
-						}
-					}	
-					Lang_List1 << i << ":" << CurrentID.String() << "\n";	
-				}
-				else if (L.IFindFirst("all")!=B_ERROR)
-				{
-					Lang_List << i << ":" << CurrentID.String();
-					BLanguage currentLanguage(CurrentID);
-					currentLanguage.GetNativeName(CurrentID);			
-					
-					int nameLength = CurrentID.CountChars();
-					bool hasGlyphs[nameLength];				
-					for (int32 ip = 0; ip < nameLength; ++ip) {
-						if (!hasGlyphs[ip]) {
-							// replace by name translated to current language
-							currentLanguage.GetName(CurrentID);
-							Lang_List << ":" << Lang_List2 << CurrentID.String() << "\n";
-							//printf(" %s",NativeName);
-							break;
-						}
-					}	
-					
-					Lang_List1 << Lang_List << "\n";	
-				}
-			}			
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 		}
 		else
 		{		
@@ -10544,33 +10443,17 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 			printf("LANGUAGE_AVAILABLE$(\"CD_with_index\") output like this 1:en-EN\n");
 			printf("LANGUAGE_AVAILABLE$(\"realname\") output like this Englisch (Europa)\n");
 			printf("LANGUAGE_AVAILABLE$(\"RN_with_index\") output like this 1:Englisch (Europa)\n");
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 			printf("---------------------------------------------------------------------------\n");
 			printf("-------------------OPTION >>>>>ALL<<<<<< IS CURRENTLY NOT WORKING----------\n");
 			printf("LANGUAGE_AVAILABLE$(\"all\") output like this 883:en_150:Englisch (Europa) \n");
 			printf("---------------------------------------------------------------------------\n");
 		}	
 		
-<<<<<<< HEAD
-=======
-=======
-			printf("LANGUAGE_AVAILABLE$(\"all\") output like this 883:en_150:Englisch (Europa) \n");
-		
-		}	
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 	return Lang_List1;
 }
 
 int YabInterface::Default_TimeZone()
 {
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 	//BString Default_Time_Zone;
 	//BTimeZone defaultTimeZone;
 	//BLocaleRoster::Default()->GetDefaultTimeZone(&defaultTimeZone);
@@ -10581,18 +10464,6 @@ const char* YabInterface::Available_TimeZones(const char* name) //added 2022/08/
 	BString Time_List;
 	printf("Nothing found:");
 	BMessage availableTimezones;
-<<<<<<< HEAD
-=======
-=======
-	
-	//GetDefaultTimeZone(BTimeZone * timezone);
-}
-const char* YabInterface::Available_TimeZones() //added 2022/08/04 lorglas
-{
-	printf("Nothing found:");
-	/*BMessage availableTimezones;
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 	BLocaleRoster::Default()->GetAvailableTimeZones(&availableTimezones);
 	BString CID;
 	BString List="";
@@ -10601,10 +10472,6 @@ const char* YabInterface::Available_TimeZones() //added 2022/08/04 lorglas
 	{	
 		for (int i = 0; availableTimezones.FindString("timezones", i, &CID) == B_OK; i++)
 		{	
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/master
 			Time_List << i << ":" << CID.String() << "\n";
 			BString NativeName;
 			BLanguage currentLanguage(CID.String());			
@@ -10617,23 +10484,6 @@ const char* YabInterface::Available_TimeZones() //added 2022/08/04 lorglas
 	//printf("Country Code: %s\n",currentLanguage.GetNativeName(NativeName));
 	//Time_List << "Nothing found\n";
 	return Time_List;
-<<<<<<< HEAD
-=======
-=======
-			List << CID.String() << "\n";
-			BString NativeName;
-			BLanguage currentLanguage(CID.String());
-			
-		}		
-	}
-	else
-	{
-		
-		printf("Nothing found: %s",CID.String());
-	}
-	return List.String();*/
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 }
 int YabInterface::IsComputerOn()
 {
@@ -12098,15 +11948,7 @@ const char* yi_AvailableLanguage(const char* name, YabInterface *yab)
 }
 const char* yi_AvailableTimeZones(const char* name, YabInterface *yab)
 {
-<<<<<<< HEAD
 	return yab->Available_TimeZones(name); //name
-=======
-<<<<<<< HEAD
-	return yab->Available_TimeZones(name); //name
-=======
-	return yab->Available_TimeZones(); //name
->>>>>>> refs/remotes/origin/master
->>>>>>> origin/master
 }
 int yi_DefaultTimeZone(YabInterface *yab)
 {
