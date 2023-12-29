@@ -502,7 +502,11 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tATTRIBUTE tGET string_expression ',' string_expression {create_function(fATTRIBUTEGET1);}
   | tSTR_REPLACE '(' string_expression ',' string_expression ',' string_expression ')' {create_function(fSTR_REPLACE);}
   | tLANGUAGEAVAILABLE  '(' string_expression ')' {create_function(fAVAILABLELANGUAGE);}
+<<<<<<< HEAD
+  | tTIMEZONESAVAILABLE '(' string_expression ')' {create_function(fAVAILABLETIMEZONES);}
+=======
   | tTIMEZONESAVAILABLE {create_function(fAVAILABLETIMEZONES);}
+>>>>>>> refs/remotes/origin/master
   ;
 
 assignment: tSYMBOL tEQU expression {add_command(cPOPDBLSYM,dotify($1,FALSE));} 

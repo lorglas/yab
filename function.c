@@ -1117,11 +1117,19 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     result = stSTRING;
     break;    
   case fAVAILABLETIMEZONES:  //added new command Lorglas 2020.08.04
+<<<<<<< HEAD
+    str=a1->pointer;    
+=======
     //str=a1->pointer;    
+>>>>>>> refs/remotes/origin/master
   	pointer = availabletimezones(str,yab,linenum, current->lib->s);
     result = stSTRING;
     break;    
   case fDEFAULTTIMEZONE: //added new command Lorglas 2020.09.11
+<<<<<<< HEAD
+      //str=a1->pointer;   
+=======
+>>>>>>> refs/remotes/origin/master
     value = defaulttimezone(yab,linenum, current->lib->s);
     result = stNUMBER;
     break;

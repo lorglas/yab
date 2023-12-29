@@ -1,3 +1,4 @@
+
 new Feature
 ROUND()
 FLOOR()
@@ -16,3 +17,9 @@ EXECUTE()
 COMPILE()
 
 Documentation updated
+<<<<<<< HEAD
+
+Known Problems
+Build Factory doesn't work under Haiku nightly
+=======
+>>>>>>> refs/remotes/origin/master
