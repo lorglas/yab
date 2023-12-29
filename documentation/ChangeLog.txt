@@ -1,3 +1,29 @@
+yab 1.8.2
+Bug fixes
+- AvailableLanguage updated
+- Documentation updated
+
+yab 1.8.1
+new Feature
+ROUND()
+FLOOR()
+CEIL()
+BITNOT()
+added == and != as logical condition
+draw arc x1,y1, r1, r2,r3,r4 , View$
+add modi to draw image (INVERT | BLEND | MAX | MIN | SUBTRACT | ADD)
+
+closed BUGS
+SHL / SHR / DEC wasn't working, because bin and hex digits wasn't allowed.
+bitmap color red and blue was changed, so if i want red color value i get blue. solved.
+
+Other fixes
+EXECUTE()
+COMPILE()
+
+Documentation updated
+
+
 yab 1.8
 Bug fixes
 - Translate
