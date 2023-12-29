@@ -1,6 +1,10 @@
 yab 1.8.2
 Bug fixes
+<<<<<<< HEAD
 - AvailableLanguage updated
+=======
+- AvailableLanguage (64Bit)
+>>>>>>> refs/remotes/origin/master
 - Documentation updated
 
 yab 1.8.1
