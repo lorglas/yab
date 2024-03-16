@@ -11762,7 +11762,7 @@ void yi_BitmapGet2(double w, const char* id, const char* path, YabInterface* yab
 
 int yi_BitmapGetNum(const char* id, const char* option, YabInterface* yab)
 {
-	yab->BitmapGet(id, option);
+	return yab->BitmapGet(id, option);
 }
 
 int yi_BitmapLoad(const char* filename, const char* bitmap, YabInterface* yab)
