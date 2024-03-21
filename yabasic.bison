@@ -502,7 +502,7 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tATTRIBUTE tGET string_expression ',' string_expression {create_function(fATTRIBUTEGET1);}
   | tSTR_REPLACE '(' string_expression ',' string_expression ',' string_expression ')' {create_function(fSTR_REPLACE);}
   | tLANGUAGEAVAILABLE  '(' string_expression ')' {create_function(fAVAILABLELANGUAGE);}
-  | tTIMEZONESAVAILABLE {create_function(fAVAILABLETIMEZONES);}
+  | tTIMEZONESAVAILABLE '(' string_expression ')' {create_function(fAVAILABLETIMEZONES);}
   ;
 
 assignment: tSYMBOL tEQU expression {add_command(cPOPDBLSYM,dotify($1,FALSE));} 

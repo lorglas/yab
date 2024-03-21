@@ -242,7 +242,7 @@
 		const char* AttributeGet1(const char* name, const char* filename);
 		double AttributeGet2(const char* name, const char* filename);
 		const char* Available_Languages(const char* name); //const char* name, added 20210224 lorglas
-		const char* Available_TimeZones(); //const char* name, added 20210224 lorglas
+		const char* Available_TimeZones(const char* name); //const char* name, added 20210224 lorglas
 		const int GetErrorCode();
 		void Error(const char* id, const char* type);
 		void ErrorGen(const char* msg);
@@ -540,7 +540,7 @@ extern void yi_AttributeClear(const char* name, const char* filename, YabInterfa
 extern const char* yi_AttributeGet1(const char* name, const char* filename, YabInterface* yab);
 extern double yi_AttributeGet2(const char* name, const char* filename, YabInterface* yab);
 extern const char* yi_AvailableLanguage(const char* name, YabInterface *yab);
-extern const char* yi_AvailableTimeZones(const char* text, YabInterface *yab);
+extern const char* yi_AvailableTimeZones(const char* name, YabInterface *yab);
 extern int yi_PCWorkspaces(YabInterface* yab);
 extern int yi_DefaultTimeZone(YabInterface* yab);
 extern char* refsRec;	//refs received
