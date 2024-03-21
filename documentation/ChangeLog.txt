@@ -1,6 +1,6 @@
 yab 1.8.2
 Bug fixes
-- AvailableLanguage (64Bit)
+- AvailableLanguage updated
 - Documentation updated
 
 yab 1.8.1
