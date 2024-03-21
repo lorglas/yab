@@ -10383,7 +10383,7 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 				}
 				else if (L.IFindFirst("all")!=B_ERROR)
 				{
-					Lang_List << i << ":" << CurrentID.String();
+					/*Lang_List << i << ":" << CurrentID.String();
 					BLanguage currentLanguage(CurrentID);
 					currentLanguage.GetNativeName(CurrentID);			
 					
@@ -10399,7 +10399,7 @@ const char* YabInterface::Available_Languages(const char* name) //added 2021/02/
 						}
 					}	
 					
-					Lang_List1 << Lang_List << "\n";	
+					Lang_List1 << Lang_List << "\n";	*/
 				}
 			}			
 		}
@@ -11728,7 +11728,7 @@ void yi_BitmapGet2(double w, const char* id, const char* path, YabInterface* yab
 
 int yi_BitmapGetNum(const char* id, const char* option, YabInterface* yab)
 {
-	yab->BitmapGet(id, option);
+	return yab->BitmapGet(id, option);
 }
 
 int yi_BitmapLoad(const char* filename, const char* bitmap, YabInterface* yab)

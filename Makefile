@@ -22,6 +22,7 @@ HAIKUOPT = -DHAIKU -DLIBRARY_PATH=\"`finddir B_USER_SETTINGS_DIRECTORY`/yab\"
 ## Find haiku systenm archetecture from the package file name
 ##
 SYSTEMARCH:= $(shell catattr SYS:PACKAGE_FILE /boot/system/kernel_x86*|cut --fields=4 -d-|cut -d. --fields 1)
+
 #
 
 ##
