@@ -3095,7 +3095,7 @@ OutlineView::OutlineView(BRect rect, BList* visibleColumns, BList* sortColumns,
 	fCurrentColumn(0),
 	fMouseDown(false),
 	fCurrentCode(B_OUTSIDE_VIEW),
-	fEditMode(true),
+	fEditMode(false),
 	fDragging(false),
 	fClickCount(0),
 	fDropHighlightY(-1)

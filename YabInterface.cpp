@@ -9435,6 +9435,8 @@ int YabInterface::BitmapLoad(const char* FileName, const char* id)
 
 int YabInterface::BitmapGet(const char* id, const char* option)
 {
+
+printf("%s %s",id,option);
 	BString t(option);
 	bool isWidth = false;
 	if(t.IFindFirst("height") != B_ERROR)
