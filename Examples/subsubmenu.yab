@@ -1,0 +1,49 @@
+window open 100,100 to 400,300, "Example", "Example"
+
+subsubmenu "File", "Alert", "Types", "Empty Alert...", "", "Example"
+subsubmenu "File", "Alert", "Types", "Info Alert...", "", "Example"
+subsubmenu "File", "Alert", "Types", "Idea Alert...", "COO", "Example"
+subsubmenu "File", "Alert", "Types", "Warning Alert...", "", "Example"
+subsubmenu "File", "Alert", "Types", "Stop Alert...", "", "Example"
+
+subsubmenu "Test", "OS", "My Favorite OS", "BeOS", "", "Example"
+subsubmenu "Test", "OS","My Favorite OS", "Haiku", "", "Example"
+subsubmenu "Test", "OS","My Favorite OS", "ZETA", "", "Example"
+
+subsubmenu set "Test", "OS","My Favorite OS", true, "Example"
+subsubmenu set "Test", "OS", "My Favorite OS", "BeOS", "mark", "Example"
+subsubmenu set "Test", "OS", "My Favorite OS", "ZETA", "disable", "Example"
+
+menu "File", "--", "", "Example"
+menu "File", "Quit", "Q", "Example"
+
+dim msg$(1)
+while(not quitting)
+        n = token(message$, msg$(), "|")
+        for i = 1 to n
+                switch(msg$(i))
+                        case "_QuitRequested"
+                        case "Example:_QuitRequested"
+                        case translate$("Example:File:Quit")
+                                quitting = true
+                                break
+                        case translate$("Example:File:Alert:Types:Empty Alert...")
+                                alert "Empty alert.", "Ok", "empty"
+                                break
+                        case translate$("Example:File:Alert:Types:Info Alert...")
+                                alert "Info alert.", "Ok", "info"
+                                break
+                        case translate$("Example:File:Alert:Types:Idea Alert...")
+                                alert "Idea alert.", "Ok", "idea"
+                                break
+                        case translate$("Example:File:Alert:Types:Warning Alert...")
+                                alert "Warning alert.", "Ok", "warning"
+                                break
+                        case translate$("Example:File:Alert:Types:Stop Alert...")
+                                alert "Stop alert.", "Ok", "stop"
+                                break
+                end switch
+        next i
+wend
+
+window close "Example"

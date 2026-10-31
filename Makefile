@@ -55,7 +55,7 @@ OPT = -O
 ##
 ## set libtrary name
 ##
-YABLIBRARY := libyab_1.8.2.so
+YABLIBRARY := libyab_1.8.3.so
 ##
 #
 
@@ -71,13 +71,13 @@ GPP_OPT = $(DBG) $(OPT) -I. -DHAVE_CONFIG -DUNIX $(HAIKUOPT)
 ## find out if we need to change the library to libyab_x86.so and use gcc instead of ld
 ifeq ($(USEDARCH), x86)
 	LD = gcc
-	YABLIBRARY:=libyab_x86_1.8.2.so
+	YABLIBRARY:=libyab_x86_1.8.3.so
 else
 	LD = ld
 endif
 ifeq ($(SYSTEMARCH),x86_64)
 	LD=gcc
-	YABLIBRARY:=libyab_1.8.2.so
+	YABLIBRARY:=libyab_1.8.3.so
 endif
 #
 
@@ -90,7 +90,7 @@ LD_OPT = -shared
 LIBPATHS = $(shell findpaths -a `getarch` B_FIND_PATH_LIB_DIRECTORY;findpaths -a `getarch` B_FIND_PATH_DEVELOP_LIB_DIRECTORY) .
 LIBPATH=$(addprefix -L,$(LIBPATHS))
 ##LIBPATH = -L`finddir B_SYSTEM_LIB_DIRECTORY` ##/boot/system/lib    
-LIB = -lbe -lroot -ltranslation -ltracker -lmedia -llocalestub -lgame
+LIB = -lbe -lroot -ltranslation -ltracker -lmedia -llocalestub -lgame -lncurses
 
 ## flags for flex (-d for debugging)
 FLEXFLAGS = -i -I -L -s

@@ -31,18 +31,22 @@
 #include <Path.h>
 #include <Picture.h>
 #include <PictureButton.h>
+#include <Polygon.h>
 #include <PopUpMenu.h>
 #include <PrintJob.h>
 #include <PropertyInfo.h>
 #include <RadioButton.h>
 #include <Roster.h>
+#include <Region.h>
 #include <Screen.h>
 #include <ScrollBar.h>
 #include <ScrollView.h>
 #include <Slider.h>
 #include <StatusBar.h>
+#include <Statable.h>
 #include <String.h>
-
+#include <StorageDefs.h>
+#include <parsedate.h>
 //#include <PlaySound.h>
 //#include <FileGameSound.h>
 //#include "GameSoundDevice.h"
@@ -132,11 +136,16 @@ sem_id finished = -1;
 BMediaTrack* playTrack;
 media_format playFormat;
 BSoundPlayer* player = 0;
+BString MakeSizeString(const uint64 &size);
+const uint16 BYTES_PER_KB = 1024;
+const uint32 BYTES_PER_MB = 1048576;
+const uint64 BYTES_PER_GB = 1099511627776ULL;
 
-
+/* added SubSubMenu lorglas 2025.10.25*/
 const uint32 YABBUTTON			= 'YBbu';
 const uint32 YABMENU			= 'YBme';
 const uint32 YABSUBMENU			= 'YBsu';
+const uint32 YABSUBSUBMENU		= 'YBss';
 const uint32 YABTEXTCONTROL		= 'YBtc';
 const uint32 YABCHECKBOX		= 'YBcb';
 const uint32 YABRADIOBUTTON		= 'YBrb';
@@ -702,8 +711,7 @@ void YabInterface::Tab(BRect frame, const char* id, const char* mode, const char
 			else
 				myTabView->SetResizingMode(w->layout);
 
-			myTabView->SetFlags(B_WILL_DRAW|B_FULL_UPDATE_ON_RESIZE|B_NAVIGABLE|B_NAVIGABLE_JUMP);
-			
+			myTabView->SetFlags(B_WILL_DRAW|B_FULL_UPDATE_ON_RESIZE|B_NAVIGABLE|B_NAVIGABLE_JUMP);			
 			myTabView->SetTabSide(side);
 			myTabView->SetTabWidth(B_WIDTH_FROM_LABEL);
 			//myTabView->SetTabWidth(B_WIDTH_AS_USUAL);
@@ -1354,13 +1362,44 @@ int YabInterface::CreateSVG(BRect frame, const char* FileName, const char* windo
 			ErrorGen("Unable to lock window");
 	}
 	else
+		// LIBBSVG nicht verfügbar
 		Error(window, "VIEW");
 	return ret;
 #else
-	return 2;
+	//return 2;
 #endif
 }
+void YabInterface::Region(BRect frame, const char* region_id,const char* view)
+{
 
+	YabView *myView = cast_as((BView*)viewList->GetView(view), YabView);
+	if(myView)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+			w->Lock();
+			YabView *newView = new YabView(frame, region_id, B_FOLLOW_ALL_SIDES, B_WILL_DRAW|B_NAVIGABLE_JUMP);
+			if(w->layout == -1)
+				newView->SetResizingMode(B_FOLLOW_RIGHT|B_FOLLOW_BOTTOM);
+			else
+				newView->SetResizingMode(w->layout);
+			myView->AddChild(newView);
+
+			viewList->AddView(region_id, newView, TYPE_YABVIEW);
+			// viewList->PrintOut();
+
+			newView->Invalidate();
+
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+		Error(view, "VIEW");
+
+}
 void YabInterface::StatusBar(BRect frame, const char* id, const char* label1, const char* label2, const char* view)
 {
 	YabView *myView = cast_as((BView*)viewList->GetView(view), YabView);
@@ -2677,6 +2716,119 @@ void YabInterface::DrawTriangle(double x1, double y1, double x2, double y2, doub
 					}
 					else
                     	bView->FillTriangle(p[0],p[1],p[2], yabPattern);
+                        bView->Sync();
+                        b->Unlock();						
+						myView->Draw(BRect(invx1,invy1,invx2,invy2));
+						w->Unlock();
+                        return;
+                  }
+                  else
+                     ErrorGen("Unable to lock window");
+			} 
+		}
+		Error(window, "VIEW, BITMAP or CANVAS");
+	}
+}
+//void YabInterface::DrawPolygon2(double id, const char* window)/* draw Roundrect added lorglas 2020/09/14 */
+//{
+//}
+void YabInterface::DrawPolygon(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window)/* draw polygon added lorglas 2024/05/05*/
+{
+	double invx1 = x1<x2?x1:x2; invx1 = invx1<x3?invx1:x3; invx1 = invx1<x4?invx1:x4;
+	double invx2 = x1>x2?x1:x2; invx2 = invx2>x3?invx2:x3; invx2 = invx2>x4?invx2:x4;
+	double invy1 = y1<y2?y1:y2; invy1 = invy1<y3?invy1:y3; invy1 = invy1<y4?invy1:y4;
+	double invy2 = y1>y2?y1:y2; invy2 = invy2>y3?invy2:y3; invy2 = invy2>y4?invy2:y4;
+	
+	 
+	YabView *myView = cast_as((BView*)viewList->GetView(window), YabView);
+	
+	if(myView)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+			w->Lock();
+			YabDrawing *t = new YabDrawing();
+			if(drawStroking)
+				t->command = 19;
+			else
+				t->command = 20;
+			t->x1 = x1; t->y1 = y1;
+			t->x2 = x2; t->y2 = y2;
+			t->x3 = x3; t->y3 = y3;
+			t->x4 = x4; t->y4 = y4;
+			
+			t->p = yabPattern;
+			myView->drawList->AddItem(t);
+			//myView->Invalidate(BRect(0,0,200,200));
+			//myView->PrintOut();
+			//myView->Invalidate(BRect(x1,y1,x2,y2));
+			myView->Invalidate(BRect(invx1,invy1,invx2,invy2));
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+	{
+         for(int i=0; i<yabbitmaps->CountItems(); i++)
+         {
+         	BBitmap *b = (BBitmap*)yabbitmaps->ItemAt(i);
+            BView *bview = b->FindView(window);
+            
+            if(bview)
+            {
+            	b->Lock();
+                bview->SetDrawingMode(B_OP_ALPHA);
+                bview->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_COMPOSITE);
+                BPoint p[4];
+                p[0].Set(x1,y1);
+                p[1].Set(x2,y2);
+                p[2].Set(x3,y3);
+				p[3].Set(x4,y4);
+                //BPolygon testPoly(p, 4);
+				if(drawStroking)
+				{
+                   	bview->SetPenSize(1.0);
+                  	bview->StrokePolygon(p,4,true,yabPattern);
+                  	//bview->StrokePolygon(p,yabPattern);
+                   	bview->SetPenSize(1.0);
+       	        }
+				else
+                   	bview->FillPolygon(p,4,yabPattern);
+                    bview->Sync();
+                    b->Unlock();
+                    return;
+    		 }
+        }
+        for(int i=0; i<yabcanvas->CountItems(); i++)
+        {
+			YabBitmapView *myView = (YabBitmapView*)yabcanvas->ItemAt(i);
+			if(!strcmp(myView->Name(), window))
+			{
+              	YabWindow *w = cast_as(myView->Window(), YabWindow);
+				if(w)
+				{
+					w->Lock();
+					BBitmap *b = myView->GetBitmap();
+					BView *bView = myView->GetBitmapView();
+					b->Lock();
+					//bView->SetDrawingMode(B_OP_ALPHA);
+					//	bView->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_COMPOSITE);
+					BPoint p[4];
+					p[0].Set(x1,y1);
+					p[1].Set(x2,y2);
+					p[2].Set(x3,y3);
+					p[3].Set(x4,y4);
+					BPolygon testPoly(p, 4);
+					if(drawStroking)
+					{
+                    	//bView->SetPenSize(1.0);
+						bView->StrokePolygon(p,4,true,yabPattern);
+						//bView->SetPenSize(1.0);
+					}
+					else
+                    	bView->FillPolygon(p,4,yabPattern);
                         bView->Sync();
                         b->Unlock();						
 						myView->Draw(BRect(invx1,invy1,invx2,invy2));
@@ -4182,9 +4334,8 @@ void YabInterface::TextSet(const char* title, const char* option)
 						myText->SelectAll();
 					else if(tmp.IFindFirst("Undo")!=B_ERROR)
 						myText->Undo(be_clipboard);
-					else if(tmp.IFindFirst("Redo")!=B_ERROR)
-					   // myText->Redo(be_clipboard);
-					   ;					  
+					//else if(tmp.IFindFirst("Redo")!=B_ERROR)
+						//myText->Redo(be_clipboard);
 					else
 						ErrorGen("Unknown option");
 					w->Unlock();
@@ -4329,6 +4480,7 @@ void YabInterface::TextSet(const char* title, const char* option, const char* va
 														
 						else
 							ErrorGen("Unknown option");
+							
 						int32 start,finish;
 						myText->GetSelection(&start, &finish);
 						myText->SelectAll();
@@ -4397,32 +4549,26 @@ void YabInterface::TextSet(const char* title, const char* option, int value)
 					else if(tmp.IFindFirst("cursor")!=B_ERROR)
 						myText->Select(value, value);
 					else if(tmp.IFindFirst("textwidth")!=B_ERROR)
-						
 					{
-						
 						// BRect txtframe = myText->TextRect();
 						// txtframe.right = txtframe.left + value;
 						// myText->SetTextRect(txtframe);
 						myText->SetTextRect(BRect(0,0, value,1));
 						// BRect txtbounds = myText->Bounds();
 						// myText->FrameResized(txtbounds.Width(), txtbounds.Height());
-        BRect bounds(myText->Bounds());
-        BScrollBar* horizontalScrollBar = myText->ScrollBar(B_HORIZONTAL);
-
-        // do we have a horizontal scroll bar?
-        if (horizontalScrollBar != NULL) {
-                long viewWidth = bounds.IntegerWidth();
-                long dataWidth = (long)value;
-
-                long maxRange = dataWidth - viewWidth;
-                maxRange = max_c(maxRange, 0);
-
-		horizontalScrollBar->SetRange(0, 1000); //(float)maxRange);
-                // horizontalScrollBar->SetProportion((float)viewWidth / (float)dataWidth);
-                // horizontalScrollBar->SetSteps(10.0, dataWidth / 10);
-		// std::cout << "dataWidth: " << dataWidth << " maxrange: " << maxRange << std::endl;
-        }
-
+        				BRect bounds(myText->Bounds());
+					 	BScrollBar* horizontalScrollBar = myText->ScrollBar(B_HORIZONTAL);
+				        // do we have a horizontal scroll bar?
+        				if (horizontalScrollBar != NULL) {
+                			long viewWidth = bounds.IntegerWidth();
+                			long dataWidth = (long)value;
+			                long maxRange = dataWidth - viewWidth;
+            			    maxRange = max_c(maxRange, 0);
+							horizontalScrollBar->SetRange(0, 1000); //(float)maxRange);
+                		// horizontalScrollBar->SetProportion((float)viewWidth / (float)dataWidth);
+                		// horizontalScrollBar->SetSteps(10.0, dataWidth / 10);
+						// std::cout << "dataWidth: " << dataWidth << " maxrange: " << maxRange << std::endl;
+        				}
 					}
 					else if(tmp.IFindFirst("gotoline")!=B_ERROR)
 					{
@@ -6097,7 +6243,44 @@ void YabInterface::ColumnBoxRemove(const char* columnbox, int position)
 	}
 	Error(columnbox, "COLUMNBOX");
 }
-
+void YabInterface::ColumnBoxRemoveColumn(const char* columnbox, int position)
+{
+	YabView *myView = NULL;
+	BColumnListView *myColumnList = NULL;
+	for(int i=0; i<viewList->CountItems(); i++)
+	{
+		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
+		if(myView)
+		{
+			YabWindow *w = cast_as(myView->Window(), YabWindow);
+			if(w)
+			{
+				w->Lock();
+				myColumnList = cast_as(myView->FindView(columnbox), BColumnListView);
+				if(myColumnList)
+				{
+					BColumn *myColumn;
+					myColumn = myColumnList->ColumnAt(position-1);
+					
+					if(myColumn)
+					{
+						myColumnList->RemoveColumn(myColumn);
+						delete myColumn;
+					}
+					else
+					{
+						w->Unlock();
+						ErrorGen("Column not found");
+					}
+					w->Unlock();
+					return;
+				}
+				w->Unlock();
+			}
+		}
+	}
+	Error(columnbox, "COLUMNBOX");
+}
 void YabInterface::ColumnBoxColor(const char* columnbox, const char* option, int r, int g, int b)
 {
 	YabView *myView = NULL;
@@ -6243,7 +6426,32 @@ int YabInterface::ColumnBoxCount(const char* columnbox)
 	}
 	Error(columnbox, "COLUMNBOX");
 }
-
+int YabInterface::ColumnBoxCountColumns(const char* columnbox)
+{
+	YabView *myView = NULL;
+	BColumnListView *myColumnList = NULL;
+	for(int i=0; i<viewList->CountItems(); i++)
+	{
+		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
+		if(myView)
+		{
+			YabWindow *w = cast_as(myView->Window(), YabWindow);
+			if(w)
+			{
+				w->Lock();
+				myColumnList = cast_as(myView->FindView(columnbox), BColumnListView);
+				if(myColumnList)
+				{
+					int32 ret = myColumnList->CountColumns();
+					w->Unlock();
+					return ret;
+				}
+				w->Unlock();
+			}
+		}
+	}
+	Error(columnbox, "COLUMNBOX");
+}
 void YabInterface::ListboxAdd(const char* listbox, const char* item)
 {
 	YabView *myView = NULL;
@@ -6428,265 +6636,6 @@ int YabInterface::ListboxCount(const char* listbox)
 	Error(listbox, "LISTBOX");
 }
 
-void YabInterface::DrawSet1(const char* option, const char* window)
-{
-	BString tmp(option);
-
-	BFont myFont;
-	BString opt;
-
-	// Font family
-	int pos1 = 0;
-	int pos2 = tmp.FindFirst(',');
-	if(pos2 != B_ERROR) 
-	{
-		tmp.CopyInto(opt, pos1, pos2-pos1);
-		while(opt[0] == ' ') opt.RemoveFirst(" ");
-		while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-		font_family fam;
-		sprintf((char*)fam, "%s" , opt.String());
-		if(myFont.SetFamilyAndFace(fam, B_REGULAR_FACE) == B_OK)
-		{
-			// myView->SetFont(&myFont, B_FONT_FAMILY_AND_STYLE);
-
-			// Font style
-			pos1 = pos2+1;
-			pos2 = tmp.FindFirst(',', pos2+1);
-			if(pos2 != B_ERROR) 
-			{
-				tmp.CopyInto(opt, pos1, pos2-pos1);
-				while(opt[0] == ' ') opt.RemoveFirst(" ");
-				while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-				font_style style;
-				sprintf((char*)style, "%s" , opt.String());
-				if(myFont.SetFamilyAndStyle(fam,style) == B_OK)
-				{
-					// myView->SetFont(&myFont, B_FONT_FAMILY_AND_STYLE);
-
-					// Font size
-					pos1 = pos2+1;
-					pos2 = tmp.FindFirst(',', pos2+1);
-					if(pos2 == B_ERROR) pos2 = tmp.Length();
-					tmp.CopyInto(opt, pos1, pos2-pos1);
-					while(opt[0] == ' ') opt.RemoveFirst(" ");
-					while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-					double size = atof(opt.String());
-					myFont.SetSize(size);
-					// myView->SetFont(&myFont, B_FONT_SIZE);
-
-					if(pos2 != tmp.Length())
-					{
-						pos1 = pos2+1;
-						pos2 = tmp.FindFirst(',', pos2+1);
-						if(pos2 == B_ERROR) pos2 = tmp.Length();
-						tmp.CopyInto(opt, pos1, pos2-pos1);
-						while(opt[0] == ' ') opt.RemoveFirst(" ");
-						while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-						if(opt.IFindFirst("bold") != B_ERROR)
-							myFont.SetFace(B_BOLD_FACE);
-						else if(opt.IFindFirst("italic") != B_ERROR)
-							myFont.SetFace(B_ITALIC_FACE);
-						else if(opt.IFindFirst("regular") != B_ERROR)
-							myFont.SetFace(B_REGULAR_FACE);
-						else if(opt.IFindFirst("outlined") != B_ERROR)
-							myFont.SetFace(B_OUTLINED_FACE);
-						else if(opt.IFindFirst("strikeout") != B_ERROR)
-							myFont.SetFace(B_STRIKEOUT_FACE);
-						else if(opt.IFindFirst("underscore") != B_ERROR)
-							myFont.SetFace(B_UNDERSCORE_FACE);
-
-						if(pos2 != tmp.Length())
-						{
-							pos1 = pos2 + 1;
-							pos2 = tmp.FindFirst(',', pos2+1);
-							if(pos2 == B_ERROR) pos2 = tmp.Length();
-							tmp.CopyInto(opt, pos1, pos2-pos1);
-							while(opt[0] == ' ') opt.RemoveFirst(" ");
-							while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-							float rotation = atof(opt.String());
-							myFont.SetRotation(rotation);
-
-							if(pos2 != tmp.Length())
-							{
-								pos1 = pos2 + 1;
-								pos2 = tmp.FindFirst(',', pos2+1);
-								if(pos2 == B_ERROR) pos2 = tmp.Length();
-								tmp.CopyInto(opt, pos1, pos2-pos1);
-								while(opt[0] == ' ') opt.RemoveFirst(" ");
-								while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-								float shear = atof(opt.String());
-								myFont.SetShear(shear);
-							}
-						}
-
-					}
-					
-
-					// Font flags
-					/*bool looping = true;
-					while(looping)
-					{
-						pos1 = pos2+1;
-						pos2 = tmp.FindFirst(',', pos2+1);
-						if(pos2 == B_ERROR) 
-						{
-							looping = false;
-							pos2 = tmp.Length();
-						}
-						tmp.CopyInto(opt, pos1, pos2-pos1);
-						while(opt[0] == ' ') opt.RemoveFirst(" ");
-						while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
-					}*/
-				}
-			}
-		}
-	}
-	else if(tmp.IFindFirst("system-plain")!=B_ERROR)
-	{
-		myFont = be_plain_font;
-		// myView->SetFont(&myFont);
-	}
-	else if(tmp.IFindFirst("system-fixed")!=B_ERROR)
-	{
-		myFont = be_fixed_font;
-		// myView->SetFont(&myFont);
-	}
-	else if(tmp.IFindFirst("system-bold")!=B_ERROR)
-	{
-		myFont = be_bold_font;
-		// myView->SetFont(&myFont);
-	}
-	
-	YabView *myView = cast_as((BView*)viewList->GetView(window), YabView);
-	if(myView)
-	{
-		YabWindow *w = cast_as(myView->Window(), YabWindow);
-		if(w)
-		{
-			w->Lock();
-			myView->SetFont(&myFont);
-			YabDrawing *t = new YabDrawing();
-			t->command = 12;
-			t->font = myFont;
-			myView->drawList->AddItem(t);
-			w->Unlock();
-		}
-		else
-			ErrorGen("Unable to lock window");
-	}
-	else
-	{
-                for(int i=0; i<yabbitmaps->CountItems(); i++)
-                {
-                        BBitmap *b = (BBitmap*)yabbitmaps->ItemAt(i);
-                        BView *bview = b->FindView(window);
-                        if(bview)
-                        {
-                                b->Lock();
-                                bview->SetFont(&myFont);
-                                bview->Sync();
-                                b->Unlock();
-                                return;
-                        }
-                }
-                for(int i=0; i<yabcanvas->CountItems(); i++)
-                {
-                        YabBitmapView *myView = (YabBitmapView*)yabcanvas->ItemAt(i);
-                        if(!strcmp(myView->Name(), window))
-                        {
-                                YabWindow *w = cast_as(myView->Window(), YabWindow);
-                                if(w)
-                                {
-                                        w->Lock();
-                                        BBitmap *b = myView->GetBitmap();
-                                        BView *bView = myView->GetBitmapView();
-                                        b->Lock();
-                                	bView->SetFont(&myFont);
-                                        bView->Sync();
-                                        b->Unlock();
-
-                                        // myView->Draw(myView->Bounds());
-                                        w->Unlock();
-                                        return;
-                                }
-                                else
-                                        ErrorGen("Unable to lock window");
-                        }  
-		}
-		Error(window, "VIEW, BITMAP or CANVAS");
-	}
-}
-
-void YabInterface::DrawSet2(int fillorstroke, const char* mypattern)
-{
-	BString tmp(mypattern);
-	if(fillorstroke) drawStroking = true; else drawStroking = false;
-	if(tmp.IFindFirst("HighSolidFill")!=B_ERROR)
-		yabPattern = B_SOLID_HIGH;
-	else if(tmp.IFindFirst("LowSolidFill")!=B_ERROR)
-		yabPattern = B_SOLID_LOW;
-	else if(tmp.IFindFirst("CheckeredFill")!=B_ERROR)
-		yabPattern = B_MIXED_COLORS;
-	else
-	{
-		for(int i = 0; i<8; i++)
-			if(i<tmp.Length()+3)
-				{
-					int t = 0;
-					t = 100*(tmp[i*3]-48) + 10*(tmp[i*3+1]-48) + (tmp[i*3+2]-48);
-					yabPattern.data[i] = t;
-				}
-			else
-				yabPattern.data[i] = 0;
-	}
-}
-
-int YabInterface::DeskbarParam(const char* option)
-{
-	int ret;
-	BString opt(option);
-	BDeskbar(deskbar);
-	if( opt.IFindFirst("position") != B_ERROR )
-	{
-		deskbar_location pos = deskbar.Location();
-		switch (pos)
-		{
-			case B_DESKBAR_LEFT_TOP:ret=1;
-				break;
-			case B_DESKBAR_TOP:ret=2;
-				break;
-			case B_DESKBAR_RIGHT_TOP:ret=3;
-				break;
-			case B_DESKBAR_RIGHT_BOTTOM:ret=4;
-				break;
-			case B_DESKBAR_BOTTOM:ret=5;
-				break;
-			case B_DESKBAR_LEFT_BOTTOM:ret=6;
-				break;
-		}
-	}
-	else if( opt.IFindFirst("expanded") != B_ERROR )
-	{
-		ret = (int)deskbar.IsExpanded();
-	}
-	else if( opt.IFindFirst("width") != B_ERROR )
-	{
-		ret = (int)deskbar.Frame().Width()+1;
-	}
-	else if( opt.IFindFirst("height") != B_ERROR )
-	{
-		ret = (int)deskbar.Frame().Height()+1;
-	}
-	else if( opt.IFindFirst("x") != B_ERROR )
-	{
-		ret = (int)deskbar.Frame().left;
-	}
-	else if( opt.IFindFirst("y") != B_ERROR )
-	{
-		ret = (int)deskbar.Frame().top;
-	}
-	return ret;
-}
 
 int YabInterface::DesktopParam(bool isWidth)
 {
@@ -7786,16 +7735,7 @@ int YabInterface::StackViewGet(const char* id)
 	Error(id, "STACKVIEW");
 }
 
-void YabInterface::DrawSet3(const char* option, int transparency)
-{
-	BString t(option);
-	if(t.IFindFirst("alpha") != B_ERROR)
-	{
-		yabAlpha = transparency;
-		if(yabAlpha<0) yabAlpha = 0;
-		if(yabAlpha>255) yabAlpha = 255;
-	}
-}
+
 //Texturl modified by Lorenz Glaser (aka lorglas) 03.10.2019
 void YabInterface::TextURL(double x, double y, const char* id, const char* text, const char* url, const char* view)
 {
@@ -7871,6 +7811,78 @@ void YabInterface::TextURL(const char* id, const char* option, int r, int g, int
 	Error(id, "TEXTURL");
 }
 
+int YabInterface::ColorControlGet(const char* colorcontrol, const char* option)
+{
+	int ret = -1;
+	int myOption = -1;
+	BString myString(option);
+	if(myString.IFindFirst("Red") != B_ERROR) myOption = 0;
+	if(myString.IFindFirst("Green") != B_ERROR) myOption = 1;
+	if(myString.IFindFirst("Blue") != B_ERROR) myOption = 2;
+
+	if(myOption<0) ErrorGen("Unknown option");
+
+	YabView *myView = NULL;
+	BColorControl *myCControl = NULL;
+	for(int i=0; i<viewList->CountItems(); i++)
+	{
+		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
+		if(myView && myOption>-1)
+		{
+			YabWindow *w = cast_as(myView->Window(), YabWindow);
+			if(w)
+			{
+				w->Lock();
+				myCControl = cast_as(myView->FindView(colorcontrol), BColorControl);
+				if(myCControl)
+				{
+					rgb_color t = myCControl->ValueAsColor();
+					switch(myOption)
+					{
+						case 0: ret = t.red;
+							break;
+						case 1: ret = t.green;
+							break;
+						case 2: ret = t.blue;
+							break;
+					}
+					w->Unlock();
+					return ret;
+				}
+				w->Unlock();
+			}
+		}
+	}
+	Error(colorcontrol, "COLORCONTROL");
+}
+
+int YabInterface::SliderGet(const char* slider)
+{
+	int ret = -1;
+	YabView *myView = NULL;
+	BSlider *mySlider = NULL;
+	for(int i=0; i<viewList->CountItems(); i++)
+	{
+		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
+		if(myView)
+		{
+			YabWindow *w = cast_as(myView->Window(), YabWindow);
+			if(w)
+			{
+				w->Lock();
+				mySlider = cast_as(myView->FindView(slider), BSlider);
+				if(mySlider)
+				{
+					ret = mySlider->Value();
+					w->Unlock();
+					return ret;
+				}
+				w->Unlock();
+			}
+		}
+	}
+	Error(slider, "SLIDER");
+}
 void YabInterface::Menu(const char* menuHead, int isRadio, const char* view)
 {
 	bool radio = isRadio?true:false;
@@ -7994,7 +8006,6 @@ void YabInterface::SubMenu(const char* menuHead, const char* menuItem, const cha
 	else
 		Error(view, "VIEW");
 }
-
 void YabInterface::SubMenu(const char* menuHead, const char* menuItem, int isRadio, const char* view)
 {
 	bool radio = isRadio?true:false;
@@ -8039,79 +8050,6 @@ void YabInterface::SubMenu(const char* menuHead, const char* menuItem, int isRad
 	}
 	else
 		Error(view, "VIEW");
-}
-
-int YabInterface::ColorControlGet(const char* colorcontrol, const char* option)
-{
-	int ret = -1;
-	int myOption = -1;
-	BString myString(option);
-	if(myString.IFindFirst("Red") != B_ERROR) myOption = 0;
-	if(myString.IFindFirst("Green") != B_ERROR) myOption = 1;
-	if(myString.IFindFirst("Blue") != B_ERROR) myOption = 2;
-
-	if(myOption<0) ErrorGen("Unknown option");
-
-	YabView *myView = NULL;
-	BColorControl *myCControl = NULL;
-	for(int i=0; i<viewList->CountItems(); i++)
-	{
-		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
-		if(myView && myOption>-1)
-		{
-			YabWindow *w = cast_as(myView->Window(), YabWindow);
-			if(w)
-			{
-				w->Lock();
-				myCControl = cast_as(myView->FindView(colorcontrol), BColorControl);
-				if(myCControl)
-				{
-					rgb_color t = myCControl->ValueAsColor();
-					switch(myOption)
-					{
-						case 0: ret = t.red;
-							break;
-						case 1: ret = t.green;
-							break;
-						case 2: ret = t.blue;
-							break;
-					}
-					w->Unlock();
-					return ret;
-				}
-				w->Unlock();
-			}
-		}
-	}
-	Error(colorcontrol, "COLORCONTROL");
-}
-
-int YabInterface::SliderGet(const char* slider)
-{
-	int ret = -1;
-	YabView *myView = NULL;
-	BSlider *mySlider = NULL;
-	for(int i=0; i<viewList->CountItems(); i++)
-	{
-		myView = cast_as((BView*)viewList->ItemAt(i), YabView);
-		if(myView)
-		{
-			YabWindow *w = cast_as(myView->Window(), YabWindow);
-			if(w)
-			{
-				w->Lock();
-				mySlider = cast_as(myView->FindView(slider), BSlider);
-				if(mySlider)
-				{
-					ret = mySlider->Value();
-					w->Unlock();
-					return ret;
-				}
-				w->Unlock();
-			}
-		}
-	}
-	Error(slider, "SLIDER");
 }
 
 void YabInterface::SubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* option, const char* view)
@@ -8258,7 +8196,269 @@ void YabInterface::Menu3(const char* menuHead, const char* menuItem, const char*
 		if(myOption>-1) Error(view, "VIEW");
 		else ErrorGen("Unknown option");
 }
+/* added SubSubMenu lorglas 2025.10.25*/
+void YabInterface::SubSubMenu(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* subSubMenuItem, const char* shortcut, const char* view)
+{
+    char myShortcut;
+    int32 modifiers = 0;
+    BString t(shortcut);
+    if (t.Length() > 1)
+    {
+        myShortcut = shortcut[t.Length() - 1];
+        if (t.IFindFirst("s") != B_ERROR && t.IFindFirst("s") < t.Length() - 1)
+            modifiers |= B_SHIFT_KEY;
+        if (t.IFindFirst("c") != B_ERROR && t.IFindFirst("c") < t.Length() - 1)
+            modifiers |= B_CONTROL_KEY;
+        if (t.IFindFirst("o") != B_ERROR && t.IFindFirst("o") < t.Length() - 1)
+            modifiers |= B_OPTION_KEY;
+    }
+    else
+        myShortcut = shortcut[0];
 
+    YabView* myView = cast_as((BView*)viewList->GetView(view), YabView);
+    if (!myView)
+    {
+        Error(view, "VIEW");
+        return;
+    }
+
+    if (!strcmp(menuItem, "--"))
+        return;
+
+    YabWindow* w = cast_as(myView->Window(), YabWindow);
+    if (!w)
+    {
+        ErrorGen("Unable to lock window");
+        return;
+    }
+
+    w->Lock();
+
+    BMenuBar* menubar = cast_as(myView->FindView("menubar"), BMenuBar);
+    if (!menubar)
+    {
+        menubar = new BMenuBar(myView->Bounds(), "menubar");
+        myView->AddChild(menubar);
+    }
+
+    // Find or create the top-level menu
+    YabMenu* menu = NULL;
+    for (int i = 0; i < menubar->CountItems(); i++)
+    {
+        if (!strcmp(menubar->ItemAt(i)->Label(), menuHead))
+            menu = (YabMenu*)menubar->SubmenuAt(i);
+    }
+    if (!menu)
+    {
+        menu = new YabMenu(menuHead);
+        menubar->AddItem(menu);
+    }
+
+    // Find or create the submenu
+    YabMenu* submenu = NULL;
+    int isInMenu = -1;
+    for (int i = 0; i < menu->CountItems(); i++)
+    {
+        if (!strcmp(menu->ItemAt(i)->Label(), menuItem))
+        {
+            isInMenu = i;
+            break;
+        }
+    }
+
+    if (isInMenu == -1)
+    {
+        submenu = new YabMenu(menuItem);
+        menu->AddItem(submenu);
+    }
+    else
+    {
+        submenu = cast_as(menu->SubmenuAt(isInMenu), YabMenu);
+        if (!submenu)
+        {
+            BMenuItem* myItem = menu->RemoveItem(isInMenu);
+            delete myItem;
+            submenu = new YabMenu(menuItem);
+            menu->AddItem(submenu, isInMenu);
+        }
+    }
+
+    // Find or create the sub-submenu (NEW)
+    YabMenu* subsubmenu = NULL;
+    int isInSubMenu = -1;
+    for (int i = 0; i < submenu->CountItems(); i++)
+    {
+        if (!strcmp(submenu->ItemAt(i)->Label(), subMenuItem))
+        {
+            isInSubMenu = i;
+            break;
+        }
+    }
+
+    if (isInSubMenu == -1)
+    {
+        subsubmenu = new YabMenu(subMenuItem);
+        submenu->AddItem(subsubmenu);
+    }
+    else
+    {
+        subsubmenu = cast_as(submenu->SubmenuAt(isInSubMenu), YabMenu);
+        if (!subsubmenu)
+        {
+            BMenuItem* myItem = submenu->RemoveItem(isInSubMenu);
+            delete myItem;
+            subsubmenu = new YabMenu(subMenuItem);
+            submenu->AddItem(subsubmenu, isInSubMenu);
+        }
+    }
+
+    // Add the sub-submenu item
+    if (!strcmp(subSubMenuItem, "--"))
+        subsubmenu->AddItem(new BSeparatorItem());
+    else
+        subsubmenu->AddItem(new BMenuItem(subSubMenuItem, new BMessage(YABSUBSUBMENU), myShortcut, modifiers));
+
+    w->Unlock();
+}
+/* added SubSubMenu lorglas 2025.10.25*/
+void YabInterface::SubSubMenu2(const char* menuHead, const char* menuItem, const char* submenuItem, int isRadio, const char* view)
+{
+	bool radio = isRadio?true:false;
+	YabView *myView = cast_as((BView*)viewList->GetView(view), YabView);
+	if(myView)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+			BMenuBar *menubar;
+			BMenu *menu = NULL;
+			BMenu *submenu = NULL;
+			BMenu *subsubmenu = NULL;
+			BMenuItem *item = NULL;
+			w->Lock();
+
+			menubar = cast_as(myView->FindView("menubar"), BMenuBar);
+			if(menubar != NULL)
+			{
+				for(int i=0; i<menubar->CountItems(); i++)
+					if(!strcmp( menubar->ItemAt(i)->Label(), menuHead))
+					{
+						menu = menubar->SubmenuAt(i);
+						for(int j=0; j<menu->CountItems(); j++)
+							if(!strcmp( menu->ItemAt(j)->Label(), menuItem))
+							{
+								submenu = menu->SubmenuAt(j);
+								if(submenu)
+								{
+									subsubmenu = submenu->SubmenuAt(j);
+									if(subsubmenu)
+									{
+										subsubmenu->SetRadioMode(radio);
+										break;
+									}
+								}
+							}
+
+						if(submenu) break;
+					}
+			}
+
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+		Error(view, "VIEW");
+}
+ /* added SubSubMenu lorglas 2025.10.25*/
+void YabInterface::SubSubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* subsubMenuItem ,const char* option, const char* view)
+{
+	int myOption = -1;
+	BString t(option);
+	if(t.IFindFirst("disable")!=B_ERROR) myOption = 0;
+	if(t.IFindFirst("enable")!=B_ERROR) myOption = 1;
+	if(t.IFindFirst("mark")!=B_ERROR) myOption = 2;
+	if(t.IFindFirst("plain")!=B_ERROR) myOption = 3;
+	if(t.IFindFirst("remove")!=B_ERROR) myOption = 4;
+
+	YabView *myView = cast_as((BView*)viewList->GetView(view), YabView);
+	if(myView && myOption>-1)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+			BMenuBar *menubar;
+			BMenu *menu = NULL;
+			BMenu *submenu = NULL;
+			BMenu *subsubmenu = NULL;
+			BMenuItem *item = NULL;
+			w->Lock();
+
+			menubar = cast_as(myView->FindView("menubar"), BMenuBar);
+			if(menubar)
+			{
+				for(int i=0; i<menubar->CountItems(); i++)
+				{
+					if(!strcmp( menubar->ItemAt(i)->Label(), menuHead))
+					{
+						menu = menubar->SubmenuAt(i);
+						for(int j=0; j<menu->CountItems(); j++)
+						{
+							if(!strcmp( menu->ItemAt(j)->Label(), menuItem))
+							{
+								submenu = menu->SubmenuAt(j);
+								if(submenu)
+								{
+									subsubmenu = submenu->SubmenuAt(j);
+									if(subsubmenu)
+									{
+										for(int k=0; k<submenu->CountItems(); k++)
+										{
+											if(!strcmp( submenu->ItemAt(k)->Label(), subMenuItem))
+											{
+												switch(myOption)
+												{
+													case 0:
+														subsubmenu->ItemAt(k)->SetEnabled(false);
+														break;
+													case 1:
+														subsubmenu->ItemAt(k)->SetEnabled(true);
+														break;
+													case 2:
+														subsubmenu->ItemAt(k)->SetMarked(true);
+														break;
+													case 3:
+														subsubmenu->ItemAt(k)->SetMarked(false);
+														break;
+													case 4: 
+														subsubmenu->RemoveItem( subsubmenu->ItemAt(k) );
+														if(subsubmenu->CountItems() == 0) {
+															if(menu->RemoveItem(subsubmenu))
+																menu->AddItem(new BMenuItem(menuItem, new BMessage(YABMENU)), j);
+														}
+													break;
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+		if(myOption>-1) Error(view, "VIEW");
+		else ErrorGen("Unknown option");
+}
 void YabInterface::SpinControl(double x, double y, const char* id, const char* label, int min, int max, int step, const char* view)
 {
 	YabView *myView = cast_as((BView*)viewList->GetView(view), YabView);
@@ -9348,6 +9548,7 @@ void YabInterface::BitmapRemove(const char* bitmap)
 void YabInterface::Screenshot(BRect frame, const char* bitmap)
 {
 	char *t;
+	
 	int w = (int)frame.Width()-1;
 	int h = (int)frame.Height()-1;
 
@@ -9436,7 +9637,7 @@ int YabInterface::BitmapLoad(const char* FileName, const char* id)
 int YabInterface::BitmapGet(const char* id, const char* option)
 {
 
-printf("%s %s",id,option);
+//printf("%s %s",id,option);
 	BString t(option);
 	bool isWidth = false;
 	if(t.IFindFirst("height") != B_ERROR)
@@ -9687,7 +9888,7 @@ int YabInterface::MediaSound(const char* filename) //Implementation MediaSound L
 	int HasData;
 	BString tempstr;
 	if (get_ref_for_path(filename, &ref) != B_OK) {
-		url.SetUrlString(filename);
+		url.SetUrlString(filename,true);
 		if (url.IsValid()) {
 			playFile = new BMediaFile(url);
 		} else
@@ -9954,6 +10155,275 @@ void YabInterface::DrawSet(const char* option, const char* color,const char* vie
 	}
 }
 
+void YabInterface::DrawSet1(const char* option, const char* window)
+{
+	BString tmp(option);
+
+	BFont myFont;
+	BString opt;
+
+	// Font family
+	int pos1 = 0;
+	int pos2 = tmp.FindFirst(',');
+	if(pos2 != B_ERROR) 
+	{
+		tmp.CopyInto(opt, pos1, pos2-pos1);
+		while(opt[0] == ' ') opt.RemoveFirst(" ");
+		while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+		font_family fam;
+		sprintf((char*)fam, "%s" , opt.String());
+		if(myFont.SetFamilyAndFace(fam, B_REGULAR_FACE) == B_OK)
+		{
+			// myView->SetFont(&myFont, B_FONT_FAMILY_AND_STYLE);
+
+			// Font style
+			pos1 = pos2+1;
+			pos2 = tmp.FindFirst(',', pos2+1);
+			if(pos2 != B_ERROR) 
+			{
+				tmp.CopyInto(opt, pos1, pos2-pos1);
+				while(opt[0] == ' ') opt.RemoveFirst(" ");
+				while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+				font_style style;
+				sprintf((char*)style, "%s" , opt.String());
+				if(myFont.SetFamilyAndStyle(fam,style) == B_OK)
+				{
+					// myView->SetFont(&myFont, B_FONT_FAMILY_AND_STYLE);
+
+					// Font size
+					pos1 = pos2+1;
+					pos2 = tmp.FindFirst(',', pos2+1);
+					if(pos2 == B_ERROR) pos2 = tmp.Length();
+					tmp.CopyInto(opt, pos1, pos2-pos1);
+					while(opt[0] == ' ') opt.RemoveFirst(" ");
+					while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+					double size = atof(opt.String());
+					myFont.SetSize(size);
+					// myView->SetFont(&myFont, B_FONT_SIZE);
+
+					if(pos2 != tmp.Length())
+					{
+						pos1 = pos2+1;
+						pos2 = tmp.FindFirst(',', pos2+1);
+						if(pos2 == B_ERROR) pos2 = tmp.Length();
+						tmp.CopyInto(opt, pos1, pos2-pos1);
+						while(opt[0] == ' ') opt.RemoveFirst(" ");
+						while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+						if(opt.IFindFirst("bold") != B_ERROR)
+							myFont.SetFace(B_BOLD_FACE);
+						else if(opt.IFindFirst("italic") != B_ERROR)
+							myFont.SetFace(B_ITALIC_FACE);
+						else if(opt.IFindFirst("regular") != B_ERROR)
+							myFont.SetFace(B_REGULAR_FACE);
+						else if(opt.IFindFirst("outlined") != B_ERROR)
+							myFont.SetFace(B_OUTLINED_FACE);
+						else if(opt.IFindFirst("strikeout") != B_ERROR)
+							myFont.SetFace(B_STRIKEOUT_FACE);
+						else if(opt.IFindFirst("underscore") != B_ERROR)
+							myFont.SetFace(B_UNDERSCORE_FACE);
+
+						if(pos2 != tmp.Length())
+						{
+							pos1 = pos2 + 1;
+							pos2 = tmp.FindFirst(',', pos2+1);
+							if(pos2 == B_ERROR) pos2 = tmp.Length();
+							tmp.CopyInto(opt, pos1, pos2-pos1);
+							while(opt[0] == ' ') opt.RemoveFirst(" ");
+							while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+							float rotation = atof(opt.String());
+							myFont.SetRotation(rotation);
+
+							if(pos2 != tmp.Length())
+							{
+								pos1 = pos2 + 1;
+								pos2 = tmp.FindFirst(',', pos2+1);
+								if(pos2 == B_ERROR) pos2 = tmp.Length();
+								tmp.CopyInto(opt, pos1, pos2-pos1);
+								while(opt[0] == ' ') opt.RemoveFirst(" ");
+								while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+								float shear = atof(opt.String());
+								myFont.SetShear(shear);
+							}
+						}
+
+					}
+					
+
+					// Font flags
+					/*bool looping = true;
+					while(looping)
+					{
+						pos1 = pos2+1;
+						pos2 = tmp.FindFirst(',', pos2+1);
+						if(pos2 == B_ERROR) 
+						{
+							looping = false;
+							pos2 = tmp.Length();
+						}
+						tmp.CopyInto(opt, pos1, pos2-pos1);
+						while(opt[0] == ' ') opt.RemoveFirst(" ");
+						while(opt[opt.Length()-1] == ' ') opt.RemoveLast(" ");
+					}*/
+				}
+			}
+		}
+	}
+	else if(tmp.IFindFirst("system-plain")!=B_ERROR)
+	{
+		myFont = be_plain_font;
+		// myView->SetFont(&myFont);
+	}
+	else if(tmp.IFindFirst("system-fixed")!=B_ERROR)
+	{
+		myFont = be_fixed_font;
+		// myView->SetFont(&myFont);
+	}
+	else if(tmp.IFindFirst("system-bold")!=B_ERROR)
+	{
+		myFont = be_bold_font;
+		// myView->SetFont(&myFont);
+	}
+	
+	YabView *myView = cast_as((BView*)viewList->GetView(window), YabView);
+	if(myView)
+	{
+		YabWindow *w = cast_as(myView->Window(), YabWindow);
+		if(w)
+		{
+			w->Lock();
+			myView->SetFont(&myFont);
+			YabDrawing *t = new YabDrawing();
+			t->command = 12;
+			t->font = myFont;
+			myView->drawList->AddItem(t);
+			w->Unlock();
+		}
+		else
+			ErrorGen("Unable to lock window");
+	}
+	else
+	{
+                for(int i=0; i<yabbitmaps->CountItems(); i++)
+                {
+                        BBitmap *b = (BBitmap*)yabbitmaps->ItemAt(i);
+                        BView *bview = b->FindView(window);
+                        if(bview)
+                        {
+                                b->Lock();
+                                bview->SetFont(&myFont);
+                                bview->Sync();
+                                b->Unlock();
+                                return;
+                        }
+                }
+                for(int i=0; i<yabcanvas->CountItems(); i++)
+                {
+                        YabBitmapView *myView = (YabBitmapView*)yabcanvas->ItemAt(i);
+                        if(!strcmp(myView->Name(), window))
+                        {
+                                YabWindow *w = cast_as(myView->Window(), YabWindow);
+                                if(w)
+                                {
+                                        w->Lock();
+                                        BBitmap *b = myView->GetBitmap();
+                                        BView *bView = myView->GetBitmapView();
+                                        b->Lock();
+                                	bView->SetFont(&myFont);
+                                        bView->Sync();
+                                        b->Unlock();
+
+                                        // myView->Draw(myView->Bounds());
+                                        w->Unlock();
+                                        return;
+                                }
+                                else
+                                        ErrorGen("Unable to lock window");
+                        }  
+		}
+		Error(window, "VIEW, BITMAP or CANVAS");
+	}
+}
+
+void YabInterface::DrawSet2(int fillorstroke, const char* mypattern)
+{
+	BString tmp(mypattern);
+	if(fillorstroke) drawStroking = true; else drawStroking = false;
+	if(tmp.IFindFirst("HighSolidFill")!=B_ERROR)
+		yabPattern = B_SOLID_HIGH;
+	else if(tmp.IFindFirst("LowSolidFill")!=B_ERROR)
+		yabPattern = B_SOLID_LOW;
+	else if(tmp.IFindFirst("CheckeredFill")!=B_ERROR)
+		yabPattern = B_MIXED_COLORS;
+	else
+	{
+		for(int i = 0; i<8; i++)
+			if(i<tmp.Length()+3)
+				{
+					int t = 0;
+					t = 100*(tmp[i*3]-48) + 10*(tmp[i*3+1]-48) + (tmp[i*3+2]-48);
+					yabPattern.data[i] = t;
+				}
+			else
+				yabPattern.data[i] = 0;
+	}
+}
+void YabInterface::DrawSet3(const char* option, int transparency)
+{
+	BString t(option);
+	if(t.IFindFirst("alpha") != B_ERROR)
+	{
+		yabAlpha = transparency;
+		if(yabAlpha<0) yabAlpha = 0;
+		if(yabAlpha>255) yabAlpha = 255;
+	}
+}
+int YabInterface::DeskbarParam(const char* option)
+{
+	int ret;
+	BString opt(option);
+	BDeskbar(deskbar);
+	if( opt.IFindFirst("position") != B_ERROR )
+	{
+		deskbar_location pos = deskbar.Location();
+		switch (pos)
+		{
+			case B_DESKBAR_LEFT_TOP:ret=1;
+				break;
+			case B_DESKBAR_TOP:ret=2;
+				break;
+			case B_DESKBAR_RIGHT_TOP:ret=3;
+				break;
+			case B_DESKBAR_RIGHT_BOTTOM:ret=4;
+				break;
+			case B_DESKBAR_BOTTOM:ret=5;
+				break;
+			case B_DESKBAR_LEFT_BOTTOM:ret=6;
+				break;
+		}
+	}
+	else if( opt.IFindFirst("expanded") != B_ERROR )
+	{
+		ret = (int)deskbar.IsExpanded();
+	}
+	else if( opt.IFindFirst("width") != B_ERROR )
+	{
+		ret = (int)deskbar.Frame().Width()+1;
+	}
+	else if( opt.IFindFirst("height") != B_ERROR )
+	{
+		ret = (int)deskbar.Frame().Height()+1;
+	}
+	else if( opt.IFindFirst("x") != B_ERROR )
+	{
+		ret = (int)deskbar.Frame().left;
+	}
+	else if( opt.IFindFirst("y") != B_ERROR )
+	{
+		ret = (int)deskbar.Frame().top;
+	}
+	return ret;
+}
+
 void YabInterface::Treebox13(const char* id,const char* option, int pos)
 {
 }
@@ -10082,7 +10552,8 @@ void YabInterface::Attribute1(const char* type, const char* name, const char* va
 	if(node.InitCheck() != B_OK)
 		ErrorGen("Attribute file not found!");
 	BString tempvalue(value);
-	
+	uint32 uint32value = 0;
+	int32 int32value = 0;
 	
 	type_code typecode;
 	BString typeStr(type);
@@ -10110,42 +10581,294 @@ void YabInterface::Attribute1(const char* type, const char* name, const char* va
 		if (tempvalue.IFindFirst("false") !=B_ERROR)
 		tf="";
 		node.WriteAttr(name, typecode, 0, tf, x);
+	}	
+	else if(typeStr.IFindFirst("i8")!=B_ERROR)
+	{
+		const size_t len = 1;
+	    // Stringwert ganz einfach in eine Zahl 0..255 konvertieren (nur positive Werte)
+    	int hele = 0;
+    	const char* s = value;
+	   // Sicherheit: Nullterminator prüfen
+		//if (s == nullptr) {
+        // Fehlerbehandlung hier einfügen, ggf. Standardwert setzen
+			//hele = 0;
+		//} else {
+			// Whitespace überspringen
+			while (*s == ' ' || *s == '\t') ++s;
+
+			// Vorzeichen erfassen
+			bool neg = false;
+			if (*s == '-') { neg = true; ++s; }
+			else if (*s == '+') { ++s; }
+
+			// Ziffern lesen
+			while (*s >= '0' && *s <= '9') {
+				hele = hele * 10 + (*s - '0');
+				++s;
+			}
+
+			// Vorzeichen anwenden
+			if (neg) hele = -hele;
+			// Bereich begrenzen
+    	
+			// Bereich begrenzen (optional)
+			const int8 min = -128;
+			const int8 max = 127; // max von int8_t
+			if (hele < min) hele = min;
+			if (hele > max) hele = max;
+		//}				
+		unsigned char b0 = static_cast<unsigned char>(hele);
+		//  printf("%u", static_cast<unsigned int>(b0));
+		typecode = B_INT8_TYPE;
+    	node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
+
+	}	
+	else if(typeStr.IFindFirst("u8")!=B_ERROR)
+	{
+		const size_t len = 1;
+	    unsigned int hele = 0;
+    	const char* s = value;
+	    while (*s == ' ' || *s == '\t') ++s;
+	
+	    while (*s >= '0' && *s <= '9') {
+    		hele = hele * 10 + (unsigned int)(*s - '0');
+        	++s;
+    	}
+
+    	if (hele > 255) hele = 255;
+	
+	    unsigned char b0 = static_cast<unsigned char>(hele);
+	    //printf("%u", static_cast<unsigned int>(b0));
+	    typecode = B_UINT8_TYPE;
+    	node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
 	}
-		
-			
+	else if(typeStr.IFindFirst("i16")!=B_ERROR)
+	{
+	   const size_t len = 2; // Byte-Länge für int32_t
+		int hele = 0;
+		const char* s = value;
+
+		// Sicherheit: Nullterminator prüfen
+		//if (s == nullptr) {
+        // Fehlerbehandlung hier einfügen, ggf. Standardwert setzen
+		//	hele = 0;
+		//} else {
+			// Whitespace überspringen
+			while (*s == ' ' || *s == '\t') ++s;
+
+			// Vorzeichen erfassen
+			bool neg = false;
+			if (*s == '-') { neg = true; ++s; }
+			else if (*s == '+') { ++s; }
+
+			// Ziffern lesen
+			while (*s >= '0' && *s <= '9') {
+				hele = hele * 10 + (*s - '0');
+				++s;
+			}
+
+			// Vorzeichen anwenden
+			if (neg) hele = -hele;
+			// Bereich begrenzen
+    	
+			// Bereich begrenzen (optional)
+			const int16 min = -32768;
+			const int16 max = 32767; // max von int16_t
+			if (hele < min) hele = min;
+			if (hele > max) hele = max;
+		//}
+		short b0 = static_cast<short>(hele);
+	    typecode = B_INT16_TYPE;
+    	node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
+	}	
+	else if(typeStr.IFindFirst("u16")!=B_ERROR)
+	{
+		const size_t len = 2;
+	    unsigned int hele = 0;
+    	const char* s = value;
+
+    	while (*s == ' ' || *s == '\t') ++s;
+
+    	while (*s >= '0' && *s <= '9') {
+        	hele = hele * 10 + (unsigned int)(*s - '0');
+        	++s;
+    	}
+	    if (hele > 65535) hele = 65535;
+	
+	    unsigned short b0 = static_cast<unsigned short>(hele);
+
+    	//printf("%u", static_cast<unsigned int>(b0));
+	
+	    typecode = B_UINT16_TYPE;
+    	node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
+	}				
 	else if(typeStr.IFindFirst("int")!=B_ERROR)
 	{
 		int32 x = tempvalue.Length();
 		typecode = B_INT32_TYPE;
-		node.WriteAttr(name, typecode, 0, value, x);
+		const char* s = tempvalue;
+		node.WriteAttr(name, typecode, 0, s, x);
+	}	
+	else if (typeStr.IFindFirst("l32") != B_ERROR) {
+		const size_t len = 4; // Byte-Länge für int32_t
+		long hele = 0;
+		const char* s = value;
+
+		// Sicherheit: Nullterminator prüfen
+		//if (s == nullptr) {
+        // Fehlerbehandlung hier einfügen, ggf. Standardwert setzen
+		//	hele = 0;
+		//} else {
+			// Whitespace überspringen
+			while (*s == ' ' || *s == '\t') ++s;
+
+			// Vorzeichen erfassen
+			bool neg = false;
+			if (*s == '-') { neg = true; ++s; }
+			else if (*s == '+') { ++s; }
+
+			// Ziffern lesen
+			while (*s >= '0' && *s <= '9') {
+				hele = hele * 10 + (*s - '0');
+				++s;
+			}
+
+			// Vorzeichen anwenden
+			if (neg) hele = -hele;
+
+			// Bereich begrenzen (optional)
+			const long min = -2147483648;
+			const long max = 2147483647; // max von int32_t
+			if (hele < min) hele = min;
+			if (hele > max) hele = max;
+		//}
+		int32_t b0 = static_cast<int32_t>(hele);
+		typecode = B_INT32_TYPE;
+		node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
 	}
-		
-		
-	else if(typeStr.IFindFirst("double")!=B_ERROR)
+	else if(typeStr.IFindFirst("u32")!=B_ERROR)
 	{
-		int32 x = tempvalue.Length();
-		typecode = B_DOUBLE_TYPE;
-		node.WriteAttr(name, typecode, 0, value, x);
+		const size_t len = 4; // Byte-Länge für uint32_t
+		unsigned long hele = 0;
+		const char* s = value;
+		// Sicherheit: Nullterminator prüfen
+		//if (s == nullptr) {
+		//	hele = 0; // oder Fehlerbehandlung
+		//} else {
+			// Whitespace überspringen
+			while (*s == ' ' || *s == '\t') ++s;
+
+			// Ziffern lesen
+			while (*s >= '0' && *s <= '9') {
+				hele = hele * 10 + (unsigned long)(*s - '0');
+				++s;
+			}
+			// Bereich begrenzen
+			const unsigned long min = 0;
+			const unsigned long max = 4294967295; // max von uint32_t
+			if (hele < min) hele = min;
+			if (hele > max) hele = max;
+		//}
+		uint32_t b0 = static_cast<uint32_t>(hele);
+		typecode = B_UINT32_TYPE;
+		node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
 	}
-	else if(typeStr.IFindFirst("float")!=B_ERROR)
+	else if(typeStr.IFindFirst("l64")!=B_ERROR)
 	{
-		int32 x = tempvalue.Length();
+		const size_t len = 8;
+
+    	long long hele = 0;
+	    const char* s = value;
+	
+    	while (*s == ' ' || *s == '\t') ++s;
+
+	    bool neg = false;
+    	if (*s == '-') { neg = true; ++s; }
+    	else if (*s == '+') { ++s; }
+
+    	while (*s >= '0' && *s <= '9') {
+        	hele = hele * 10 + (long long)(*s - '0');
+        	++s;
+    	}
+
+    	if (neg) hele = -hele;
+
+    	// Bereich begrenzen
+    	const long long min = -9223372036854775807LL - 1;
+    	const long long max = 9223372036854775807LL;
+    	if (hele < min) hele = min;
+    	if (hele > max) hele = max;
+
+    	int64_t b0 = static_cast<int64_t>(hele);
+
+    	//printf("%lld", static_cast<long long>(b0));
+
+    	typecode = B_INT64_TYPE;
+    	node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
+	}
+	else if (typeStr.IFindFirst("u64")!= B_ERROR)
+	{
+		const size_t len = 8; // Byte-Länge für uint64_t
+		unsigned long long hele = 0;
+		const char* s = value;
+
+		// Sicherheit: Nullterminator prüfen
+		//if (s == nullptr) {
+		//	hele = 0; // oder Fehlerbehandlung
+		//} else {
+			// Whitespace überspringen
+			while (*s == ' ' || *s == '\t') ++s;
+
+			// Vorzeichen: bei unsigned sollte Negatives ignoriert/fehlerhaft behandelt werden
+			if (*s == '-') {
+				// Optional: Fehlerbehandlung statt neg. Wert zu akzeptieren
+				++s;
+				hele=0;
+				// Hier könnte man hele weiter auf 0 setzen oder Fehler melden.
+			} else if (*s == '+') {
+				++s;
+			}
+
+			// Ziffern lesen
+			while (*s >= '0' && *s <= '9') {
+				hele = hele * 10 + (unsigned long long)(*s - '0');
+				++s;
+			}
+			// Bereich begrenzen
+			const unsigned long long min = 0;
+			const unsigned long long max = 18446744073709551615ULL; // max von uint64_t
+			if (hele < min) hele = min;
+			if (hele > max) hele = max;
+		//}
+		uint64_t b0 = static_cast<uint64_t>(hele);
+		typecode = B_UINT64_TYPE;
+		node.WriteAttr(name, typecode, 0, reinterpret_cast<const int8*>(&b0), len);
+	}
+	else if(typeStr.IFindFirst("double") != B_ERROR)
+	{
+		char *end;
+		double dval = strtod(value,  &end); // Convert string to double
+		typecode = B_DOUBLE_TYPE;		
+		node.WriteAttr(name, typecode, 0, &dval, sizeof(dval)); // Write as binary
+	}
+	else if(typeStr.IFindFirst("float") != B_ERROR)
+	{
+		char *end;
+		float fval = strtof(value, &end); // Convert string to float
 		typecode = B_FLOAT_TYPE;
-		node.WriteAttr(name, typecode, 0, value, x);
+		node.WriteAttr(name, typecode, 0, &fval, sizeof(fval)); // Write as binary
 	}
-	else if(typeStr.IFindFirst("long")!=B_ERROR)
+	else if(typeStr.IFindFirst("time")!=B_ERROR)
 	{
-		int32 x = tempvalue.Length();
-		typecode = B_INT64_TYPE;
-		node.WriteAttr(name, typecode, 0, value, x);
+		typecode = B_TIME_TYPE;
+		//typecode = B_STRING_TYPE;
+		int32 x = tempvalue.Length();		
+		x++;
+		node.WriteAttr(name, typecode, 0, tempvalue, x);		
 	}
 	else
 		ErrorGen("Unknown attribute type!");
-
-		
-
 }
-
 void YabInterface::AttributeClear(const char* name, const char* filename)
 {
 	BNode node(filename);
@@ -10153,11 +10876,49 @@ void YabInterface::AttributeClear(const char* name, const char* filename)
 		ErrorGen("Attribute file not found!");
 	node.RemoveAttr(name);
 }
+static void
+dump_raw_data(const char *buffer, size_t size)
+{
+	const uint32 kChunkSize = 16;
+	uint32 dumpPosition = 0;
 
+	while (dumpPosition < size) {
+		// Position for this line
+		printf("\t%04" B_PRIx32 ": ", dumpPosition);
+
+		// Print the bytes in form of hexadecimal numbers
+		for (uint32 i = 0; i < kChunkSize; i++) {
+			if (dumpPosition + i < size) {
+				printf("%02x ", (uint8)buffer[dumpPosition + i]);
+			} else
+				printf("   ");
+		}
+
+		// Print the bytes in form of printable characters
+		// (whenever possible)
+		printf(" ");
+		for (uint32 i = 0; i < kChunkSize; i++) {
+			if (dumpPosition < size) {
+				char c = buffer[dumpPosition];
+				putchar(isgraph(c) ? c : '.');
+			} else
+				putchar(' ');
+
+			dumpPosition++;
+		}
+		printf("\n");
+	}
+}
 const char* YabInterface::AttributeGet1(const char* name, const char* filename)
 {
 	BString tempname(name);
 	BNode node(filename);
+	bool cut = false;	
+	//int32_t value;
+	//char ret[32];
+	int64_t value;
+	char ret[64];
+	BString Back="";
 	if(node.InitCheck() != B_OK){
 		if (tempname.Length() >0)
 			ErrorGen("Attribute file not found!");
@@ -10169,30 +10930,143 @@ const char* YabInterface::AttributeGet1(const char* name, const char* filename)
 			
 	if (tempname.Length() >0)
 	{
-	attr_info attr;
-	if(node.GetAttrInfo(name, &attr) != B_OK)
-		ErrorGen("Attribute not found!");
+		attr_info attr;
+		if(node.GetAttrInfo(name, &attr) != B_OK)
+			ErrorGen("Attribute not found!");
 
-	int size = attr.size;
-	if(size>32568)
-		size = 32568;
-	if(node.ReadAttr(name,attr.type, 0, attrbuffer, size) == 0)
-		return "";
+		int size = attr.size;
 		
-		if (attr.type == B_BOOL_TYPE)
+		//printf("name: %s size: %i\n", name,size);
+		
+		if(size>32568){
+			size = 32568;
+			cut = true;
+		}
+		if(node.ReadAttr(name,attr.type, 0, attrbuffer, size) == 0)
+			return "";
+		
+		/*if (attr.type == B_BOOL_TYPE)
 			{	
 				int x = 0;
 				if (attrbuffer[0] == x)
 				{
-				return "false";
+					return "false";
 				}
 				else 
 				{
-				return "true";
+					return "true";
 				}	
 			}
-
-	return (char*)attrbuffer;
+			//printf("%s\n",attrbuffer);
+			printf("%" B_PRId32 "\n", *((int32 *)attrbuffer));
+		return (char*)attrbuffer;*/
+		switch (attr.type) {
+		case B_INT8_TYPE:
+			//printf("%" B_PRId8 "\n", *((int8 *)attrbuffer));
+			value = *((int8 *)attrbuffer);
+			snprintf(ret, sizeof(ret), "%" B_PRId8 "", value);
+			Back << ret;
+			return Back.String();
+			break;
+		case B_UINT8_TYPE:
+			value = *((uint8 *)attrbuffer);
+			snprintf(ret, sizeof(ret), "%" B_PRIu8 "", value);
+			//printf("%" B_PRIu8 "\n", *((uint8 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_INT16_TYPE:
+			value = *((int16 *)attrbuffer);
+			snprintf(ret, sizeof(ret), "%" B_PRId16 "", value);
+			//printf("%" B_PRId16 "\n", *((int16 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_UINT16_TYPE:
+			value = *((uint16 *)attrbuffer);
+			snprintf(ret, sizeof(ret), "%" B_PRIu16 "", value);
+			//printf("%" B_PRIu16 "\n", *((uint16 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_INT32_TYPE:		
+			value = *((int32 *)attrbuffer);
+    		snprintf(ret, sizeof(ret), "%" B_PRId32 "", value);
+			 //printf("%"  B_PRId32  "\n", *((int32 *)attrbuffer));
+			// return ret;
+			Back << ret;
+			return Back.String();	
+			break;
+		case B_UINT32_TYPE:
+			value = *((uint32 *)attrbuffer);
+    		snprintf(ret, sizeof(ret), "%" B_PRIu32 "", value);
+			//printf("%" B_PRIu32 "\n", *((uint32 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_INT64_TYPE:
+			value = *((int64 *)attrbuffer);
+    		snprintf(ret, sizeof(ret), "%" B_PRId64 "", value);
+			//printf("%" B_PRId64 "\n", *((int64 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_UINT64_TYPE:
+			value = *((uint64 *)attrbuffer);
+    		snprintf(ret, sizeof(ret), "%" B_PRIu64 "", value);
+			//printf("%" B_PRIu64 "\n", *((uint64 *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_FLOAT_TYPE:
+			snprintf(ret, sizeof(ret), "%f", *((float *)attrbuffer));
+			//printf("%f\n", *((float *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_DOUBLE_TYPE:						
+    		snprintf(ret, sizeof(ret), "%f", *((double *)attrbuffer));
+			//printf("%f\n", *((double *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_BOOL_TYPE:
+			value = *((int8 *)attrbuffer);
+			snprintf(ret, sizeof(ret), "%" B_PRId8 "", value);
+			//printf("%d\n", *((unsigned char *)attrbuffer));
+			Back << ret;
+			return Back.String();
+			break;
+		case B_TIME_TYPE:
+		{
+			char stringBuffer[256];
+			struct tm timeInfo;
+			localtime_r((time_t *)attrbuffer, &timeInfo);
+			strftime(stringBuffer, sizeof(stringBuffer), "%c", &timeInfo);
+			//printf("%s\n", stringBuffer);
+			Back << stringBuffer;
+			return Back.String();
+			break;
+		}
+		case B_STRING_TYPE:
+		case B_MIME_STRING_TYPE:
+		case 'MSIG':
+		case 'MSDC':
+		case 'MPTH':
+			Back << attrbuffer;
+			return Back.String();
+			//return attrbuffer;
+			//printf("%s\n", attrbuffer);
+			break;
+		default:
+			// The rest of the attributes types are displayed as raw data
+			//putchar('\n');
+			dump_raw_data(attrbuffer, size);
+			//putchar('\n');
+			break;
+		}	
+		//return ret;
+		//return (char*)attrbuffer;
 	}
 	else
 	{
@@ -10207,10 +11081,26 @@ const char* YabInterface::AttributeGet1(const char* name, const char* filename)
 				ErrorGen("Attribute not found!");
 				uint32 attrtype;
 		 attrtype=attr.type;
+		 
 		switch(attrtype)
 		{	
-		 case B_BOOL_TYPE:
+		case B_INT8_TYPE:
+			Attrtype ="int8";
+			break;
+		case B_UINT8_TYPE:
+			Attrtype ="uint8";
+			break;
+		case B_INT16_TYPE:
+			Attrtype ="int16";
+			break;
+		case B_UINT16_TYPE:
+			Attrtype = "uint16";
+			break;
+		case B_BOOL_TYPE:
 			Attrtype="Bool";
+			break;
+		case B_RAW_TYPE:
+			Attrtype="Raw_data";
 			break;
 		case B_STRING_TYPE:
 			Attrtype = "String";
@@ -10221,6 +11111,9 @@ const char* YabInterface::AttributeGet1(const char* name, const char* filename)
 		case B_INT32_TYPE:
 			Attrtype = "Int";
 			break;
+		case B_UINT32_TYPE:
+			Attrtype= "uint32";
+			break;
 		case B_DOUBLE_TYPE:
 			Attrtype = "Double";
 			break;
@@ -10230,22 +11123,24 @@ const char* YabInterface::AttributeGet1(const char* name, const char* filename)
 		case B_INT64_TYPE:
 			Attrtype = "Long";
 			break;
+		case B_UINT64_TYPE:
+			Attrtype = "uint64";
+			break;
+		case B_MESSAGE_TYPE:
+			Attrtype = "message";
+			break;
+		case B_TIME_TYPE:
+			Attrtype = "Time";
+			break;
 		default:	
 			Attrtype = "Unsupported";
 			break;
 		}			
-				
-				
-			List << buf << sp << Attrtype  << sp;	
+		List << buf << sp << Attrtype  << sp;	
 		}
-		
-		
-		
-	return List.String();
-		
+	return List.String();		
 	}	
 }
-
 double YabInterface::AttributeGet2(const char* name, const char* filename)
 {
 	BNode node(filename);
@@ -10453,6 +11348,247 @@ const char* YabInterface::Available_TimeZones() //added 2022/08/04 lorglas
 	}
 	return List.String();*/
 }
+const char* YabInterface::B_FileSize(const char* name) //added 2021/12/29 lorglas
+{
+	    // Create a BFile object in read-only mode
+    BFile file(name, B_READ_ONLY);
+	BString formatString;
+    // Check if the file was opened successfully
+    status_t status = file.InitCheck();
+    if (status != B_OK) {
+        fprintf(stderr, "Failed to open file: %s\n", strerror(status));
+        return "Failed to open file:\n";
+    }
+
+    // Get the file size
+    off_t fileSize;
+    status = file.GetSize(&fileSize);
+    if (status != B_OK) {
+        fprintf(stderr, "Failed to get file size: %s\n", strerror(status));
+        return "Failed to get file size:\n";
+    }
+	formatString << MakeSizeString(fileSize);
+    //printf("File size of '%s': %lld bytes\n", name, fileSize);
+	return formatString.String();
+	
+}
+// added 2021/12/29 lorglas
+
+void BuildFullPath(char* fullPath, size_t fullPathLen, const char* basePath, const char* entryName) { 
+    if (!fullPath || !basePath || !entryName)
+        return; 
+
+    size_t baseLen = strlen(basePath); 
+    int needsSlash = (baseLen > 0 && basePath[baseLen - 1] != '/'); 
+    int required = baseLen + (needsSlash ? 1 : 0) + strlen(entryName) + 1; // +1 for NULL
+
+    if (required > fullPathLen) {
+        // Truncate safely
+        if (fullPathLen > 0) fullPath[0] = '\0';
+        return;
+    }
+
+    if (needsSlash) {
+        snprintf(fullPath, fullPathLen, "%s/%s", basePath, entryName);
+    } else {
+        snprintf(fullPath, fullPathLen, "%s%s", basePath, entryName);
+    }
+}
+
+// Rekursive Funktion zur Berechnung der Verzeichnisgröße 
+off_t CalculateDirectorySize(const char* path) { 
+
+    if (!path) return 0;
+
+    BDirectory dir(path);
+    off_t totalSize = 0;
+
+    status_t status = dir.InitCheck();
+    if (status != B_OK) {
+        fprintf(stderr, "Error on opening dir '%s': %s\n", path, strerror(status));
+        return 0;
+    }
+
+    BEntry entry;
+    while (dir.GetNextEntry(&entry) == B_OK) {
+        struct stat statBuffer;
+        // Prüfe, ob der Eintrag existiert und lese Stat erst, wenn sinnvoll
+        if (entry.GetStat(&statBuffer) != B_OK) {
+        fprintf(stderr, "Warning: could not stat entry '%s' in '%s'\n", entry.Name(), path);
+        continue;
+    }
+
+    // Symbolic Link überspringen
+    if (entry.IsSymLink()) {
+        // Optional: printf("Skipping symlink: %s\n", entry.Name());
+        continue;
+    }
+
+        if (S_ISDIR(statBuffer.st_mode)) {
+            // Unterverzeichnis rekursiv verarbeiten
+            char fullPath[B_PATH_NAME_LENGTH];
+            BuildFullPath(fullPath, sizeof(fullPath), path, entry.Name());
+
+            // Verzeichnis nur öffnen, wenn Pfad gültig
+            if (fullPath[0] != '\0') {
+                totalSize += CalculateDirectorySize(fullPath);
+            } else {
+               fprintf(stderr, "Warning: could not build path for subdir '%s' in '%s'\n", entry.Name(), path);
+            }
+        } else if (S_ISREG(statBuffer.st_mode)) {
+            totalSize += statBuffer.st_size;
+        }
+        // Andere Dateitypen ignorieren
+    }
+
+return totalSize;
+
+}
+const char* YabInterface::B_DirSize(const char* path) //added 2021/12/29 lorglas
+{
+	BString formatString;
+	off_t totalSize = 0;
+	totalSize=CalculateDirectorySize(path);
+	formatString << MakeSizeString(totalSize);
+	printf("Total Size '%s': %i Bytes\n", path, totalSize);
+	//return formatString.String(); 
+	return formatString;
+}
+
+BString MakeSizeString(const uint64 &size)
+{
+		// This function just makes converts the raw byte counts provided by
+		// BEntry's GetSize() method into something more people-friendly.
+		BString sizeString;
+		if (size < BYTES_PER_KB)
+			sizeString << size << " bytes";
+		else if (size < BYTES_PER_MB)
+			sizeString << (float(size) / float(BYTES_PER_KB)) << " KB";
+		else if (size < BYTES_PER_GB)
+			sizeString << (float(size) / float(BYTES_PER_MB)) << " MB";
+		else
+			sizeString << (float(size) / float(BYTES_PER_GB)) << " GB";
+		return sizeString;
+}
+
+const char* YabInterface::B_FileCopy(const char* name, const char* filename) {
+
+	BString OutputString;
+	BFile sourceFile(name, B_READ_ONLY);
+    //BFile sourceFile(sourcePath.Path(), B_READ_ONLY);
+    if (sourceFile.InitCheck() != B_OK) {
+        //fprintf(stderr, "Fehler beim Öffnen der Quelldatei: %s\n", sourcePath.Path());
+		fprintf(stderr, "0:ERROR opening Scource file: %s\n", name);
+        return "0:ERROR opening Scource file";
+    }
+	BFile destFile(filename, B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+    //BFile destFile(destPath.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+    if (destFile.InitCheck() != B_OK) {
+        //fprintf(stderr, "Fehler beim Erstellen der Zieldatei: %s\n", destPath.Path());
+		fprintf(stderr, "1:ERROR writing destination file: %s\n", filename);
+        return "1:ERROR writing destination file";
+    }
+
+    char buffer[4096];
+    ssize_t bytesRead;
+    while ((bytesRead = sourceFile.Read(buffer, sizeof(buffer))) > 0) {
+        destFile.Write(buffer, bytesRead);
+    }
+
+    if (bytesRead < 0) {
+        fprintf(stderr, "2:ERROR opening Scource file:\n");
+		return "2:ERROR opening Scource file"; 
+    }
+	return "3:File copied"; 
+}
+const char* YabInterface::B_FileLink(const char* target_dir, const char* symlink_path) {
+	BString OutputString;
+	// Prüfe, ob Target existiert (Datei oder Verzeichnis)
+	struct stat st;
+	if (stat(target_dir, &st) != 0) {
+		fprintf(stderr, "0:Target does not exist: %s\n", target_dir);
+		OutputString<<"0:Target does not exist" << target_dir;
+		return OutputString;
+	}
+
+	// Optional: sicherstellen, dass Zielpfad in erwartbarer Form ist (Datei oder Verzeichnis)
+	// Falls du explizit nur Verzeichnisse unterstützen willst, prüfe S_ISDIR(st.st_mode)
+	// Entferne bestehenden Symlink, falls vorhanden
+	if (access(symlink_path, F_OK) == 0) {
+		if (remove(symlink_path) != 0) {
+			fprintf(stderr, "1:Failed to remove existing path '%s': \n", symlink_path);//strerror(errno)
+			OutputString<<"1:Failed to remove existing path: " <<symlink_path;
+			return OutputString;
+		}
+	}
+	
+	// Erzeuge den Symlink: symlink_path -> target_path
+	if (symlink(target_dir, symlink_path) != 0) {
+		fprintf(stderr, "2:symlink failed: %s -> %s: \n", symlink_path, target_dir);//strerror(errno)
+		OutputString<<"2:Symlink failed: " <<symlink_path << "->" << target_dir;
+		return OutputString;
+	}
+	printf("3:Symlink created: %s -> %s\n", symlink_path, target_dir);
+	OutputString<<"3:Symlink created: " <<symlink_path << "->" << target_dir;
+	return OutputString;
+}
+
+
+const char* YabInterface::B_FileDirExists(const char* filename) {
+
+	bool exists;
+	int i;
+	//printf("%s\n",filename);
+	//BFile sourceFile(name, B_READ_ONLY);
+	BString OutputString;
+	BEntry entry(filename);
+	exists=entry.Exists();
+    i=exists;
+	if(exists==1)
+	{
+		printf("File exist %d\n",i);
+		OutputString<<i;
+	}
+	else
+	{
+		printf("File doesn't exist %d \n",i);
+		OutputString<<i;
+	}
+	return OutputString;
+}
+const char* YabInterface::B_FileDelete(const char* filename) {
+
+	bool exists;
+	
+	int i,y;
+	BString OutputString;
+	//printf("%s\n",filename);
+	//BFile sourceFile(name, B_READ_ONLY);
+	BEntry entry(filename);
+	exists=entry.Exists();
+    i=exists;
+	y=0;
+	if(exists==1)
+	{
+		//printf("File exist and is removed from system.\n",i);
+		if(entry.Remove()==B_OK){
+			printf("File exist and is removed from system.\n");
+			y=1;
+			OutputString<<y;
+		}else{
+			y=0;
+			printf("File doesn't exist and can't be removed from system.\n");
+			OutputString<<y;
+		}
+	}
+	else
+	{
+		OutputString<<y;
+		printf("File doesn't exist and can't be removed from system.\n");
+	}
+	return OutputString;
+}
+
 int YabInterface::IsComputerOn()
 {
 	return is_computer_on();
@@ -10750,7 +11886,10 @@ int yi_CreateImage2(double x1,double y1,double x2,double y2,const char* imagefil
 {
 	return yab->CreateImage(BRect(x1,y1,x2,y2),imagefile,window);
 }
-
+void yi_Region(double x1, double y1, double x2, double y2,const char* region_id, const char* view, YabInterface* yab)
+{
+	yab->Region(BRect(x1,y1,x2,y2),region_id,view);
+}
 int yi_CreateSVG(double x1,double y1,double x2,double y2,const char* imagefile, const char* window, YabInterface* yab) 
 {
 	return yab->CreateSVG(BRect(x1,y1,x2,y2),imagefile,window);
@@ -11085,6 +12224,14 @@ void yi_DrawTriangle(double x1, double y1, double x2, double y2, double x3, doub
 {
 	yab->DrawTriangle(x1,y1,x2,y2,x3,y3, window);
 }
+void yi_DrawPolygon(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4,const char* window, YabInterface *yab)/* draw Roundrect added lorglas 2020/09/14 */
+{
+	yab->DrawPolygon(x1,y1,x2,y2,x3,y3,x4,y4, window);
+}
+//void yi_DrawPolygon2(double id,const char* window, YabInterface *yab)/* draw Roundrect added lorglas 2020/09/14 */
+//{
+//	yab->DrawPolygon2(id, window);
+//}
 void yi_Slider1(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* view, YabInterface *yab)
 {
 	yab->Slider(BRect(x1,y1,x2,y2), id, _L(title), min, max, view);
@@ -11312,6 +12459,10 @@ void yi_ColumnBoxRemove(const char *columnbox, int position, YabInterface *yab)
 	yab->ColumnBoxRemove(columnbox, position);
 }
 
+void yi_ColumnBoxRemoveColumn(const char *columnbox, int position, YabInterface *yab)
+{
+	yab->ColumnBoxRemoveColumn(columnbox, position);
+}
 void yi_ColumnBoxColor(const char *columnbox, const char* option, int r, int g, int b, YabInterface *yab)
 {
 	yab->ColumnBoxColor(columnbox, option, r,g,b);
@@ -11326,7 +12477,10 @@ int yi_ColumnBoxCount(const char *columnbox, YabInterface *yab)
 {
 	return yab->ColumnBoxCount(columnbox);
 }
-
+int yi_ColumnBoxCountColumns(const char *columnbox, YabInterface *yab)
+{
+	return yab->ColumnBoxCountColumns(columnbox);
+}
 const char* yi_TextControlGet(const char* id, YabInterface* yab)
 {
 	return yab->TextControlGet(id);
@@ -11541,6 +12695,16 @@ void yi_SubMenu2(const char* menuHead, const char* menuItem, int isRadio, const 
 {
 	yab->SubMenu(_L(menuHead), _L(menuItem), isRadio, view);
 }
+/* added SubSubMenu lorglas 2025.10.25*/
+void yi_SubSubMenu(const char* menuHead, const char* menuItem, const char* subMenuItem,const char* subSubMenuItem, const char* modifiers, const char* view, YabInterface *yab)
+{
+	yab->SubSubMenu(_L(menuHead), _L(menuItem), _L(subMenuItem), _L(subSubMenuItem),modifiers, view);
+}
+/* added SubSubMenu lorglas 2025.10.25*/
+void yi_SubSubMenu2(const char* menuHead, const char* menuItem,const char* subMenuItem, int isRadio, const char* view, YabInterface *yab)
+{
+	yab->SubSubMenu2(_L(menuHead), _L(menuItem), _L(subMenuItem), isRadio, view);
+}
 
 void yi_SpinControl1(double x, double y, const char* id, const char* label, int min, int max, int step, const char* view, YabInterface *yab)
 {
@@ -11611,17 +12775,19 @@ const char* yi_DrawGet3(const char* option, YabInterface *yab)
 {
 	return yab->DrawGet(option);
 }
-
-void yi_SubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* option, const char* view, YabInterface *yab)
-{
-	yab->SubMenu3(_L(menuHead), _L(menuItem), _L(subMenuItem), option, view);
-}
-
 void yi_Menu3(const char* menuHead, const char* menuItem, const char* option,const char* view, YabInterface *yab)
 {
 	yab->Menu3(_L(menuHead), _L(menuItem), option, view);
 }
-
+/* added SubSubMenu lorglas 2025.10.25*/
+void yi_SubSubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem,const char* subsubMenuItem, const char* option, const char* view, YabInterface *yab)
+{
+	yab->SubSubMenu3(_L(menuHead), _L(menuItem), _L(subMenuItem),_L(subMenuItem), option, view);
+}
+void yi_SubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* option, const char* view, YabInterface *yab)
+{
+	yab->SubMenu3(_L(menuHead), _L(menuItem), _L(subMenuItem), option, view);
+}
 double yi_MenuHeight(YabInterface *yab)
 {
 	return yab->MenuHeight();
@@ -11735,7 +12901,7 @@ int yi_BitmapGetNum(const char* id, const char* option, YabInterface* yab)
 
 int yi_BitmapLoad(const char* filename, const char* bitmap, YabInterface* yab)
 {
-	yab->BitmapLoad(filename, bitmap);
+	return yab->BitmapLoad(filename, bitmap);
 }
 
 void yi_BitmapGetIcon(const char* id, const char* option, const char* path, YabInterface* yab)
@@ -11921,4 +13087,34 @@ const char* yi_AvailableTimeZones(const char* name, YabInterface *yab)
 int yi_DefaultTimeZone(YabInterface *yab)
 {
 	return yab->Default_TimeZone(); //name
+}
+const char* yi_BFileSize(const char* name, YabInterface *yab)
+/* added B_FileSize lorglas 2024.12.29*/
+{
+	return yab->B_FileSize(name); //name
+}
+const char* yi_BDirSize(const char* path, YabInterface *yab)
+/* added B_DirSize lorglas 2024.12.29*/
+{
+	return yab->B_DirSize(path); //name
+}
+const char* yi_BFileCopy(const char* source, const char* destination, YabInterface *yab)
+/* added BFileCopy lorglas 2024.12.29*/
+{
+	return yab->B_FileCopy(source,destination); //name
+}
+const char* yi_BFileLink(const char* source, const char* destination, YabInterface *yab)
+/* added B_Filelink lorglas 2024.12.29*/
+{
+	return yab->B_FileLink(source,destination); //name
+}
+const char* yi_BFileDirExists(const char* filename, YabInterface *yab)
+/* added B_BFileDirExists lorglas 2024.12.29*/
+{
+	return yab->B_FileDirExists(filename); //name
+}
+const char* yi_BFileDelete(const char* filename, YabInterface *yab)
+/* added BFileDelete lorglas 2024.12.29*/
+{
+	return yab->B_FileDelete(filename); //name
 }

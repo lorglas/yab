@@ -8,9 +8,10 @@ err = draw image 0,0 to 1152,256, "img/player.png", "player"
 for i=15 to 405 step 65
 	bitmap get i,196 to i+30,252, str$((i+50)/65), "player"
 next i
-
+DRAW SET "BGcolor",255,255,255,"Win"
 canvas 0,0 to 400,400, "MyCanvas", "Win"
-
+DRAW SET "highcolor",255,255,255,"MyCanvas"
+draw rect 0,0 to 400,400, "MyCanvas"
 while(not quitting)
 
 	for a = 0 to 400 step (30/7)

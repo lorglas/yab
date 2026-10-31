@@ -1,0 +1,39 @@
+window open 20,20 to 800,800, "Example", "Example"
+
+Draw text 20,20,"Polygon ","Example"
+dim poly(8)
+poly(0)=150
+poly(1)=50
+poly(2)=300
+poly(3)=200
+poly(4)=340
+poly(5)=350
+poly(6)=300
+poly(7)=300
+//draw rect poly(0),poly(1) to poly(2),poly(3),"Example"
+//draw polygon2 poly(0), "Example"
+draw set true, "highSolidFill"
+draw polygon  poly(0),poly(1), poly(2),poly(3),0,0,0,0, "Example"
+//Bogen1 auf Window
+//draw set "highcolor",255,0,0,"Example"
+//draw set false, "HighSolidFill"
+//draw polygon 250,150, 280, 80,270,230,60,260, "Example" 
+//draw set true, "HighSolidFill"
+//draw polygon 50,50, 80, 80,170,30,260,60, "Example" 
+
+draw set false, "highSolidFill"
+//draw set "Highcolor", 233,223,123,"Example"
+draw polygon 650,350, 580, 380, 470,330,360,150, "Example" 
+
+canvas 10,400 to 790,790,"DrawarcView","Example"
+draw set "Highcolor", 33,23,123,"DrawarcView"
+draw polygon 150,150, 80, 80,270,30,60,60, "DrawarcView" 
+
+
+draw set false, "HighSolidFill"
+draw set "Highcolor", 33,23,123,"DrawarcView"
+draw polygon 350,350, 380, 380,370,330,360,150, "DrawarcView" 
+
+
+wait 10
+window close "Example"

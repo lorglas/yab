@@ -14,6 +14,7 @@ struct YabDrawing
 	pattern p;
 	BBitmap *bitmap;
 	BFont font;
+	 
 };
 
 class YabView : public BView

@@ -299,15 +299,16 @@ enum functions { /* functions in yabasic (sorted by number of arguments) */
   fATAN,fSYSTEM,fSYSTEM2,fPEEK,fPEEK2,fPEEK4,fTELL,fEXP,fLOG,fLEN,fSTR,
   fSQRT,fSQR,fFRAC,fABS,fSIG,fRAN,fINT,fVAL,fASC,fHEX,fBIN,fDEC,fUPPER,fLOWER,fCHOMP,fROUND, fBITNOT,fCEIL, fFLOOR,
   fLTRIM,fRTRIM,fTRIM,fCHR,fTRANSLATE,fMENUTRANSLATE,fMOUSE, fISMOUSEIN,fTEXTCONTROLGET,
-  fKEYBOARD,fCOLUMNBOXCOUNT, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
+  fKEYBOARD,fCOLUMNBOXCOUNT, fCOLUMNBOXCOUNTCOLUMNS, fCALENDAR, fLISTBOXCOUNT, fTREEBOXCOUNT, fSTACKVIEWGET,
   fSPINCONTROLGET, fDROPBOXCOUNT, fSLIDERGET, fTEXTGET, fDRAWGET3, fTABVIEWGET,
-  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND, fLOUDNESS, fLOUDNESSGET, fAVAILABLELANGUAGE,
+  fLISTBOXGETNUM, fDROPBOXGETNUM, fCOLUMNBOXGETNUM, fTREEBOXGETNUM, fMEDIASOUND, fLOUDNESS, fLOUDNESSGET, 
+  fAVAILABLELANGUAGE,fBFILESIZE, fBDIRSIZE, fBFILE_DIR_EXISTS,fBFILE_DELETE,
   fONEARGS, 
   fDEC2,fATAN2,fLEFT,fAND,fOR,fEOR,fLOG2,fSHL,fSHR,
   fRIGHT,fINSTR,fRINSTR,fSTR2,fMOD,fMIN,fMAX,fPEEK3,fMID2,fWINDOWGET, fVIEWGET /* vasper */,
   fLISTBOXGET, fTREEBOXGET, fSCROLLBARGET, fSPLITVIEWGET, fDROPBOXGET, fCOLORCONTROLGET,
   fTEXTGET2,fTEXTGET6,fDRAWGET2, fTEXTGET3, fMESSAGESEND, fTHREADKILL, fTHREADGET, fBITMAPGET, 
-  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2,fSOUND,
+  fBITMAPLOAD, fATTRIBUTEGET1, fATTRIBUTEGET2,fSOUND,fBFILECOPY, fBFILELINK,
   fTWOARGS,
   fMID,fINSTR2,fRINSTR2,fSTR3,fCOLUMNBOXGET,fDRAWGET1,fTEXTGET4,fTEXTGET5,fPRINTER,
   fLOAD, fTREEBOXGETOPT,fBITMAPSAVE, fSTR_REPLACE,  /* STR_REPLACE added 2020.12.02*/
@@ -336,7 +337,7 @@ enum cmd_type { /* type of command */
   cORSHORT,cSKIPONCE,cRESETSKIPONCE,cCOMPILE,cEXECUTE,cEXECUTE2,
   
   cDIM,cFUNCTION,cDOARRAY,cARRAYLINK,cPUSHARRAYREF,cCLEARREFS,   /* everything with "()" */
-  cARDIM,cARSIZE,cTOKEN,cTOKEN2,cTOKENALT,cTOKENALT2,
+  cARDIM,cARSIZE,cTOKEN,cTOKEN2,cTOKENALT,cTOKENALT2,cARRAY_ERASE,
   cSPLIT,cSPLIT2,cSPLITALT,cSPLITALT2,
   cSTARTFOR,cFORCHECK,cFORINCREMENT,              /* for for-loops */
 
@@ -376,24 +377,25 @@ enum cmd_type { /* type of command */
   cBUTTON, cALERT, cMENU, cTEXTCONTROL, cCHECKBOX, cRADIOBUTTON, cWINCLEAR,
   cLISTBOX, cDROPBOX, cITEMADD, cITEMDEL, cITEMCLEAR, cLOCALIZE, cLOCALIZE2, cLOCALIZESTOP, cTEXT, cTEXT2, cTEXTALIGN,
   cTEXTEDIT, cTEXTADD, cTEXTSET, cTEXTSET2, cTEXTCOLOR1, cTEXTCOLOR2, cTEXTSET3,  cTEXTCLEAR,  
-  cVIEW, cBOXVIEW, cBOXVIEWSET, cTAB, cSLIDER1, cSLIDER2, cSLIDER3, cSLIDER4, cSLIDER5, cSLIDER6,
+  cVIEW, cBOXVIEW, cBOXVIEWSET, cTAB, cSLIDER1, cSLIDER2, cSLIDER3, cSLIDER4, cSLIDER5, cSLIDER6,cREGION,
   cOPTION1, cOPTION2, cOPTION3, cDROPZONE, cTEXTCONTROL2, cTEXTCONTROL3, cTEXTCONTROL4, cTEXTCONTROL5, cSCALE,
   cCOLORCONTROL1, cCOLORCONTROL2, cTREEBOX1, cTREEBOX2, cTREEBOX3, cTREEBOX4, cTREEBOX5,
   cBUTTONIMAGE, cCHECKBOXIMAGE, cCHECKBOXSET, cRADIOSET, cTOOLTIP, cTOOLTIPCOLOR, cTREESORT,
-  cLISTSORT, cFILEBOX, cFILEBOXADD2, cFILEBOXCLEAR, cCOLUMNBOXREMOVE,
-  cCOLUMNBOXSELECT, cCOLUMNBOXADD, cDROPBOXSELECT, cMENU2, cSUBMENU1, cSUBMENU2, cCLIPBOARDCOPY,
+  cLISTSORT, cFILEBOX, cFILEBOXADD2, cFILEBOXCLEAR, cCOLUMNBOXREMOVE,cCOLUMNBOXREMOVECOLUMN,
+  cCOLUMNBOXSELECT, cCOLUMNBOXADD, cDROPBOXSELECT, cMENU2, cSUBMENU1, cSUBMENU2, cCLIPBOARDCOPY, cSUBSUBMENU,
   cCOLUMNBOXCOLOR, cPRINTERCONFIG, cCALENDAR, cLISTBOXSELECT, cLISTBOXADD1, cLISTBOXADD2, 
   cLISTBOXDEL2, cSCROLLBAR, cSCROLLBARSET1, cSCROLLBARSET2, cSCROLLBARSET3, cTREEBOX7, cTREEBOX8,
   cTREEBOX9, cTREEBOX10, cTREEBOX11, cSPLITVIEW1, cSPLITVIEW2, cSPLITVIEW3, 
   cSTACKVIEW1, cSTACKVIEW2, cTEXTURL1, cTEXTURL2, cDRAWSET3, cSPINCONTROL1, cTABSET, cTABDEL, cTABADD,
-  cSPINCONTROL2, cDROPBOXREMOVE, cDROPBOXCLEAR, cSUBMENU3, cMENU3, cCALENDARSET,
+  cSPINCONTROL2, cDROPBOXREMOVE, cDROPBOXCLEAR, cSUBMENU3, cSUBSUBMENU3, cSUBSUBMENU2, cMENU3, cCALENDARSET,
   cDOT, cLINE, cCIRCLE, cTRIANGLE, cDRAWTEXT, cDRAWRECT, cTREEBOX12, cOPTION4, cOPTION5,cDRAWROUNDRECT, cLOUDNESS,/* draw Roundrect added lorglas 2020/09/14 */
-  cDRAWCLEAR, cDRAWSET1, cDRAWSET2, cELLIPSE, cCURVE, cARC, /* Drawing */
+  cDRAWCLEAR, cDRAWSET1, cDRAWSET2, cELLIPSE, cCURVE, cARC, cPOLYGON,cPOLYGON2, /* Drawing */
   cBITMAP, cBITMAPDRAW, cBITMAPDRAW2, cBITMAPGET, cBITMAPGET2, cBITMAPGETICON, cBITMAPDRAG, cBITMAPREMOVE, cCANVAS, /* Bitmaps */
   cSOUNDSTOP, cSOUNDWAIT, cMEDIASOUNDSTOP,  
   cTREEBOX13, cDRAWSET4, cSHORTCUT, cMOUSESET,
   cSCREENSHOT, cSTATUSBAR, cSTATUSBARSET, cSTATUSBARSET2, cSTATUSBARSET3, cLAUNCH, cRESTORE2, cRESTORE3,
   cATTRIBUTE1, cATTRIBUTE2, cATTRIBUTECLEAR,
+  cBFILECOPY, cBFILELINK,cBFILESIZE, cBDIRSIZE, cBFILE_DIR_EXISTS,cBFILE_DELETE,
   cLAST_COMMAND /* no command, just marks end of list */
 };
 
@@ -630,6 +632,8 @@ void drawellipse(struct command *, YabInterface *yab); /* draw a ellipse */
 void drawarc(struct command *, YabInterface *yab); /* draw a Arc */
 void drawcurve(struct command *, YabInterface *yab); /* draw a curve */
 void drawtriangle(struct command *, YabInterface *yab); /* draw a Triangle */ /* draw Roundrect added lorglas 2020/09/14 */
+void drawpolygon(struct command *, YabInterface *yab); /* draw a Triangle */ /* draw Roundrect added lorglas 2024/05/05*/
+void drawpolygon2(struct command *, YabInterface *yab); /* draw a Triangle */ /* draw Roundrect added lorglas 2024/05/05*/
 void slider1(struct command *, YabInterface *yab);
 void slider2(struct command *, YabInterface *yab);
 void slider3(struct command *, YabInterface *yab);
@@ -670,12 +674,14 @@ void fileboxadd2(struct command *, YabInterface *yab);
 void fileboxclear(struct command *, YabInterface *yab);
 void columnboxadd(struct command *, YabInterface *yab);
 void columnboxremove(struct command *, YabInterface *yab);
+void columnboxremovecolumn(struct command *, YabInterface *yab);
 void columnboxselect(struct command *, YabInterface *yab);
 void columnboxcolor(struct command *, YabInterface *yab);
 void dropboxselect(struct command *, YabInterface *yab);
 void menu2(struct command *, YabInterface *yab);
 void submenu1(struct command *, YabInterface *yab);
 void submenu2(struct command *, YabInterface *yab);
+void subsubmenu(struct command *, YabInterface *yab);
 void clipboardcopy(struct command *, YabInterface *yab);
 void launch(struct command *, YabInterface *yab);
 int printer(const char* docname, const char *view, const char* config, YabInterface *yab, int line, const char* libname);
@@ -684,6 +690,7 @@ char* keyboardmessages(const char* view, YabInterface* yab, int line, const char
 char* clipboardpaste(YabInterface* yab, int line, const char* libname);
 char* columnboxget(const char* columnbox, int column, int position, YabInterface* yab, int line, const char* libname);
 int columnboxcount(const char* columnbox, YabInterface* yab, int line, const char* libname);
+int columnboxcountcolumns(const char* columnbox, YabInterface* yab, int line, const char* libname);
 int windowgetnum(const char* view, const char *option, YabInterface* yab, int line, const char* libname);
 int viewgetnum(const char* view, const char *option, YabInterface* yab, int line, const char* libname); //vasper
 int newalert(const char* text, const char* button1, const char* button2, const char* button3, const char* option, YabInterface* yab, int line, const char* libname);
@@ -723,6 +730,8 @@ int dropboxcount(const char* id, YabInterface *yab, int line, const char* libnam
 char* dropboxget(const char* id, int position, YabInterface *yab, int line, const char* libname);
 int sliderget(const char *slider, YabInterface *yab, int line, const char* libname);
 int colorcontrolget(const char* colorcontrol, const char* option, YabInterface *yab, int line, const char* libname);
+void subsubmenu2(struct command *, YabInterface *yab);
+void subsubmenu3(struct command *, YabInterface *yab);
 void submenu3(struct command *, YabInterface *yab);
 void menu3(struct command *, YabInterface *yab);
 double drawget1(const char*, const char*, const char*, YabInterface *yab, int line, const char* libname);
@@ -777,6 +786,12 @@ char* attributeget1(const char*, const char*, YabInterface *yab, int line, const
 double attributeget2(const char*, const char*, YabInterface *yab, int line, const char* libname);
 char* availablelanguage(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2021/02/22
 char* availabletimezones(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2021/08/04
+char* bfilesize(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
+char* bdirsize(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
+char* bfilecopy(const char*, const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
+char* bfilelink(const char*, const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
+char* bfiledirexists(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
+char* bfiledelete(const char*, YabInterface *yab, int line, const char* libname);//added lorglas 2024/29/12
 int pcworkspaces(YabInterface *yab, int line, const char* libname); /*return the workspaces you set in prefs added 11.09.2020 lorglas */
 int defaulttimezone(YabInterface *yab, int line, const char* libname); /*return the workspaces you set in prefs added 11.09.2020 lorglas */
 /* function.c */
@@ -810,8 +825,9 @@ void mybell(); /* ring ascii bell */
 void getmousexybm(char *,int *,int *,int *,int *); /* get mouse coordinates */
 void token(struct command *); /* extract token from variable */
 void tokenalt(struct command *); /* extract token from variable with alternate semantics */
-char* replaceWordInText(char*, char*,  char*); /* replace string with other string sometimes */
-
+char* replaceWordInText(const char*,const char*,const char*); /* replace string with other string sometimes */
+int erasearray(struct command *);
+void free_array(struct array *ar);
 /* symbol.c */
 struct array *create_array(int,int); /* create an array */
 void clearrefs(struct command *); /* clear references for commands within function */

@@ -249,11 +249,24 @@ int createimage2(double x1, double y1, double x2, double y2, const char* imagefi
 
 int createsvg(double x1, double y1, double x2, double y2, const char* imagefile, const char* window, YabInterface* yab, int line, const char* libname)
 {
- 
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_CreateSVG(x1,y1,x2,y2, imagefile, window, yab);
 }
-
+void region(struct command *cmd, YabInterface *yab) 
+{
+	char *region_id,*view;
+	double x1,y1,x2,y2;
+	view = pop(stSTRING)->pointer;
+	region_id = pop(stSTRING)->pointer;
+	
+	y2 = pop(stNUMBER)->value;
+	x2 = pop(stNUMBER)->value;
+	y1 = pop(stNUMBER)->value;
+	x1 = pop(stNUMBER)->value;
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	//yi_SetCurrentLineNumber(line, libname, yab);
+	yi_Region(x1,y1,x2,y2, region_id, view, yab);
+}
 void mouseset(struct command *cmd, YabInterface* yab) 
 {
         char *opt;
@@ -262,7 +275,6 @@ void mouseset(struct command *cmd, YabInterface* yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_MouseSet(opt, yab);
 }
-
 void drawtext(struct command *cmd, YabInterface* yab) /* draw text */
 {
         double x,y;
@@ -415,7 +427,35 @@ void drawtriangle(struct command *cmd, YabInterface* yab) /* draw Triangle added
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_DrawTriangle(x1,y1,x2,y2,x3,y3,window, yab);
 }
+void drawpolygon(struct command *cmd, YabInterface* yab) /* draw a Polygon added lorglas 2024/05/05 */
+{
+        double x1,y1,x2,y2,x3,y3,x4,y4;
+        char *window; 		
+        window = pop(stSTRING)->pointer;   
+       y4=pop(stNUMBER)->value;
+        x4=pop(stNUMBER)->value;
+        y3=pop(stNUMBER)->value;
+        x3=pop(stNUMBER)->value;
+        y2=pop(stNUMBER)->value;
+        x2=pop(stNUMBER)->value;
+        y1=pop(stNUMBER)->value;
+        x1=pop(stNUMBER)->value;
 
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_DrawPolygon(x1,y1,x2,y2,x3,y3,x4,y4, window, yab);
+	//yi_DrawPolygon(array,window, yab);
+}
+//void drawpolygon2(struct command *cmd, YabInterface* yab) /* draw a Polygon added lorglas 2024/05/05 */
+//{
+        
+  //      char *window;
+ //       double array;
+ 		
+    //    window = pop(stSTRING)->pointer;
+        //array = pop(stNUMBER)->pointer;
+//	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);	
+	//yi_DrawPolygon2(array,window, yab);
+//}
 void drawclear(struct command *cmd, YabInterface* yab) /* clear canvas */
 {
 	char *window;
@@ -630,7 +670,6 @@ void localize2(struct command *cmd, YabInterface *yab)
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SetLocalize2(path, yab);
-	
 }
 
 char* getloadfilepanel(const char* mode, const char* title, const char* dir,  YabInterface *yab, int line, const char* libname) /* load panel */
@@ -649,8 +688,7 @@ void textedit(struct command *cmd, YabInterface *yab)
 {
 	char *window, *title;
 	double x1,y1,x2,y2;
-	int scrollbar;
-	
+	int scrollbar;	
 
 	window = pop(stSTRING)->pointer;
 	scrollbar = pop(stNUMBER)->value;
@@ -666,8 +704,7 @@ void textedit(struct command *cmd, YabInterface *yab)
 
 void textadd(struct command *cmd, YabInterface *yab) 
 {
-	char *title, *text;
-	
+	char *title, *text;	
 	
 	text = pop(stSTRING)->pointer;
 	title = pop(stSTRING)->pointer;
@@ -678,8 +715,7 @@ void textadd(struct command *cmd, YabInterface *yab)
 
 void textset(struct command *cmd, YabInterface *yab) 
 {
-	char *title, *option;
-	
+	char *title, *option;	
 	
 	option = pop(stSTRING)->pointer;
 	title = pop(stSTRING)->pointer;
@@ -691,8 +727,7 @@ void textset(struct command *cmd, YabInterface *yab)
 void textset2(struct command *cmd, YabInterface *yab) 
 {
 	char *title, *option;
-	int value;
-	
+	int value;	
 
 	value = pop(stNUMBER)->value;
 	option = pop(stSTRING)->pointer;
@@ -705,8 +740,7 @@ void textset2(struct command *cmd, YabInterface *yab)
 void textset3(struct command *cmd, YabInterface *yab) 
 {
 	char *title, *option, *option2;
-	
-	
+		
 	option2 = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
 	title = pop(stSTRING)->pointer;
@@ -717,8 +751,7 @@ void textset3(struct command *cmd, YabInterface *yab)
 
 void textcolor1(struct command *cmd, YabInterface *yab) 
 {
-	char *title, *option, *command;
-	
+	char *title, *option, *command;	
 	
 	command = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
@@ -731,8 +764,7 @@ void textcolor1(struct command *cmd, YabInterface *yab)
 void textcolor2(struct command *cmd, YabInterface *yab) 
 {
 	char *title, *option;
-	int r,g,b;
-	
+	int r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -746,8 +778,7 @@ void textcolor2(struct command *cmd, YabInterface *yab)
 
 void textclear(struct command *cmd, YabInterface *yab) 
 {
-	char *title;
-	
+	char *title;	
 	
 	title = pop(stSTRING)->pointer;
 
@@ -794,8 +825,7 @@ char* textget6(const char* title, const char* option, YabInterface *yab, int lin
 void view(struct command *cmd, YabInterface *yab) 
 {
 	char *id, *view;
-	double x1, y1, x2, y2;
-	
+	double x1, y1, x2, y2;	
 	
 	view = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -813,8 +843,7 @@ void boxview(struct command *cmd, YabInterface *yab)
 	char *id, *view, *text;
 	double x1, y1, x2, y2;
 	int linetype;
-	
-	
+		
 	view = pop(stSTRING)->pointer;
 	linetype = pop(stNUMBER)->value;
 	text = pop(stSTRING)->pointer;
@@ -830,26 +859,19 @@ void boxview(struct command *cmd, YabInterface *yab)
 
 void boxviewset(struct command *cmd, YabInterface *yab) 
 {
-	char *id, *value, *option;
-	
-	
+	char *id, *value, *option;	
 	
 	value= pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
 	
-	
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_BoxViewSet(id, option, value, yab);
-}
-
-
-	
+}	
 void tab(struct command *cmd, YabInterface *yab) 
 {
 	char *id, *names, *view;
-	double x1, y1, x2, y2;
-	
+	double x1, y1, x2, y2;	
 	
 	view = pop(stSTRING)->pointer;
 	names = pop(stSTRING)->pointer;
@@ -866,8 +888,7 @@ void tab(struct command *cmd, YabInterface *yab)
 void tabset(struct command *cmd, YabInterface *yab) 
 {
 	char *tabname;
-	int num;
-	
+	int num;	
 	
 	num = pop(stNUMBER)->value;
 	tabname = pop(stSTRING)->pointer;
@@ -880,7 +901,6 @@ void tabadd(struct command *cmd, YabInterface *yab)
 {
 	char *id, *tabname;
 	
-	
 	tabname = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
 	
@@ -892,8 +912,7 @@ void tabdel(struct command *cmd, YabInterface *yab)
 {
 	char *id;
 	int num;
-	
-	
+		
 	num = pop(stNUMBER)->value;
 	id = pop(stSTRING)->pointer;
 	
@@ -904,8 +923,7 @@ void tabdel(struct command *cmd, YabInterface *yab)
 void slider1(struct command *cmd, YabInterface *yab)
 {
 	char *view, *id, *title;
-	double x1,y1,x2,y2,min,max;
-	
+	double x1,y1,x2,y2,min,max;	
 	
 	view = pop(stSTRING)->pointer;
 	max = pop(stNUMBER)->value;
@@ -920,13 +938,10 @@ void slider1(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_Slider1(x1,y1,x2,y2,id,title,min,max,view,yab);
 }
-
-
 void slider2(struct command *cmd, YabInterface *yab)
 {
 	char *view, *id, *title, *option;
-	double x1,y1,x2,y2,min,max;
-	
+	double x1,y1,x2,y2,min,max;	
 	
 	view = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
@@ -945,8 +960,7 @@ void slider2(struct command *cmd, YabInterface *yab)
 
 void slider3(struct command *cmd, YabInterface *yab)
 {
-	char *id, *label1, *label2;
-	
+	char *id, *label1, *label2;	
 	
 	label2 = pop(stSTRING)->pointer;
 	label1 = pop(stSTRING)->pointer;
@@ -956,12 +970,10 @@ void slider3(struct command *cmd, YabInterface *yab)
 	yi_SetSlider1(id,label1,label2,yab);
 }
 
-
 void slider4(struct command *cmd, YabInterface *yab)
 {
 	char *id, *bottomtop;
-	int count;
-	
+	int count;	
 	
 	count = pop(stNUMBER)->value;
 	bottomtop = pop(stSTRING)->pointer;
@@ -974,8 +986,7 @@ void slider4(struct command *cmd, YabInterface *yab)
 void slider5(struct command *cmd, YabInterface *yab)
 {
 	char *id, *part;
-	int r,g,b;
-	
+	int r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -986,12 +997,10 @@ void slider5(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SetSlider3(id,part,r,g,b,yab);
 }
-
 void slider6(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	int value;
-	
+	int value;	
 
 	value = pop(stNUMBER)->value;	
 	id = pop(stSTRING)->pointer;
@@ -999,12 +1008,10 @@ void slider6(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SetSlider4(id,value,yab);
 }
-
 void option1(struct command *cmd, YabInterface *yab)
 {
 	char *id, *option, *value;
-	
-	
+		
 	value = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1016,8 +1023,7 @@ void option1(struct command *cmd, YabInterface *yab)
 void option2(struct command *cmd, YabInterface *yab)
 {
 	char *id, *part;
-	int r,g,b;
-	
+	int r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -1028,13 +1034,11 @@ void option2(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SetOption2(id,part,r,g,b,yab);
 }
-
 void option3(struct command *cmd, YabInterface *yab)
 {
 	char *id, *option;
 	double x,y;
-	
-	
+		
 	y = pop(stNUMBER)->value;
 	x = pop(stNUMBER)->value;
 	option = pop(stSTRING)->pointer;
@@ -1047,8 +1051,7 @@ void option3(struct command *cmd, YabInterface *yab)
 void option4(struct command *cmd, YabInterface *yab)
 {
 	char *id, *option;
-	
-	
+		
 	option = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
 
@@ -1059,8 +1062,7 @@ void option4(struct command *cmd, YabInterface *yab)
 void option5(struct command *cmd, YabInterface *yab)
 {
 	char *id, *option;
-	int value;
-	
+	int value;	
 	
 	value = pop(stNUMBER)->value;
 	option = pop(stSTRING)->pointer;
@@ -1093,8 +1095,7 @@ void scale(struct command *cmd, YabInterface *yab)
 void colorcontrol1(struct command *cmd, YabInterface *yab)
 {
 	char *view, *id;
-	double x,y;
-	
+	double x,y;	
 	
 	view = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1104,12 +1105,10 @@ void colorcontrol1(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_ColorControl1(x,y,id,view,yab);
 }
-
 void colorcontrol2(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	double r,g,b;
-	
+	double r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -1119,11 +1118,9 @@ void colorcontrol2(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_ColorControl2(id,r,g,b,yab);
 }
-
 void textcontrol2(struct command *cmd, YabInterface *yab)
 {
-	char *id, *text;
-	
+	char *id, *text;	
 	
 	text = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1131,7 +1128,6 @@ void textcontrol2(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_TextControl2(id,text,yab);
 }
-
 void textcontrol3(struct command *cmd, YabInterface *yab)
 {
 	char *id;	
@@ -1142,42 +1138,31 @@ void textcontrol3(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_TextControl3(id,mode,yab);
 }
-
 void textcontrol5(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	
 	
 	id = pop(stSTRING)->pointer;
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_TextControl5(id,yab);
 }
-
-
 void textcontrol4(struct command *cmd, YabInterface *yab)
 {
 	char *id, *option, *value;
 	
-	
 	value = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
-	id = pop(stSTRING)->pointer;
-	
+	id = pop(stSTRING)->pointer;	
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_TextControl4(id,option,value,yab);
 }
-
-
-
-
 void treebox1(struct command *cmd, YabInterface *yab)
 {
 	char *id, *view;
 	double x1,y1,x2,y2;
-	int scrollbarType;
-	
+	int scrollbarType;	
 	
 	view = pop(stSTRING)->pointer;
 	scrollbarType = pop(stNUMBER)->value;
@@ -1193,8 +1178,7 @@ void treebox1(struct command *cmd, YabInterface *yab)
 
 void treebox2(struct command *cmd, YabInterface *yab)
 {
-	char *id, *item;
-	
+	char *id, *item;	
 	
 	item = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1207,8 +1191,7 @@ void treebox3(struct command *cmd, YabInterface *yab)
 {
 	char *id, *head, *item;
 	int isExpanded;
-	
-	
+		
 	isExpanded = pop(stNUMBER)->value;
 	item = pop(stSTRING)->pointer;
 	head = pop(stSTRING)->pointer;
@@ -1221,8 +1204,7 @@ void treebox3(struct command *cmd, YabInterface *yab)
 void treebox4(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	
-	
+		
 	id = pop(stSTRING)->pointer;
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
@@ -1231,8 +1213,7 @@ void treebox4(struct command *cmd, YabInterface *yab)
 
 void treebox5(struct command *cmd, YabInterface *yab)
 {
-	char *id,*item;
-	
+	char *id,*item;	
 	
 	item = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1244,8 +1225,7 @@ void treebox5(struct command *cmd, YabInterface *yab)
 void treebox7(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	int pos;
-	
+	int pos;	
 	
 	pos = pop(stNUMBER)->value;
 	id = pop(stSTRING)->pointer;
@@ -1257,8 +1237,7 @@ void treebox7(struct command *cmd, YabInterface *yab)
 void treebox8(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	int pos;
-	
+	int pos;	
 	
 	pos = pop(stNUMBER)->value;
 	id = pop(stSTRING)->pointer;
@@ -1270,8 +1249,7 @@ void treebox8(struct command *cmd, YabInterface *yab)
 void treebox9(struct command *cmd, YabInterface *yab)
 {
 	char *id, *head, *item;
-	
-	
+		
 	item = pop(stSTRING)->pointer;
 	head = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1283,8 +1261,7 @@ void treebox9(struct command *cmd, YabInterface *yab)
 void treebox10(struct command *cmd, YabInterface *yab)
 {
 	char *id, *head;
-	
-	
+		
 	head = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
 
@@ -1295,8 +1272,7 @@ void treebox10(struct command *cmd, YabInterface *yab)
 void treebox11(struct command *cmd, YabInterface *yab)
 {
 	char *id, *head;
-	
-	
+		
 	head = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
 
@@ -1309,7 +1285,6 @@ void treebox12(struct command *cmd, YabInterface *yab)
 	char *id, *item;
 	int pos;
 	
-
 	pos = pop(stNUMBER)->value;
 	item = pop(stSTRING)->pointer;
 	id = pop(stSTRING)->pointer;
@@ -1321,8 +1296,7 @@ void treebox12(struct command *cmd, YabInterface *yab)
 void buttonimage(struct command *cmd, YabInterface *yab)
 {
 	char *id, *enabledon, *enabledoff, *disabled, *view;
-	double x,y;
-	
+	double x,y;	
 	
 	view = pop(stSTRING)->pointer;
 	disabled = pop(stSTRING)->pointer;
@@ -1340,8 +1314,7 @@ void checkboximage(struct command *cmd, YabInterface *yab)
 {
 	char *id, *enabledon, *enabledoff, *disabledon, *disabledoff, *view;
 	double x,y;
-	int isActivated;
-	
+	int isActivated;	
 	
 	view = pop(stSTRING)->pointer;
 	isActivated = pop(stNUMBER)->value;
@@ -1361,8 +1334,7 @@ void checkboxset(struct command *cmd, YabInterface *yab)
 {
 	char *id;
 	int isActivated;
-	
-	
+		
 	isActivated = pop(stNUMBER)->value;
 	id = pop(stSTRING)->pointer;
 
@@ -1373,8 +1345,7 @@ void checkboxset(struct command *cmd, YabInterface *yab)
 void radioset(struct command *cmd, YabInterface *yab)
 {
 	char *id;
-	int isActivated;
-	
+	int isActivated;	
 	
 	isActivated = pop(stNUMBER)->value;
 	id = pop(stSTRING)->pointer;
@@ -1391,8 +1362,7 @@ char* textcontrolget(const char* textcontrol, YabInterface *yab, int line, const
 
 void tooltip(struct command *cmd, YabInterface *yab)
 {
-	char *view,*text;
-	
+	char *view,*text;	
 	
 	text = pop(stSTRING)->pointer;
 	view = pop(stSTRING)->pointer;
@@ -1404,8 +1374,7 @@ void tooltip(struct command *cmd, YabInterface *yab)
 void tooltipcolor(struct command *cmd, YabInterface *yab)
 {
 	char *color;
-	int r,g,b;
-	
+	int r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -1418,8 +1387,7 @@ void tooltipcolor(struct command *cmd, YabInterface *yab)
 
 void listsort(struct command *cmd, YabInterface *yab)
 {
-	char *id;
-	
+	char *id;	
 	
 	id = pop(stSTRING)->pointer;
 
@@ -1429,8 +1397,7 @@ void listsort(struct command *cmd, YabInterface *yab)
 
 void treesort(struct command *cmd, YabInterface *yab)
 {
-	char *id;
-	
+	char *id;	
 	
 	id = pop(stSTRING)->pointer;
 
@@ -1442,8 +1409,7 @@ void filebox(struct command *cmd, YabInterface *yab)
 {
 	char *id,*view, *option;
 	int scrollbar;
-	double x1,y1,x2,y2;
-	
+	double x1,y1,x2,y2;	
 	
 	view = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
@@ -1462,8 +1428,7 @@ void fileboxadd2(struct command *cmd, YabInterface *yab)
 {
 	char *columnbox, *name, *option;
 	double width, maxWidth, minWidth;
-	int pos;
-	
+	int pos;	
 	
 	option = pop(stSTRING)->pointer;
 	width = pop(stNUMBER)->value;
@@ -1479,8 +1444,7 @@ void fileboxadd2(struct command *cmd, YabInterface *yab)
 
 void fileboxclear(struct command *cmd, YabInterface *yab)
 {
-	char *id;
-	
+	char *id;	
 	
 	id = pop(stSTRING)->pointer;
 
@@ -1491,8 +1455,7 @@ void fileboxclear(struct command *cmd, YabInterface *yab)
 void columnboxadd(struct command *cmd, YabInterface *yab)
 {
 	char *id, *item ;
-	int position, height, column;
-	
+	int position, height, column;	
 	
 	item = pop(stSTRING)->pointer;
 	height = pop(stNUMBER)->value;
@@ -1507,8 +1470,7 @@ void columnboxadd(struct command *cmd, YabInterface *yab)
 void columnboxremove(struct command *cmd, YabInterface *yab)
 {
 	char *columnbox;
-	int pos;
-	
+	int pos;	
 	
 	pos = pop(stNUMBER)->value;
 	columnbox = pop(stSTRING)->pointer;
@@ -1516,13 +1478,22 @@ void columnboxremove(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_ColumnBoxRemove(columnbox,pos,yab);
 }
+void columnboxremovecolumn(struct command *cmd, YabInterface *yab)
+{
+	char *columnbox;
+	int pos;	
+	
+	pos = pop(stNUMBER)->value;
+	columnbox = pop(stSTRING)->pointer;
 
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_ColumnBoxRemoveColumn(columnbox,pos,yab);
+}
 void columnboxselect(struct command *cmd, YabInterface *yab)
 {
 	char *columnbox;
 	int pos;
-	
-	
+		
 	pos = pop(stNUMBER)->value;
 	columnbox = pop(stSTRING)->pointer;
 
@@ -1533,8 +1504,7 @@ void columnboxselect(struct command *cmd, YabInterface *yab)
 void columnboxcolor(struct command *cmd, YabInterface *yab)
 {
 	char *columnbox, *option;
-	int r,g,b;
-	
+	int r,g,b;	
 	
 	b = pop(stNUMBER)->value;
 	g = pop(stNUMBER)->value;
@@ -1549,8 +1519,7 @@ void columnboxcolor(struct command *cmd, YabInterface *yab)
 void dropboxselect(struct command *cmd, YabInterface *yab)
 {
 	char *dropbox;
-	int num;
-	
+	int num;	
 	
 	num = pop(stNUMBER)->value;
 	dropbox = pop(stSTRING)->pointer;
@@ -1572,7 +1541,19 @@ void menu2(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_Menu2(menuhead,radio,view,yab);
 }
+void menu3(struct command *cmd, YabInterface *yab)
+{
+	char *menuhead, *menuitem, *option, *view;
+	
+	
+	view = pop(stSTRING)->pointer;
+	option = pop(stSTRING)->pointer;
+	menuitem = pop(stSTRING)->pointer;
+	menuhead = pop(stSTRING)->pointer;
 
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_Menu3(menuhead,menuitem,option,view,yab);
+}
 void submenu1(struct command *cmd, YabInterface *yab)
 {
 	char *menuhead, *menuitem, *submenuitem, *modifier, *view;
@@ -1587,12 +1568,10 @@ void submenu1(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SubMenu1(menuhead,menuitem,submenuitem,modifier,view,yab);
 }
-
 void submenu2(struct command *cmd, YabInterface *yab)
 {
 	char *menuhead, *menuitem, *view;
-	int radio;
-	
+	int radio;	
 	
 	view = pop(stSTRING)->pointer;
 	radio = pop(stNUMBER)->value;
@@ -1602,11 +1581,9 @@ void submenu2(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SubMenu2(menuhead,menuitem,radio,view,yab);
 }
-
 void submenu3(struct command *cmd, YabInterface *yab)
 {
-	char *menuhead, *menuitem, *submenuitem, *option, *view;
-	
+	char *menuhead, *menuitem, *submenuitem, *option, *view;	
 	
 	view = pop(stSTRING)->pointer;
 	option = pop(stSTRING)->pointer;
@@ -1617,21 +1594,49 @@ void submenu3(struct command *cmd, YabInterface *yab)
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
 	yi_SubMenu3(menuhead,menuitem,submenuitem,option,view,yab);
 }
-
-void menu3(struct command *cmd, YabInterface *yab)
+void subsubmenu(struct command *cmd, YabInterface *yab)
 {
-	char *menuhead, *menuitem, *option, *view;
+	char *menuhead, *menuitem, *submenuitem, *subSubmenuitem,*modifier, *view;
 	
 	
 	view = pop(stSTRING)->pointer;
-	option = pop(stSTRING)->pointer;
+	modifier = pop(stSTRING)->pointer;
+	subSubmenuitem = pop(stSTRING)->pointer;
+	submenuitem = pop(stSTRING)->pointer;	
 	menuitem = pop(stSTRING)->pointer;
 	menuhead = pop(stSTRING)->pointer;
 
 	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
-	yi_Menu3(menuhead,menuitem,option,view,yab);
+	yi_SubSubMenu(menuhead,menuitem,submenuitem,subSubmenuitem,modifier,view,yab);
 }
+void subsubmenu2(struct command *cmd, YabInterface *yab)
+{
+	char *menuhead, *menuitem,*submenuitem, *view;
+	int radio;
+	
+	view = pop(stSTRING)->pointer;
+	radio = pop(stNUMBER)->value;
+	submenuitem = pop(stSTRING)->pointer;
+	menuitem = pop(stSTRING)->pointer;
+	menuhead = pop(stSTRING)->pointer;
 
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_SubSubMenu2(menuhead,menuitem,submenuitem,radio,view,yab);
+}
+void subsubmenu3(struct command *cmd, YabInterface *yab)
+{
+	char *menuhead, *menuitem, *submenuitem, *subsubmenuitem,*option, *view;
+		
+	view = pop(stSTRING)->pointer;
+	option = pop(stSTRING)->pointer;
+	subsubmenuitem = pop(stSTRING)->pointer;
+	submenuitem = pop(stSTRING)->pointer;
+	menuitem = pop(stSTRING)->pointer;
+	menuhead = pop(stSTRING)->pointer;
+
+	yi_SetCurrentLineNumber(cmd->line, (const char*)cmd->lib->s, yab);
+	yi_SubSubMenu3(menuhead,menuitem,submenuitem,subsubmenuitem,option,view,yab);
+}
 int sliderget(const char *slider, YabInterface *yab, int line, const char* libname)
 {
 
@@ -2062,7 +2067,11 @@ int columnboxcount(const char* columnbox, YabInterface* yab, int line, const cha
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_ColumnBoxCount(columnbox, yab);
 }
-
+int columnboxcountcolumns(const char* columnbox, YabInterface* yab, int line, const char* libname) 
+{
+	yi_SetCurrentLineNumber(line, libname, yab);
+	return yi_ColumnBoxCountColumns(columnbox, yab);
+}
 int windowgetnum(const char* view, const char *option, YabInterface* yab, int line, const char* libname) 
 {
 
@@ -2176,7 +2185,6 @@ int threadget(const char* option, const char* appname, YabInterface *yab, int li
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_ThreadGet(option, appname, yab);
 }
-
 void bitmap(struct command *cmd, YabInterface *yab)
 {
 	char *id;
@@ -2587,6 +2595,36 @@ int defaulttimezone(YabInterface *yab, int line, const char* libname)
 {
 	yi_SetCurrentLineNumber(line, libname, yab);
 	return yi_DefaultTimeZone(yab);
+}
+char* bfilesize(const char* name, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BFileSize(name, yab));
+}
+char* bdirsize(const char* name, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BDirSize(name, yab));
+}
+char* bfilecopy(const char* name, const char* filename, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BFileCopy(name, filename, yab));
+}
+char* bfilelink(const char* name, const char* filename, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BFileLink(name, filename, yab));
+}
+char* bfiledirexists(const char* filename, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BFileDirExists(filename, yab));
+}
+char* bfiledelete(const char* filename, YabInterface *yab, int line, const char* libname) /*  */
+{
+	yi_SetCurrentLineNumber(line, libname, yab);	
+	return my_strdup((char*)yi_BFileDelete(filename, yab));
 }
 void shortcut(struct command *cmd, YabInterface *yab)
 {

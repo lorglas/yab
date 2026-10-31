@@ -1,0 +1,25 @@
+#!/boot/home/config/non-packaged/bin/yab
+output$=BFile_Dir_Exists$("/Share/test/Handbuch.pdf") //Handbuch.pdf
+print output$
+print "------------------"
+output$=BFile_Delete$("/Share/test/test") //Handbuch.pdf
+print "OUTPUT"+output$
+print "------------------"
+source$="/Share/test/Handbuch.pdf"
+destination$="/Share/test/test/Handbuch33.pdf"
+output$=BFile_Copy$(source$ ,destination$)
+print output$
+print "------------------"
+file$="/boot/system/packages/gcc_debuginfo-13.3.0_2023_08_10-2-x86_64.hpkg"
+output$=BFile_Size$(file$) 
+print output$
+print "------------------"
+print "gggg"+Available_TimeZones$
+dir$="/Share/Projekte/c/yab/yab_1.8.3_SQLite"
+output_dir$=BDir_Size$(dir$) 
+print output_dir$
+print "------------------"
+dir$="/Share/Projekte/c/test"
+output_dir$=BDir_Size$(dir$) 
+print output_dir$
+print "------------------"

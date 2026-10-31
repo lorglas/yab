@@ -1,0 +1,3 @@
+print peek$("version")
+print peek$("os")
+print peek$("directory")

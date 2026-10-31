@@ -240,6 +240,33 @@ void YabView::Draw(BRect updateRect)
 					FillArc(BPoint(e->x1,e->y1), e->r1, e->r2, e->r3, e->r4, e->p);
 				}
 				break;
+				case 19: /* draw Polygon added lorglas 2024/05/05 */
+			{
+					BPoint p[4];
+				    p[0].Set(e->x1,e->y1);
+					p[1].Set(e->x2,e->y2);
+					p[2].Set(e->x3,e->y3);
+					p[3].Set(e->x4,e->y4);					
+					//SetPenSize(1.01);					
+					StrokePolygon(p,4,true,e->p);
+					
+					//SetPenSize(1.0);
+					 
+				}
+				break;
+				case 20: /* draw Polygon added lorglas 2024/05/05 */
+			 {
+					BPoint p[4];
+				    p[0].Set(e->x1,e->y1);
+					p[1].Set(e->x2,e->y2);
+					p[2].Set(e->x3,e->y3);
+					p[3].Set(e->x4,e->y4);					
+					//SetPenSize(2.0);
+					
+					FillPolygon(p,4,e->p);
+					//SetPenSize(1.0);
+				}
+				break;
 		}
 	}
 }

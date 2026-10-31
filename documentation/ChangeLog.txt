@@ -1,7 +1,25 @@
-yab 1.8.2
-Bug fixes
-- AvailableLanguage updated
+yab 1.8.3
+closed BUGS
+--Str_replace doesn't clear the input and output correctly, fixed.
+--Mediasound, updated, Seturl error in yabinterface.cpp
+--bimap image broken, fixed.
 - Documentation updated
+Reactivating feature
+--Ncurses
+new Feature
+--draw Polygon (max.4 Point)
+--Attribute updated, Missing supoort for int8,int16,int32, int64, uint8,uint16,uint32,uint6, RAW, Time, Media added
+--subsubmenu added
+--BFile_Copy$ added
+--BFile_Delete added
+--BFile_Dir_Exists added
+--BFile_Link$ added
+--BFile_Size$ added
+--peek$(Version) added
+yab 1.8.2
+closed BUGS
+- AvailableLanguage updated
+- Documentation updated
 
 yab 1.8.1
 new Feature

@@ -1,0 +1,5 @@
+clear screen
+print colour("cyan","magenta") at(7,2) "################################"
+print colour("cyan","magenta") at(7,3) "################################"
+print colour("cyan","magenta") at(7,4) "################################"
+print colour("yellow","blue") at(8,3) " This is the demo for yabasic "

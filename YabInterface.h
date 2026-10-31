@@ -14,6 +14,7 @@
 	#include "global.h"
 	#include "config.h"
 	#include <FileGameSound.h>
+	#include <Polygon.h>
 	class YabInterface : public BApplication
 	{
 	public:
@@ -32,6 +33,7 @@
 		int CreateImage(BPoint coordinates, const char* imagefile, const char* window);
 		int CreateImage(BRect frame, const char* imagefile, const char* window);
 		int CreateSVG(BRect frame, const char* imagefile, const char* window);
+		void Region(BRect frame, const char* region_id,const char* view);
 		void DrawText(BPoint coordinates, const char* text, const char* window);
 		void DrawRect(BRect frame, const char* window);  
 		void DrawRoundRect(double x1, double y1, double x2, double y2,float r1, float r2, const char* window);  
@@ -89,6 +91,8 @@
 		void DrawArc(double x1, double y1, double r1, double r2, double r3, double r4, const char* window);  
 		void DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window);  
 		void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window);  		
+		void DrawPolygon(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window); 		
+		//void DrawPolygon2(double id, const char* window); 		
 		void Slider(BRect frame, const char* id, const char* title, int min, int max, const char* view);
 		void Slider(BRect frame, const char* id, const char* title, int min, int max, const char* option, const char* view);
 		void SetSlider(const char* id, const char* label1, const char* label2);
@@ -137,6 +141,7 @@
 		void ColumnBoxAdd(const char* id, int column, int position, int height, const char* item);
 		void ColumnBoxSelect(const char *columnbox, int position);
 		void ColumnBoxRemove(const char *columnbox, int position);
+		void ColumnBoxRemoveColumn(const char *columnbox, int position);
 		void ColumnBoxColor(const char *columnbox, const char* option, int r, int g, int b);
 		int Printer(const char* docname, const char *view, const char* config);
 		void PrinterConfig(const char* config);
@@ -168,6 +173,8 @@
 		void Menu(const char* menuHead, int isRadio, const char* view);
 		void SubMenu(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* modifiers, const char* view);
 		void SubMenu(const char* menuHead, const char* menuItem, int isRadio, const char* view);
+		void SubSubMenu(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* subSubMenuItem, const char* modifiers, const char* view);
+		void SubSubMenu2(const char* menuHead, const char* menuItem, const char* subMenuItem,int isRadio, const char* view);
 		void SpinControl(double x, double y, const char* id, const char* label, int min, int max, int step, const char* view);
 		void SpinControl(const char* spinControl, int value);
 		int SpinControlGet(const char *spinControl);
@@ -179,6 +186,7 @@
 		const char* DropBoxGet(const char* dropbox, int position);
 		int ColorControlGet(const char* colorcontrol, const char* option);
 		int SliderGet(const char* slider);
+		void SubSubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem,const char* subsubMenuItem, const char* option, const char* view); /* added SubSubMenu lorglas 2025.10.25*/
 		void SubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* option, const char* view);
 		void Menu3(const char* menuHead, const char* menuItem, const char* option,const char* view);
 		double ScrollbarWidth();
@@ -186,6 +194,7 @@
 		double TabHeight();
 		const char* ColumnBoxGet(const char *columnbox, int column, int position);
 		int ColumnBoxCount(const char *columnbox);
+		int ColumnBoxCountColumns(const char *columnbox);
 		const char* TextControlGet(const char* id); 
 		int WindowGet(const char* view, const char* option);
 		int ViewGet(const char* view, const char* option); //vasper
@@ -256,6 +265,12 @@
 		void RefsReceived(BMessage *message);
 		int PCWorkspaces();
 		int Default_TimeZone();
+		const char* B_FileSize(const char* name); //const char* name, added 20241229 lorglas
+		const char* B_DirSize(const char* name); //const char* name, added 20241229 lorglas
+		const char* B_FileCopy(const char* source, const char* destination); //const char* name, added 20241229 lorglas
+		const char* B_FileLink(const char* source, const char* destination); //const char* name, added 20241229 lorglas
+		const char* B_FileDirExists(const char* filename); //const char* name, added 20241229 lorglas
+		const char* B_FileDelete(const char* filename); //const char* name, added 20241229 lorglas
 	private:
 		BFileGameSound* fPlayer;
 		int status;
@@ -321,6 +336,7 @@ extern void yi_CreateDropBox(double x1, double y1,double x2,double y2, const cha
 extern void yi_CreateItem(const char* id,const char* item, YabInterface *yab);
 extern void yi_RemoveItem(const char* title,const char* item, YabInterface *yab);
 extern void yi_ClearItems(const char* title, YabInterface *yab);
+extern void yi_Region(double x1, double y1, double x2, double y2, const char* region_id,const char* view, YabInterface* yab);
 extern void yi_DrawText(double x, double y, const char* text, const char* window, YabInterface* yab);
 extern void yi_DrawRect(double x1, double y1, double x2, double y2, const char* window, YabInterface* yab);
 extern void yi_DrawRoundRect(double x1, double y1, double x2, double y2, float r1, float r2, const char* window, YabInterface* yab);
@@ -372,6 +388,8 @@ extern void yi_DrawCircle(double x, double y, double r, const char* window, YabI
 extern void yi_DrawEllipse(double x, double y, double r1, double r2, const char* window, YabInterface *yab);
 extern void yi_DrawArc(double x1, double y1, double r1, double r2, double r3, double r4,  const char* window, YabInterface *yab);
 extern void yi_DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3, const char* window, YabInterface *yab);
+extern void yi_DrawPolygon(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window, YabInterface *yab);
+//extern void yi_DrawPolygon2(double id, const char* window, YabInterface *yab);
 extern void yi_DrawCurve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, const char* window, YabInterface *yab);
 extern void yi_Slider1(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* view, YabInterface *yab);
 extern void yi_Slider2(double x1, double y1, double x2, double y2, const char* id, const char* title, int min, int max, const char* option, const char* view, YabInterface *yab);
@@ -421,11 +439,13 @@ extern void yi_FileBoxClear(const char* view, YabInterface *yab);
 extern void yi_ColumnBoxAdd(const char* id, int column, int position, int height, const char* item, YabInterface *yab);
 extern void yi_ColumnBoxSelect(const char *columnbox, int position, YabInterface *yab);
 extern void yi_ColumnBoxRemove(const char *columnbox, int position, YabInterface *yab);
+extern void yi_ColumnBoxRemoveColumn(const char *columnbox, int position, YabInterface *yab);
 extern void yi_ColumnBoxColor(const char *columnbox, const char* option, int r, int g, int b, YabInterface *yab);
 extern int yi_Printer(const char* docname, const char *view, const char* config, YabInterface *yab);
 extern void yi_PrinterConfig(const char* config, YabInterface *yab);
 extern const char* yi_ColumnBoxGet(const char *columnbox, int column, int position, YabInterface *yab);
 extern int yi_ColumnBoxCount(const char *columnbox, YabInterface *yab);
+extern int yi_ColumnBoxCountColumns(const char *columnbox, YabInterface *yab);
 extern int yi_DeskbarPosition(YabInterface *yab);
 extern int yi_DeskbarExpanded(YabInterface *yab);
 extern int yi_DeskbarWidth(YabInterface *yab);
@@ -467,6 +487,8 @@ extern void yi_TextURL2(const char* id, const char* option, int r, int g, int b,
 extern void yi_Menu2(const char* menuHead, int isRadio, const char* view, YabInterface *yab);
 extern void yi_SubMenu1(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* modifiers, const char* view, YabInterface *yab);
 extern void yi_SubMenu2(const char* menuHead, const char* menuItem, int isRadio, const char* view, YabInterface *yab);
+extern void yi_SubSubMenu(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* subSubMenuItem, const char* modifiers, const char* view, YabInterface *yab);  /* added SubSubMenu lorglas 2025.10.25*/
+extern void yi_SubSubMenu2(const char* menuHead, const char* menuItem, const char* subMenuItem, int isRadio, const char* view, YabInterface *yab);  /* added SubSubMenu lorglas 2025.10.25*/
 extern void yi_SpinControl1(double x, double y, const char* id, const char* label, int min, int max, int step, const char* view, YabInterface *yab);
 extern void yi_SpinControl2(const char* spinControl, int value, YabInterface *yab);
 extern int yi_SpinControlGet(const char *spinControl, YabInterface *yab);
@@ -478,6 +500,7 @@ extern int yi_DropBoxCount(const char* dropbox, YabInterface *yab);
 extern const char* yi_DropBoxGet(const char* dropbox, int position, YabInterface *yab);
 extern int yi_ColorControlGet(const char* colorcontrol, const char* option, YabInterface *yab);
 extern int yi_SliderGet(const char* slider, YabInterface *yab);
+extern void yi_SubSubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* subsubMenuItem,const char* option, const char* view, YabInterface *yab);
 extern void yi_SubMenu3(const char* menuHead, const char* menuItem, const char* subMenuItem, const char* option, const char* view, YabInterface *yab);
 extern void yi_Menu3(const char* menuHead, const char* menuItem, const char* option,const char* view, YabInterface *yab);
 extern double yi_MenuHeight(YabInterface *yab);
@@ -544,7 +567,12 @@ extern const char* yi_AvailableTimeZones(const char* text, YabInterface *yab);
 extern int yi_PCWorkspaces(YabInterface* yab);
 extern int yi_DefaultTimeZone(YabInterface* yab);
 extern char* refsRec;	//refs received
-
+extern const char* yi_BFileSize(const char* name, YabInterface *yab);
+extern const char* yi_BDirSize(const char* name, YabInterface *yab);
+extern const char* yi_BFileCopy(const char* source,const char* destination, YabInterface *yab);
+extern const char* yi_BFileLink(const char* source,const char* destination, YabInterface *yab);
+extern const char* yi_BFileDirExists(const char* filename, YabInterface* yab); //const char* name, added 20241229 lorglas
+extern const char* yi_BFileDelete(const char* filename, YabInterface* yab); //const char* name, added 20241229 lorglas
 #ifdef LOCALIZE
 const char* _L(const char* text);
 #endif

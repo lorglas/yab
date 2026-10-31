@@ -1125,6 +1125,38 @@ void function(struct command *current,YabInterface* yab) /* performs a function 
     value = defaulttimezone(yab,linenum, current->lib->s);
     result = stNUMBER;
     break;
+  case fBFILESIZE:  //added new command Lorglas 2020.09.11
+    str=a1->pointer; 
+  	pointer = bfilesize(str,yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
+   case fBDIRSIZE:  //added new command Lorglas 2020.09.11
+    str=a1->pointer; 
+  	pointer = bdirsize(str,yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
+   case fBFILECOPY:  //added new command Lorglas 2020.09.11
+    str=a1->pointer; 
+    str2=a2->pointer;
+  	pointer = bfilecopy(str,str2, yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
+    case fBFILELINK:  //added new command Lorglas 2020.09.11
+    str=a1->pointer; 
+    str2=a2->pointer;
+  	pointer = bfilelink(str,str2, yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
+   case fBFILE_DIR_EXISTS:  //added new command Lorglas 2020.09.11
+    str=a1->pointer;     
+  	pointer = bfiledirexists(str, yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
+   case fBFILE_DELETE:  //added new command Lorglas 2020.09.11
+    str=a1->pointer;     
+  	pointer = bfiledelete(str, yab,linenum, current->lib->s);
+    result = stSTRING;
+    break;  
   default:
     error(ERROR,"function called but not implemented");
     return;
@@ -1949,6 +1981,7 @@ static char *peek2(char *dest,struct command *curr) /* peek into internals */
   /*
   else if (!strcmp(dest,"textalign")) return my_strdup(text_align);
   else if (!strcmp(dest,"windoworigin")) return my_strdup(winorigin);*/
+  else if (!strcmp(dest,"version")) return my_strdup(VERSION);
   else if (!strcmp(dest,"error")) return my_strdup(errorstring);
   else if (!strcmp(dest,"library")) return my_strdup(curr->lib->s);
   else if (!strcmp(dest,"os")) {
@@ -2295,41 +2328,71 @@ void boole(struct command *type)  /* perform and/or/not */
   result->value=c;
   result->type=stNUMBER;
 }
-
-char* replaceWordInText(char *text,  char *oldWord,  char *newWord) {
-	char *newString;
-	int i = 0, cnt = 0; int u=1;
-   	int len1 = strlen(newWord);
-   	int len2 = strlen(oldWord);     
+char* replaceWordInText(const char *text, const char *oldWord, const char *newWord)
+{
+	size_t lenText = strlen(text);
+size_t lenOld  = strlen(oldWord);
+size_t lenNew  = strlen(newWord);
+size_t count = 0;
+size_t i = 0;
+size_t iText = 0; /* Index im Originaltext*/
+size_t iNew = 0; /* Index im neuen String*/
+size_t newLen=0;
+char *newString;
 	
-   for (i = 0; text[i] != '\0'; i++) 
-   {
-      if (strstr(&text[i], oldWord) == &text[i]) 
-      {
-         cnt++;
-         i += len2 - 1;
-      }
-   }
-   
-  newString = (char *)malloc(i + cnt * (len1 - len2) + 1);
-   i = 0;
-   while (*text) {
-   	
-        	 if (strstr(text, oldWord) == text) 
-        	 {
-        
-        	 strcpy(&newString[i], newWord);
-         	i += len1;
-        	 text += len2;   
-        	
-      		}
-     		else
-     		{
-     		 newString[i++] = *text++;
-     		}
-   }
-   //printf("New String: %s\n", newString);
-    //return newString; 
-	return my_strdup(newString); 
-     	
- }
+	if (!text || !oldWord || !newWord)
+	{
+		return NULL;
+	}
+
+
+	if (lenOld == 0)
+	{
+		return NULL; // Vermeide unendliche Ersetzung
+	}
+	/* Zähle, wie oft oldWord im Text als eigenständiger Auftakt vorkommt*/
+	
+	for (i = 0; i + lenOld <= lenText; ) {
+		if (strncmp(text + i, oldWord, lenOld) == 0) {
+			count++;
+			i += lenOld;
+		} else {
+			i++;
+		}
+	}
+
+	/* Falls keine Ersetzung nötig, kopieren wir einfach den Originaltext*/
+	if (count == 0) {
+		char *same = (char*)malloc(lenText + 1);
+			if (!same) {
+			return NULL;
+			}
+			memcpy(same, text, lenText+1);
+				return same;
+	}
+
+	/* Neue Länge: Originallänge - count * lenOld + count * lenNew*/
+	newLen = lenText - count * lenOld + count * lenNew;
+	newString = (char*)malloc(newLen + 1);
+	if (!newString)
+	{
+		return NULL;
+	}
+	/* Ersetze Schritt-für-Schritt*/
+	iText = 0; /* Index im Originaltext*/
+	iNew = 0; /* Index im neuen String*/
+
+	while (iText < lenText) {
+		if (iText + lenOld <= lenText && strncmp(text + iText, oldWord, lenOld) == 0) {
+		/* Ersetzen*/
+			memcpy(newString + iNew, newWord, lenNew);
+			iNew += lenNew;
+			iText += lenOld;
+		} else {
+		/* Normaler Zeichenauszug*/
+			newString[iNew++] = text[iText++];
+		}
+	}
+	newString[newLen] = '\0';
+	return newString;
+}

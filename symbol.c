@@ -620,6 +620,75 @@ void popdblsym(struct command *cmd)  /* pop double from stack */
   *(double *)(cmd->symbol)=d;
 }
 
+int erasearray(struct command *cmd)
+{
+    struct stackentry *s;
+    struct array *ar;
+    struct symbol *sym;
+    char *name;
+    int local;
+
+    /* Stack-Eintrag für den Array-Namen holen */
+    s = pop(stSTRING_OR_NUMBER_ARRAYREF);
+    if (!s || !s->pointer) {
+        error(ERROR, "ERASE expects an array name");
+        return;
+    }
+
+    name = s->pointer;
+
+    /* Lokalen Bereich prüfen */
+    local = ((cmd->tag == tolower(cmd->tag)) ? TRUE : FALSE);
+
+  /* Symbol suchen: lokal ODER global */
+    if (!cmd->symbol) {
+        sym = get_sym(name, syARRAY, amSEARCH);
+        if (!sym || !sym->pointer) {
+            sprintf(string, "array '%s()' is not defined", strip(name));
+            error(ERROR, string);
+            return 0;
+        }
+        cmd->symbol = sym;
+    }
+    ar = ((struct symbol *)cmd->symbol)->pointer;
+
+    /* Array freigeben */
+    free_array(ar);
+    ((struct symbol *)cmd->symbol)->pointer = NULL;
+
+    /* Stack-Eintrag freigeben */
+    my_free(name);
+    s->pointer = NULL;
+    s->type = stFREE;
+      printf("array '%s()' is Deleted\n", strip(name));
+        
+   // return;
+}
+
+void free_array(struct array *ar)
+{
+  int i, total;
+
+  if (!ar) return;
+
+  if (ar->pointer) {
+
+    total = 1;
+    for (i = 0; i < ar->dimension; i++)
+      total *= ar->bounds[i];
+
+    if (ar->type == 's') {
+      for (i = 0; i < total; i++) {
+        if (((char **)ar->pointer)[i])
+          my_free(((char **)ar->pointer)[i]);
+      }
+    }
+
+    my_free(ar->pointer);
+  }
+
+  my_free(ar);
+}
 
 void create_makelocal(char *name,int type) /* create command 'cMAKELOCAL' */
 {
@@ -1497,7 +1566,6 @@ struct array *create_array(int type,int dimension) /* create an array */
 
   return ar;
 }
-
 
 static int count_args(int skipfirst) /* count number of numeric arguments on stack */
 {

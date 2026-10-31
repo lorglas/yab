@@ -26,7 +26,7 @@ can be found at www.yabasic.de
 /* ------------- defines ---------------- */
 
 #define DONE {current=current->next;break;}  /* reduces type-work */
-#define COPYRIGHT "  Original yabasic Copyright 1995-2006 by Marc-Oliver Ihm\n\tyab Copyright 2006-2009 by Jan Bungeroth\n\tyab improvements Copyright 2013-2018 by Jim Saxton\n\tyab improvements Copyright 2018-2020 by BeSly Software Solutions (also thanks to Stephan Aßmus for Correction of Code)\n\tyab improvements Copyright 2021 by BeSly Software Solutions\n"
+#define COPYRIGHT "  Original yabasic Copyright 1995-2006 by Marc-Oliver Ihm\n\tyab Copyright 2006-2009 by Jan Bungeroth\n\tyab improvements Copyright 2013-2018 by Jim Saxton\n\tyab improvements Copyright 2018-2020 by BeSly Software Solutions (also thanks to Stephan Aßmus for Correction of Code)\n\tyab improvements Copyright 2021-2026 by BeSly Software Solutions\n"
 #define BANNER \
 "\n        yab is yabasic, a BASIC programming language for Haiku.\n        This is version " VERSION ", built on "\
 ARCHITECTURE " on " BUILD_TIME "\n\n      " COPYRIGHT "\n\n"
@@ -1315,6 +1315,8 @@ static void run_it(YabInterface* yab)
 	pushstrptr(current); DONE;
       case cDIM:
 	dim(current); DONE;
+	  case cARRAY_ERASE:
+    erasearray(current); DONE;
       case cDECIDE:
 	decide(); DONE;
       case cANDSHORT:case cORSHORT:
@@ -1419,6 +1421,10 @@ static void run_it(YabInterface* yab)
 		drawarc(current,yab); DONE;
 	  case cTRIANGLE: 
 		drawtriangle(current,yab); DONE; /* draw Roundrect added lorglas 2020/09/14 */
+	  case cPOLYGON: 
+		drawpolygon(current,yab); DONE; /* draw Polygon added lorglas 2024/05/05 */
+	//case cPOLYGON2: 
+		//drawpolygon2(current,yab); DONE; /* draw Polygon added lorglas 2024/05/05 */
 	  case cLOUDNESS:
 		loudness(current, yab); DONE; /* loudness added lorglas 2020/09/15 */
 	//case cLOUDNESSGET:
@@ -1429,6 +1435,8 @@ static void run_it(YabInterface* yab)
 		closewin(current,yab); DONE;
       case cVIEW:
 		view(current, yab); DONE;
+	  case cREGION:
+		region(current, yab); DONE;
       case cBOXVIEW:
 		boxview(current, yab); DONE;
 	  case cBOXVIEWSET:
@@ -1523,6 +1531,8 @@ static void run_it(YabInterface* yab)
         columnboxadd(current, yab); DONE;
       case cCOLUMNBOXREMOVE:
       	columnboxremove(current, yab); DONE;
+      case cCOLUMNBOXREMOVECOLUMN:
+      	columnboxremovecolumn(current, yab); DONE;
       case cCOLUMNBOXSELECT:
       	columnboxselect(current, yab); DONE;
       case cCOLUMNBOXCOLOR:
@@ -1539,12 +1549,18 @@ static void run_it(YabInterface* yab)
       	menu2(current, yab); DONE;
       case cMENU3:
       	menu3(current, yab); DONE;
+      case cSUBSUBMENU:
+      	subsubmenu(current, yab); DONE;
       case cSUBMENU1:
       	submenu1(current, yab); DONE;
       case cSUBMENU2:
       	submenu2(current, yab); DONE;
       case cSUBMENU3:
       	submenu3(current, yab); DONE;
+      case cSUBSUBMENU3:
+      	subsubmenu3(current, yab); DONE;
+      case cSUBSUBMENU2:
+      	subsubmenu2(current, yab); DONE;
       case cCLIPBOARDCOPY:
       	clipboardcopy(current, yab); DONE;
       case cLISTSORT:

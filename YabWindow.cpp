@@ -21,6 +21,7 @@
 const uint32 YABBUTTON                  = 'YBbu'; 
 const uint32 YABMENU			= 'YBme'; 
 const uint32 YABSUBMENU			= 'YBsu'; 
+const uint32 YABSUBSUBMENU			= 'YBss'; 
 const uint32 YABTEXTCONTROL		= 'YBtc'; 
 const uint32 YABCHECKBOX                = 'YBcb';
 const uint32 YABRADIOBUTTON             = 'YBrb'; 
@@ -112,6 +113,25 @@ void YabWindow::MessageReceived(BMessage *message)
                         	message->FindPointer("source",(void **) &mySelectedMenu);
 				BMenu *myMenu = mySelectedMenu->Menu();
 				tmpMessage += ((BMenuBar*)myMenu->Supermenu()->Supermenu())->Parent()->Name();
+				tmpMessage += ":";
+				tmpMessage += myMenu->Supermenu()->Name();
+				tmpMessage += ":";
+				tmpMessage += myMenu->Name();
+				tmpMessage += ":";
+                        	tmpMessage += mySelectedMenu->Label(); 
+				tmpMessage += "|";
+				messageString += tmpMessage;
+			}
+			break;
+			case YABSUBSUBMENU:
+			{
+				BString tmpMessage("");
+				BMenuItem *mySelectedMenu;
+                        	message->FindPointer("source",(void **) &mySelectedMenu);
+				BMenu *myMenu = mySelectedMenu->Menu();
+				tmpMessage += ((BMenuBar*)myMenu->Supermenu()->Supermenu()->Supermenu())->Parent()->Name();
+				tmpMessage += ":";
+				tmpMessage += myMenu->Supermenu()->Supermenu()->Name();
 				tmpMessage += ":";
 				tmpMessage += myMenu->Supermenu()->Name();
 				tmpMessage += ":";

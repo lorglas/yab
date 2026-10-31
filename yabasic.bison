@@ -110,13 +110,13 @@ void report_missing(int severity,char *text) {
 %token tNEQ tLEQ tGEQ tLTN tGTN tEQU tEQU2 tPOW
 %token tREAD tDATA tRESTORE
 %token tOPEN tCLOSE tSEEK tTELL tAS tREADING tWRITING 
-%token tWAIT tBELL tLET tARDIM tARSIZE tBIND
-%token tWINDOW tDOT tCIRCLE tTRIANGLE tCLEAR tFILL tPRINTER tSETUP
+%token tWAIT tBELL tLET tARDIM tARSIZE tBIND tARRAYERASE
+%token tWINDOW tDOT tCIRCLE tTRIANGLE tPOLYGON  tPOLYGON2 tCLEAR tFILL tPRINTER tSETUP
 %token tBUTTON tALERT tMENU tCHECKBOX tRADIOBUTTON tTEXTCONTROL
 %token tLISTBOX tDROPBOX tADD tREMOVE tLOCALIZE tFILEPANEL tSLIDER tSTATUSBAR tLANGUAGEAVAILABLE tTIMEZONESAVAILABLE
 %token tLAYOUT tSET tTEXTEDIT tCOUNT tVIEW tBOXVIEW tTABVIEW tTEXTURL tBITMAP tCANVAS
 %token tOPTION tDROPZONE tCOLORCONTROL tTREEBOX tCOLUMNBOX tCOLUMN tSORT tTOOLTIP tCALENDAR tSCALE
-%token tCLIPBOARD tCOPY tSUBMENU tSELECT tSCROLLBAR tEXPAND tCOLLAPSE tSPLITVIEW tSTACKVIEW
+%token tCLIPBOARD tCOPY tSUBMENU tSUBSUBMENU tSELECT tSCROLLBAR tEXPAND tCOLLAPSE tSPLITVIEW tSTACKVIEW
 %token tPOPUPMENU tSPINCONTROL tMSEND tNUMMESSAGE tTHREAD tSOUND tPLAY tSTOP tMEDIASOUND tSHORTCUT tISCOMPUTERON tPCWORKSPACES tLOUDNESS tDEFAULTTIMEZONE
 %token tDRAW tTEXT tFLUSH tELLIPSE tSAVE tARC
 %token tRECT tGETCHAR tPUTCHAR tNEW tCURVE tLAUNCH tATTRIBUTE tROUNDRECT
@@ -128,8 +128,9 @@ void report_missing(int severity,char *text) {
 %token tTRIM tLTRIM tRTRIM tINSTR tRINSTR tCHOMP tSTR_REPLACE
 %token tSYSTEM tSYSTEM2 tPEEK tPEEK2 tPOKE 
 %token tDATE tTIME tTOKEN tTOKENALT tSPLIT tSPLITALT tGLOB
-%token tMESSAGE tIMAGE tSVG tTRANSLATE tGET tMOUSE tISMOUSEIN 
+%token tMESSAGE tIMAGE tSVG tTRANSLATE tGET tMOUSE tISMOUSEIN tREGION
 %token tKEYBOARD tPASTE tGETNUM
+%token tBFILESIZE tBDIRSIZE tBFILECOPY tBFILELINK tBFILEDIREXISTS tBFILEDELETE
 
 %left tOR
 %left tAND
@@ -214,6 +215,8 @@ statement:  /* empty */
   | tRETURN expression {if (get_switch_id()) create_clean_switch_mark(1,TRUE); if (function_type==ftNONE) {error(ERROR,"can not return value"); YYABORT;} add_command(cCLEARREFS,NULL);lastcmd->nextref=firstref;add_command(cPOPSYMLIST,NULL);create_retval(ftNUMBER,function_type);add_command(cRET_FROM_FUN,NULL);}
   | tRETURN string_expression {if (get_switch_id()) create_clean_switch_mark(1,TRUE); if (function_type==ftNONE) {error(ERROR,"can not return value"); YYABORT;} add_command(cCLEARREFS,NULL);lastcmd->nextref=firstref;add_command(cPOPSYMLIST,NULL);create_retval(ftSTRING,function_type);add_command(cRET_FROM_FUN,NULL);}
   | tDIM dimlist
+  | tARRAYERASE '(' arrayref ')' {add_command(cARRAY_ERASE,"");} 
+  | tARRAYERASE '(' string_arrayref ')' {add_command(cARRAY_ERASE, "");}
 /*  | tOPEN tWINDOW expression ',' expression {create_openwin(FALSE);} */
   | tWINDOW tOPEN coordinates to coordinates ',' string_expression ',' string_expression {create_openwin(TRUE);}
   | tBUTTON coordinates to coordinates ',' string_expression ',' string_expression ',' string_expression {add_command(cBUTTON,NULL);}
@@ -248,10 +251,11 @@ statement:  /* empty */
   | tWINDOW tSET string_expression ',' string_expression {add_command(cWINSET4,NULL);}
   | tWINDOW tSET string_expression ',' string_expression ',' string_expression {add_command(cWINSET1,NULL);}
   | tWINDOW tSET string_expression ',' string_expression ',' expression ',' expression {add_command(cWINSET3,NULL);}
-  /*
+   /*
   | tWINDOW tSET string_expression ',' string_expression ',' expression ',' expression ',' expression {add_command(cWINSET2,NULL);}
   	this tWINDOW tSET was replaced by tDRAW tSET ... cWINSET2
-   tWINDOW tCLEAR string_expression {add_command(cWINCLEAR,NULL);}*/
+   tWINDOW tCLEAR string_expression {add_command(cWINCLEAR,NULL);}
+  */
   | tSHORTCUT string_expression ',' string_expression ',' string_expression {add_command(cSHORTCUT,NULL);}
   | tTEXTEDIT coordinates to coordinates ',' string_expression ',' expression ',' string_expression {add_command(cTEXTEDIT,NULL);}
   | tTEXTEDIT tADD string_expression ',' string_expression {add_command(cTEXTADD,NULL);}
@@ -267,6 +271,7 @@ statement:  /* empty */
   | tDRAW tSET string_expression ',' expression {add_command(cDRAWSET3,NULL);}
   | tDRAW tSET string_expression ',' string_expression ',' string_expression {add_command(cDRAWSET4,NULL);}
   | tVIEW coordinates to coordinates ',' string_expression ',' string_expression  {add_command(cVIEW,NULL);}
+  | tREGION coordinates to coordinates ',' string_expression ',' string_expression {add_command(cREGION,NULL);}
   | tVIEW tREMOVE string_expression {add_command(cWINCLEAR,NULL);}
   | tBOXVIEW coordinates to coordinates ',' string_expression ',' string_expression ',' expression ',' string_expression  {add_command(cBOXVIEW,NULL);}
   | tBOXVIEW tSET string_expression ',' string_expression  ',' string_expression {add_command(cBOXVIEWSET,NULL);}
@@ -281,6 +286,8 @@ statement:  /* empty */
   | tDRAW tARC coordinates ',' expression ',' expression ',' expression ',' expression ',' string_expression {add_command(cARC,NULL);}
   | tDRAW tCURVE coordinates ',' coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cCURVE,NULL);}
   | tDRAW tTRIANGLE coordinates ',' coordinates ',' coordinates ',' string_expression {add_command(cTRIANGLE,NULL);} 
+  | tDRAW tPOLYGON coordinates ',' coordinates ',' coordinates ',' coordinates ','  string_expression {add_command(cPOLYGON,NULL);} 
+  | tDRAW tPOLYGON2  '(' arrayref  ',' string_expression  ')' {add_command(cPOLYGON2,NULL);} 
   | tLOUDNESS tSET expression {add_command(cLOUDNESS,NULL);}
   | tSLIDER coordinates to coordinates ',' string_expression ',' string_expression ',' expression ',' expression ',' string_expression {add_command(cSLIDER1,NULL);}
   | tSLIDER coordinates to coordinates ',' string_expression ',' string_expression ',' expression ',' expression ',' string_expression ',' string_expression {add_command(cSLIDER2,NULL);}
@@ -342,6 +349,7 @@ statement:  /* empty */
   | tCOLUMNBOX tCOLUMN string_expression ',' string_expression ',' expression ',' expression ',' expression ',' expression ',' string_expression {add_command(cFILEBOXADD2,NULL);}
   | tCOLUMNBOX tCLEAR string_expression {add_command(cFILEBOXCLEAR,NULL);}
   | tCOLUMNBOX tREMOVE string_expression ',' expression {add_command(cCOLUMNBOXREMOVE,NULL);}
+  | tCOLUMNBOX tREMOVE tCOLUMN string_expression ',' expression {add_command(cCOLUMNBOXREMOVECOLUMN,NULL);}
   | tCOLUMNBOX tSELECT string_expression ',' expression {add_command(cCOLUMNBOXSELECT,NULL);}
   | tCOLUMNBOX tCOLOUR string_expression ',' string_expression ',' expression ',' expression ',' expression {add_command(cCOLUMNBOXCOLOR,NULL);}
   | tCALENDAR coordinates ',' string_expression ',' string_expression ',' string_expression ',' string_expression {add_command(cCALENDAR,NULL);}
@@ -356,6 +364,9 @@ statement:  /* empty */
   | tSUBMENU string_expression ',' string_expression ',' string_expression ',' string_expression ',' string_expression {add_command(cSUBMENU1,NULL);}
   | tSUBMENU tSET string_expression ',' string_expression ',' expression ',' string_expression {add_command(cSUBMENU2,NULL);}
   | tSUBMENU tSET string_expression ',' string_expression ',' string_expression ',' string_expression ',' string_expression {add_command(cSUBMENU3,NULL);}
+  | tSUBSUBMENU string_expression ',' string_expression ',' string_expression ',' string_expression  ',' string_expression ',' string_expression {add_command(cSUBSUBMENU,NULL);}
+  | tSUBSUBMENU tSET string_expression ',' string_expression ',' string_expression ',' string_expression ',' string_expression ',' string_expression {add_command(cSUBSUBMENU3,NULL);}
+  | tSUBSUBMENU tSET string_expression ',' string_expression ',' string_expression',' expression ',' string_expression {add_command(cSUBSUBMENU2,NULL);}
   | tSTATUSBAR coordinates to coordinates ',' string_expression ',' string_expression ',' string_expression ',' string_expression {add_command(cSTATUSBAR,NULL);}
   | tSTATUSBAR tSET string_expression ',' string_expression ',' string_expression ',' expression {add_command(cSTATUSBARSET,NULL);}
   | tSTATUSBAR tSET string_expression ',' expression ',' expression ',' expression {add_command(cSTATUSBARSET3,NULL);}
@@ -503,6 +514,12 @@ string_function: tLEFT '(' string_expression ',' expression ')' {create_function
   | tSTR_REPLACE '(' string_expression ',' string_expression ',' string_expression ')' {create_function(fSTR_REPLACE);}
   | tLANGUAGEAVAILABLE  '(' string_expression ')' {create_function(fAVAILABLELANGUAGE);}
   | tTIMEZONESAVAILABLE {create_function(fAVAILABLETIMEZONES);}
+  | tBFILESIZE '(' string_expression ')' {create_function(fBFILESIZE);}
+  | tBDIRSIZE '(' string_expression ')' {create_function(fBDIRSIZE);}
+  | tBFILECOPY '(' string_expression ','  string_expression ')' {create_function(fBFILECOPY);}
+  | tBFILELINK '(' string_expression ','  string_expression ')' {create_function(fBFILELINK);}
+  | tBFILEDIREXISTS '(' string_expression ')' {create_function(fBFILE_DIR_EXISTS);}
+  | tBFILEDELETE '(' string_expression ')' {create_function(fBFILE_DELETE);}
   ;
 
 assignment: tSYMBOL tEQU expression {add_command(cPOPDBLSYM,dotify($1,FALSE));} 
@@ -602,7 +619,8 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   | tMOUSEB '(' ')' {create_pushstr("");create_function(fMOUSEB);}
   | tMOUSEMOD '(' string_expression ')' {create_function(fMOUSEMOD);}
   | tMOUSEMOD {create_pushstr("");create_function(fMOUSEMOD);}
-  | tMOUSEMOD '(' ')' {create_pushstr("");create_function(fMOUSEMOD);}*/
+  | tMOUSEMOD '(' ')' {create_pushstr("");create_function(fMOUSEMOD);}
+*/
   | tAND '(' expression ',' expression ')' {create_function(fAND);}
   | tOR '(' expression ',' expression ')' {create_function(fOR);}
   | tEOR '(' expression ',' expression ')' {create_function(fEOR);}
@@ -626,6 +644,7 @@ function: tSIN '(' expression ')' {create_function(fSIN);}
   // | tISMOUSEIN '(' string_expression ')' {create_function(fISMOUSEIN);}
   | tISMOUSEIN string_expression  {create_function(fISMOUSEIN);}
   | tCOLUMNBOX tCOUNT string_expression {create_function(fCOLUMNBOXCOUNT);}
+  | tCOLUMNBOX tCOUNT tCOLUMN string_expression {create_function(fCOLUMNBOXCOUNTCOLUMNS);}
   | tWINDOW tGETNUM string_expression ',' string_expression {create_function(fWINDOWGET);}
   | tVIEW tGETNUM string_expression ',' string_expression {create_function(fVIEWGET);}
   | tALERT string_expression ',' string_expression ',' string_expression ',' string_expression ',' string_expression {create_function(fALERT);}
