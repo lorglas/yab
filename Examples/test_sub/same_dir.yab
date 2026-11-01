@@ -1,0 +1,5 @@
+export sub same_dir$()
+//print "SameDir"
+text$= "SameDir77"
+return text$
+end sub

@@ -528,64 +528,135 @@ FILE *open_library(char *name,char **fullreturn,int without) /* search and open 
 {
   static char full[200];
   char unquoted[200];
+  char maindir[200];
+  char subsdir[200];
   char *p;
+  char *slash;
   FILE *lib;
   int i;
-  char *trail;
 
   if (fullreturn) *fullreturn=full;
 
+  /* remove leading whitespace/quotes */
   for(p=name;strchr(" \"'`",*p);p++) if (!*p) break;
-  strncpy(unquoted,p,200);
-  for(;!strchr(" \"'`",*p);p++) if (!*p) break;
-  if (*p) unquoted[p-name-2]='\0';
+
+  strncpy(unquoted,p,199);
+  unquoted[199]='\0';
+
+  /* remove trailing whitespace/quotes */
+  p=unquoted+strlen(unquoted);
+  while (p>unquoted && strchr(" \"'`",p[-1])) p--;
+  *p='\0';
+
   name=unquoted;
+
   if (strchr(name,'.')) {
     sprintf(string,"library name '%s' contains '.'",name);
     error(ERROR,string);
     return NULL;
   }
+
   if (!strcmp(name,"main")) {
     if (is_bound) return NULL;
     error(ERROR,"invalid library name 'main'");
     return NULL;
   }
 
-  /* search local */
-  trail=".yab";
+  /*
+     Determine the directory of the actual main program.
+
+     libfile_stack[0]->l contains the real filename passed to yab,
+     e.g.
+
+       foo.yab
+       programs/foo.yab
+       /boot/home/user/programs/foo.yab
+  */
+  strcpy(maindir,libfile_stack[0]->l);
+
+  slash=strrchr(maindir,'/');
+#ifdef WINDOWS
+  {
+    char *backslash=strrchr(maindir,'\\');
+    if (backslash && (!slash || backslash>slash))
+      slash=backslash;
+  }
+#endif
+
+  if (slash) {
+    *(slash+1)='\0';
+  } else {
+    strcpy(maindir,"./");
+  }
+
+  /*
+     1. Search beside the main program
+  */
   for(i=0;i<2;i++) {
-    strcpy(full,name);
-    if (!strchr(full,'.')) strcat(full,trail);
+    strcpy(full,maindir);
+    strcat(full,name);
+
+    if (i==0)
+      strcat(full,".yab");
+
     lib=fopen(full,"r");
     if (lib) return lib;
-    trail="";
+
     if (!without) break;
   }
-  
-  /* search in global location */
-  trail=".yab";
+
+  /*
+     2. Search in <main-directory>/subs/
+  */
+  strcpy(subsdir,maindir);
+  strcat(subsdir,"subs/");
+
+  for(i=0;i<2;i++) {
+    strcpy(full,subsdir);
+    strcat(full,name);
+
+    if (i==0)
+      strcat(full,".yab");
+
+    lib=fopen(full,"r");
+    if (lib) return lib;
+
+    if (!without) break;
+  }
+
+  /*
+     3. Search in the configured global library directory
+  */
   for(i=0;i<2;i++) {
     strcpy(full,library_path);
+
     if (full[0] && !strchr("\\/",full[strlen(full)-1])) {
 #ifdef UNIX
       strcat(full,"/");
 #else
       strcat(full,"\\");
 #endif
-    }     
+    }
+
     strcat(full,name);
-    if (!strchr(full,'.')) strcat(full,trail);
+
+    if (i==0)
+      strcat(full,".yab");
+
     lib=fopen(full,"r");
     if (lib) return lib;
-    trail="";
+
     if (!without) break;
   }
 
-  sprintf(string,"couldn't open library '%s'",full);
+  sprintf(string,
+          "couldn't open library '%s' "
+          "(searched main directory, subs and library path)",
+          name);
   error(ERROR,string);
+
   return NULL;
 }
-
 
 void switchlib(void) /* switch library, called by bison */
 {

@@ -1,0 +1,5 @@
+export sub libs_dir$()
+print "libsDir"
+text$= "libsDir"
+return text$
+end sub

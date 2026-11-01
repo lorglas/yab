@@ -1,0 +1,5 @@
+export sub subs_dir$()
+print "SubDir Main"
+text$= "SubDir Main"
+return text$
+end sub

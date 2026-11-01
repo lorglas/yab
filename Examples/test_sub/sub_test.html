@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>YAB – Libraries und Suchpfade</title>
+</head>
+<body>
+
+<h1>Libraries und Suchpfade</h1>
+
+<p>
+  Mit <code>IMPORT</code> können externe YAB-Dateien als Libraries in ein
+  Programm eingebunden werden.
+</p>
+
+<h2>Suche nach Libraries</h2>
+
+<p>
+  Wird eine Library mit <code>IMPORT</code> eingebunden, sucht YAB die
+  entsprechende Datei in einer festgelegten Reihenfolge.
+</p>
+
+<ol>
+  <li>im Verzeichnis des Hauptprogramms</li>
+  <li>im Unterverzeichnis <code>subs</code> des Hauptprogramms</li>
+  <li>im mit <code>-librarypath</code> angegebenen Library-Verzeichnis</li>
+</ol>
+
+<p>
+  Die Library wird verwendet, sobald sie an einer dieser Stellen gefunden
+  wurde. Weitere Verzeichnisse werden danach nicht mehr durchsucht.
+</p>
+
+<h2>Beispiel</h2>
+
+<p>Ein Programm kann beispielsweise folgende Struktur haben:</p>
+
+<pre>
+meinprogramm.yab
+meine_lib.yab
+subs/
+    funktionen.yab
+    grafik.yab
+</pre>
+
+<p>
+  Die Libraries können dann direkt eingebunden werden:
+</p>
+
+<pre>
+import meine_lib
+import funktionen
+import grafik
+</pre>
+
+<p>
+  Bei <code>import funktionen</code> sucht YAB zunächst im Verzeichnis des
+  Hauptprogramms und anschließend im Unterverzeichnis <code>subs</code>.
+</p>
+
+<h2>Libraries über -librarypath</h2>
+
+<p>
+  Mit der Option <code>-librarypath</code> kann ein zusätzliches Verzeichnis
+  angegeben werden, in dem YAB nach Libraries sucht, die an den beiden
+  lokalen Stellen nicht gefunden wurden.
+</p>
+
+<pre>
+yab -librarypath /boot/home/libs meinprogramm.yab
+</pre>
+
+<p>
+  Befindet sich beispielsweise die Library <code>gedcom.yab</code> in
+  <code>/boot/home/libs</code>, kann sie mit
+  <code>IMPORT</code> eingebunden werden:
+</p>
+
+<pre>
+import gedcom
+</pre>
+
+<h2>Mehrere Libraries mit gleichem Namen</h2>
+
+<p>
+  Eine Library kann an mehreren Suchorten vorhanden sein. Das ist kein
+  Fehler.
+</p>
+
+<p>Beispielsweise:</p>
+
+<pre>
+meinprogramm.yab
+test.yab
+subs/
+    test.yab
+
+/boot/home/libs/
+    test.yab
+</pre>
+
+<p>
+  Bei
+</p>
+
+<pre>
+import test
+</pre>
+
+<p>
+  verwendet YAB die erste gefundene Datei. Die Suchreihenfolge ist:
+</p>
+
+<pre>
+1. Verzeichnis des Hauptprogramms
+2. subs/
+3. -librarypath
+</pre>
+
+<p>
+  Die Libraries an den nachfolgenden Suchorten werden nicht zusätzlich
+  eingebunden.
+</p>
+
+<h2>Doppelte Imports</h2>
+
+<p>
+  Wird dieselbe Library innerhalb eines Programms mehrfach importiert,
+  erkennt YAB, dass die Library bereits geladen wurde.
+</p>
+
+<pre>
+import test
+import test
+</pre>
+
+<p>
+  Die Library wird dadurch nicht mehrfach geladen.
+</p>
+
+<h2>BIND</h2>
+
+<p>
+  Die gefundenen und eingebundenen Libraries können weiterhin mit der
+  vorhandenen <code>BIND</code>-Funktion in ein gebundenes Programm
+  übernommen werden.
+</p>
+
+<h2>Hinweis zu -librarypath</h2>
+
+<p>
+  Die Option <code>-librarypath</code> bezeichnet weiterhin ein einzelnes
+  zusätzliches Verzeichnis.
+</p>
+
+<pre>
+-librarypath PATH
+</pre>
+
+<p>
+  Standardmäßig wird dafür das konfigurierte YAB-Library-Verzeichnis
+  verwendet:
+</p>
+
+<pre>
+/boot/home/config/settings/yab
+</pre>
+
+</body>
+</html>
