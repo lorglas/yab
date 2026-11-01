@@ -4,5 +4,5 @@ import home_dir
 //import meine_libs_dir
 print same_dir$()
 print subs_dir$()
-//print home_dir$()
-print meine_libs_dir$()
+print home_dir$()
+//print meine_libs_dir$()
